@@ -35,12 +35,15 @@ class CBO(ParticleDynamic):
 
     """
 
-    def __init__(self,x, f, noise,
+    def __init__(self, x, f, noise,
                  batch_eval: bool = False,
                  alpha: float = 1.0, dt: float = 0.1, sigma: float =1.0, 
-                 lamda: float =1.0) -> None:
+                 lamda: float = 1.0,
+                 correction: str = None,
+                 correction_eps: float = 1e-3) -> None:
         
-        super(CBO, self).__init__(x, f, batch_eval=batch_eval)
+        super(CBO, self).__init__(x, f, batch_eval=batch_eval, 
+                                  correction=correction, correction_eps = correction_eps)
         
         # additional parameters
         self.dt = dt
@@ -48,6 +51,7 @@ class CBO(ParticleDynamic):
         self.sigma = sigma
         self.lamda = lamda
 
+        # set noise model
         self.noise = noise
         
         # compute mean for init particles
@@ -55,7 +59,7 @@ class CBO(ParticleDynamic):
         self.m_diff = self.x - self.m_alpha
         
     
-    def step(self, t: float =0.0):
+    def step(self, t: float = 0.0) -> None:
         r"""Performs one step of the CBO algorithm.
 
         Parameters
@@ -67,14 +71,14 @@ class CBO(ParticleDynamic):
         """
         
         for i in range(self.N):
-            self.update_mean()
-            
             x_old = self.x.copy()
+            self.update_mean()      
             self.m_diff = self.x - self.m_alpha
-            
 
+            step_correction = self.correction(self.energy - self.f(self.m_alpha))
+            
             self.x = self.x -\
-                     self.lamda * self.dt * self.m_diff +\
+                     self.lamda * self.dt * self.m_diff * step_correction[:, None] +\
                      self.sigma * self.noise(self.m_diff)
 
             self.update_diff = np.linalg.norm(self.x - x_old)
