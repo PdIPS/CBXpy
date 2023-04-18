@@ -25,7 +25,6 @@ Classes
    objectives.Rosenbrock
    objectives.three_hump_camel
    objectives.McCormick
-
    objectives.Himmelblau
    objectives.Rastrigin
    objectives.Rastrigin_multimodal
