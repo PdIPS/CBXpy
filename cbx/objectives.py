@@ -81,7 +81,7 @@ class three_hump_camel(objective):
         ax1 = fig.add_subplot(122, projection='3d')	
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
-        ax0.plot(f.minima[:, 0], f.minima[:, 1], 'ro', markersize=5)
+        ax0.plot(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', markersize=5)
         ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
@@ -147,8 +147,8 @@ class McCormick(objective):
         ax1 = fig.add_subplot(122, projection='3d')	
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
-        ax0.plot(-0.54719,-1.54719, 'ro', markersize=10)
-        ax0.plot(1.54719, 0.54719, 'ro', markersize=10)
+        ax0.plot(-0.54719,-1.54719, color='orange', marker='x', markersize=10)
+        ax0.plot(1.54719, 0.54719, color='orange', marker='x', markersize=10)
         ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
@@ -215,7 +215,7 @@ class Rosenbrock(objective):
         ax1 = fig.add_subplot(122, projection='3d')	
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
-        ax0.plot(1,1, 'ro', markersize=10)
+        ax0.plot(1,1, color='orange', marker='x', markersize=10)
         ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
@@ -294,7 +294,7 @@ class Himmelblau(objective):
         ax1 = fig.add_subplot(122, projection='3d')	
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
-        ax0.plot(f.minima[:, 0], f.minima[:, 1], 'ro', markersize=5)
+        ax0.scatter(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', s=15)
         ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
@@ -372,7 +372,7 @@ class Rastrigin(objective):
         ax1 = fig.add_subplot(122, projection='3d')	
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
-        ax0.plot(f.minima[:, 0], f.minima[:, 1], 'ro', markersize=5)
+        ax0.plot(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', markersize=5)
         ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
@@ -495,7 +495,7 @@ class Ackley():
         ax1 = fig.add_subplot(122, projection='3d')	
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
-        ax0.plot(f.minima[:, 0], f.minima[:, 1], 'ro', markersize=5)
+        ax0.plot(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', markersize=5)
         ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
@@ -706,7 +706,7 @@ class Bukin6(objective):
         ax1 = fig.add_subplot(122, projection='3d')	
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
-        ax0.plot(f.minima[:, 0], f.minima[:, 1], 'ro', markersize=5)
+        ax0.plot(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', markersize=5)
         ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
@@ -717,7 +717,7 @@ class Bukin6(objective):
 
     """
     def __init__(self,):
-        self.minima = np.array([[-10, 1]])
+        self.minima = np.array([[0, 0]])
     
     def __call__(self, x):
         return 100 * np.sqrt(np.abs(x[...,1] - 0.01 * x[...,0]**2)) + 0.01 * np.abs(x[...,0] + 10)
@@ -784,7 +784,7 @@ class cross_in_tray():
         ax1 = fig.add_subplot(122, projection='3d')	
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
-        ax0.plot(f.minima[:, 0], f.minima[:, 1], 'ro', markersize=5)
+        ax0.scatter(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', s=20)
         ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
@@ -859,7 +859,7 @@ class Easom():
         ax1 = fig.add_subplot(122, projection='3d')	
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
-        ax0.plot(f.minima[:, 0], f.minima[:, 1], 'ro', markersize=5)
+        ax0.plot(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', markersize=5)
         ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
@@ -936,7 +936,7 @@ class drop_wave(objective):
         ax1 = fig.add_subplot(122, projection='3d')	
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
-        ax0.plot(f.minima[:, 0], f.minima[:, 1], 'ro', markersize=5)
+        ax0.plot(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', markersize=5)
         ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet) 
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
@@ -1014,7 +1014,7 @@ class Holder_table(objective):
         ax1 = fig.add_subplot(122, projection='3d')	
         cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
         ax0.contour(cs, colors='orange', alpha=0.2)
-        ax0.plot(f.minima[:, 0], f.minima[:, 1], 'ro', markersize=5)
+        ax0.scatter(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', s=20)
         ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet) 
         ax0.set_title('Contour plot')
         ax1.set_title('Surface plot')
@@ -1033,4 +1033,240 @@ class Holder_table(objective):
         return -np.abs(np.sin(x[...,0]) * np.cos(x[...,1]) * np.exp(np.abs(1 - np.sqrt(x[...,0]**2 + x[...,1]**2) / np.pi)))
 
 
+class snowflake():
+    r"""Snowflake
+
+    The snowflake function is a function with many local minima and six global minima [1]_. Using polar coordinates, it is as
+
+
+
+    .. math::
+    
+        f(r, \phi) = \min\{f_0(r,\phi), f_1(r,\phi), f_2(r,\phi), 0.8\},
+
+
+    where for :math:`i\in\{0,1,2\}` we define
+
+    .. math::
+
+        f_i(r,\phi) = r^8 - r^4 + \sqrt{\left|\cos\left(\phi + i\cdot \frac{\pi}{3}\right)\right|} \cdot r^{0.3}.
+
+        
+    This function was introduced to showcase the performance of the PolarCBO algorithm [2]_.
+    
+    Parameters
+    ----------
+    alpha : float
+        Scales the input. Default is .5
+
+
+    Visualization
+    -------------
+    
+    .. plot::
+
+        import matplotlib.pyplot as plt
+        from matplotlib import cm
+        import numpy as np
+        from cbx.objectives import snowflake
+        fig = plt.figure(figsize=(15,5))
+        x_min = -2.5
+        x_max =  2.5
+        y_min = -2.5
+        y_max =  2.5
+        f = snowflake()
+
+        num_pts_landscape = 100
+        xx = np.linspace(x_min, x_max, num_pts_landscape)
+        yy = np.linspace(y_min, y_max, num_pts_landscape)
+        XX, YY = np.meshgrid(xx,yy)
+        XXYY = np.stack((XX.T,YY.T)).T
+        Z = np.zeros((num_pts_landscape,num_pts_landscape, 2))
+        Z[:,:,0:2] = XXYY
+        ZZ = f(Z)
+
+        ax0 = fig.add_subplot(121)
+        ax1 = fig.add_subplot(122, projection='3d')	
+        cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.get_cmap('Blues'))
+        ax0.contour(cs, colors='white', alpha=0.2)
+        ax0.scatter(f.minima[:, 0], f.minima[:, 1], color='blue', marker='x', s=20)
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.get_cmap('Blues')) 
+        ax0.set_title('Contour plot')
+        ax1.set_title('Surface plot')
+
+    
+    References
+    ----------
+    .. [1] https://github.com/TimRoith/polarcbo
+    .. [2] Bungert, L., Roith, T., Wacker, P. (2022): Polarized consensus-based dynamics for optimization and sampling. arXiv:2211.05238
+
+    """
+
+
+    def __init__(self, alpha=.5):
+        self.alpha = alpha
+        self.minima_polar = np.array([[ 1/self.alpha * 0.5**(1/4), np.pi/2],
+                                      [-1/self.alpha * 0.5**(1/4), np.pi/2], 
+                                      [ 1/self.alpha * 0.5**(1/4), np.pi/2 - np.pi/3], 
+                                      [-1/self.alpha * 0.5**(1/4), np.pi/2 - np.pi/3],
+                                      [ 1/self.alpha * 0.5**(1/4), np.pi/2 - 2*np.pi/3],
+                                      [-1/self.alpha * 0.5**(1/4), np.pi/2 - 2*np.pi/3]])
+        
+        self.minima = np.zeros((self.minima_polar.shape))
+        self.minima[:, 0] = self.minima_polar[:, 0] * np.cos(self.minima_polar[:, 1])
+        self.minima[:, 1] = self.minima_polar[:, 0] * np.sin(self.minima_polar[:, 1])
+
+    def __call__(self, x):
+        x = self.alpha * x 
+        r = np.linalg.norm(x,axis=-1)
+        phi = np.arctan2(x[...,1], x[...,0])
+        
+        res = np.ones((x.shape[:-1]))
+        for psi in [0, np.pi/3, np.pi*2/3]:
+            g = r**8 - r**4 + np.abs(np.cos(phi+psi))**0.5*r**0.3
+            res = np.minimum(res, g)
+        
+        res = np.minimum(res, .8)
+        return res
                 
+
+class eggholder:
+    r"""Eggholder
+
+    The Eggholder function is a function with many local minima and one global minimum [1]_. It is defined as
+
+    .. math::
+    
+        f(x,y) = -(y+47)\cdot \sin\left(\sqrt{\left|y+x/2+47\right|}\right) - x\cdot \sin\left(\sqrt{\left|x-y-47\right|}\right).
+
+        
+    
+    Parameters
+    ----------
+    None
+
+
+
+    Visualization
+    -------------
+    
+    .. plot::
+
+        import matplotlib.pyplot as plt
+        from matplotlib import cm
+        import numpy as np
+        from cbx.objectives import eggholder
+        fig = plt.figure(figsize=(15,5))
+        x_min = -600
+        x_max =  600
+        y_min = x_min
+        y_max = x_max
+        f = eggholder()
+
+        num_pts_landscape = 200
+        xx = np.linspace(x_min, x_max, num_pts_landscape)
+        yy = np.linspace(y_min, y_max, num_pts_landscape)
+        XX, YY = np.meshgrid(xx,yy)
+        XXYY = np.stack((XX.T,YY.T)).T
+        Z = np.zeros((num_pts_landscape,num_pts_landscape, 2))
+        Z[:,:,0:2] = XXYY
+        ZZ = f(Z)
+
+        ax0 = fig.add_subplot(121)
+        ax1 = fig.add_subplot(122, projection='3d')	
+        cs = ax0.contourf(XX,YY,ZZ,30, cmap=cm.jet)
+        ax0.contour(cs, colors='orange', alpha=0.2)
+        ax0.scatter(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', s=30)
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet) 
+        ax0.set_title('Contour plot')
+        ax1.set_title('Surface plot')
+
+    
+    References
+    ----------
+    .. [1] https://www.sfu.ca/~ssurjano/egg.html
+
+    """
+
+    def __init__(self):
+        self.minima = np.array([[512, 404.2319]])
+
+    def __call__(self, x):
+        return -(x[...,1] + 47) * np.sin(np.sqrt(np.abs(x[...,1] + x[...,0]/2 + 47))) - x[...,0] * np.sin(np.sqrt(np.abs(x[...,0] - (x[...,1] + 47))))
+    
+
+class Michalewicz:
+    r"""Michalewicz
+
+    Michalewicz function is a function with many local minima and one global minimum [1]_. It is defined as
+
+    .. math::
+    
+        f(x,y) = -\sum_{i=1}^d \sin(x_i)\cdot \left(\sin\left(\frac{i x_i^2}{\pi}\right)\right)^{2m},
+
+    where :math:`d` denotes the dimension and the parameter :math:`m` is ususally chosen as :math:`m=10`.
+
+        
+    
+    Parameters
+    ----------
+    None
+
+
+
+    Visualization
+    -------------
+    
+    .. plot::
+
+        import matplotlib.pyplot as plt
+        from matplotlib import cm
+        import numpy as np
+        from cbx.objectives import Michalewicz
+        fig = plt.figure(figsize=(15,5))
+        x_min = 0.
+        x_max =  4.
+        y_min = x_min
+        y_max = x_max
+        f = Michalewicz()
+
+        num_pts_landscape = 200
+        xx = np.linspace(x_min, x_max, num_pts_landscape)
+        yy = np.linspace(y_min, y_max, num_pts_landscape)
+        XX, YY = np.meshgrid(xx,yy)
+        XXYY = np.stack((XX.T,YY.T)).T
+        Z = np.zeros((num_pts_landscape,num_pts_landscape, 2))
+        Z[:,:,0:2] = XXYY
+        ZZ = f(Z)
+
+        ax0 = fig.add_subplot(121)
+        ax1 = fig.add_subplot(122, projection='3d')	
+        cs = ax0.contourf(XX,YY,ZZ,30, cmap=cm.jet)
+        ax0.contour(cs, colors='orange', alpha=0.2)
+        ax0.scatter(f.minima[:, 0], f.minima[:, 1], color='orange', marker='x', s=30)
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet) 
+        ax0.set_title('Contour plot')
+        ax1.set_title('Surface plot')
+
+    
+    References
+    ----------
+    .. [1] https://www.sfu.ca/~ssurjano/michal.html
+
+    """
+        
+    def __init__(self, d=2, m=10):
+        self.d = d
+        self.m = m
+        
+        if d == 2:
+            self.minima = np.array([[2.2029, 1.5708]])
+        else:
+            self.minima = None
+
+    def __call__(self, x):
+        arr_shape = np.ones(x.ndim, dtype=int)
+        arr_shape[-1] = x.shape[-1]
+        arr = np.arange(x.shape[-1]).reshape(arr_shape) + 1
+        return -np.sum(np.sin(x) * np.sin(arr * (x**2)/np.pi)**(2*self.m), axis=-1)
+

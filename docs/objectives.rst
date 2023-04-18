@@ -21,10 +21,16 @@ Classes
    objectives.cross_in_tray
    objectives.drop_wave
    objectives.Easom
-   objectives.Holder_table
-   objectives.Rosenbrock
-   objectives.three_hump_camel
-   objectives.McCormick
+   objectives.eggholder
    objectives.Himmelblau
+   objectives.Holder_table
+   objectives.McCormick
+   objectives.Michalewicz
    objectives.Rastrigin
    objectives.Rastrigin_multimodal
+   objectives.Rosenbrock
+   objectives.snowflake
+   objectives.three_hump_camel
+   
+   
+   
