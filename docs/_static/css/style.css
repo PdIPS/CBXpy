@@ -1,0 +1,83 @@
+
+.wy-side-nav-search {
+    background-color: #4883b4;
+}
+
+.wy-nav-side {
+    background: #d9e8f5;
+    color: #4883b4;
+}
+
+.wy-menu-vertical a {
+    line-height: 18px;
+    padding: 0.4045em 1.618em;
+    display: block;
+    position: relative;
+    font-size: 90%;
+    color: #4883b4;
+}
+
+.wy-table-responsive table {
+    border: none;
+    border-color: #ffffff !important;
+    /* table-layout: fixed; */
+}
+
+.wy-table-responsive table tbody td .pre {
+    background: #ffffff;
+    color: #4883b4;
+    font-size: 87.5%;
+}
+
+.wy-table-responsive table tbody .row-odd {
+    background-color: #d9e8f5;
+}
+
+.wy-table-responsive table thead tr {
+    border-bottom: 2px solid #ffffff;
+}
+
+.wy-table-responsive table thead th {
+    line-height: 1.75rem;
+    padding-left: 0.9375rem;
+    padding-right: 0.9375rem;
+}
+
+.wy-table-responsive table tbody td {
+    color: #4883b4;
+    white-space: normal;
+    padding: 0.9375rem;
+    font-size: 1rem;
+    line-height: 1.375rem;
+}
+
+.wy-table-responsive table tbody td .pre {
+    background: #ffffff;
+    color: #4883b4;
+    font-size: 100%;
+}
+.wy-table-responsive table tbody td code {
+    font-size: 100%;
+}
+
+
+code.literal {
+    color: #4883b4 !important;
+    background-color: #fbfbfb !important;
+}
+
+.wy-nav-content {
+    max-width: none;
+}
+
+/* override table width restrictions */
+.wy-table-responsive table td, .wy-table-responsive table th {
+    /* !important prevents the common CSS stylesheets from
+       overriding this as on RTD they are loaded after this stylesheet */
+    white-space: normal !important;
+}
+
+
+.wy-table-responsive {
+    overflow: visible !important;
+}

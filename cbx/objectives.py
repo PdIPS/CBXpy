@@ -35,8 +35,9 @@ class objective(ABC):
 class three_hump_camel(objective):
     """Three-hump camel function
 
-    Three-hump camel function is a multimodal function with 2 global minima at
-    :math:`(0,0)` and :math:`(0,0)`. The function is defined as
+
+    Three-hump camel function is a multimodal function with a global minimum at
+    :math:`(0,0)`. The function is defined as
 
     .. math::
 
@@ -45,15 +46,49 @@ class three_hump_camel(objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from polarcbo.objectives import three_hump_camel
+    >>> from cbx.objectives import three_hump_camel
     >>> x = np.array([[1,2], [3,4], [5,6.]])
     >>> obj = three_hump_camel()
     >>> obj(x)
     array([   7.11666667,   82.45      , 2063.91666667])
+    
+    Visualization
+    -------------
+
+    .. plot::
+
+        import matplotlib.pyplot as plt
+        from matplotlib import cm
+        import numpy as np
+        from cbx.objectives import three_hump_camel
+        fig = plt.figure(figsize=(15,5))
+        x_min = -2.
+        x_max =  2.
+        y_min = -2.
+        y_max =  2.
+        f = three_hump_camel()
+
+        num_pts_landscape = 100
+        xx = np.linspace(x_min, x_max, num_pts_landscape)
+        yy = np.linspace(y_min, y_max, num_pts_landscape)
+        XX, YY = np.meshgrid(xx,yy)
+        XXYY = np.stack((XX.T,YY.T)).T
+        Z = np.zeros((num_pts_landscape,num_pts_landscape, 2))
+        Z[:,:,0:2] = XXYY
+        ZZ = f(Z)
+
+        ax0 = fig.add_subplot(121)
+        ax1 = fig.add_subplot(122, projection='3d')	
+        cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
+        ax0.contour(cs, colors='orange', alpha=0.2)
+        ax0.plot(0, 0, 'ro', markersize=10)
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
+        ax0.set_title('Contour plot')
+        ax1.set_title('Surface plot')
     """
 
     def __call__(self, x):
-        return 2*x[:,0]**2 - 1.05 * x[:,0]**4 + (1/6) * x[:,0]**6 + x[:,0]*x[:,1] + x[:,1]**2
+        return 2*x[..., 0]**2 - 1.05 * x[..., 0]**4 + (1/6) * x[..., 0]**6 + x[..., 0]*x[..., 1] + x[..., 1]**2
 
 
 
@@ -74,23 +109,56 @@ class McCormick(objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from polarcbo.objectives import McCormick
+    >>> from cbx.objectives import McCormick
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = McCormick()
     >>> f(x)
     array([5.64112001, 8.1569866 , 8.50000979])
 
+    Visualization
+    -------------
+
+    .. plot::
+
+        import matplotlib.pyplot as plt
+        from matplotlib import cm
+        import numpy as np
+        from cbx.objectives import McCormick
+        fig = plt.figure(figsize=(15,5))
+        x_min = -2.
+        x_max = 3.
+        y_min = -3
+        y_max = 4
+        f = McCormick()
+
+        num_pts_landscape = 100
+        xx = np.linspace(x_min, x_max, num_pts_landscape)
+        yy = np.linspace(y_min, y_max, num_pts_landscape)
+        XX, YY = np.meshgrid(xx,yy)
+        XXYY = np.stack((XX.T,YY.T)).T
+        Z = np.zeros((num_pts_landscape,num_pts_landscape, 2))
+        Z[:,:,0:2] = XXYY
+        ZZ = f(Z)
+
+        ax0 = fig.add_subplot(121)
+        ax1 = fig.add_subplot(122, projection='3d')	
+        cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
+        ax0.contour(cs, colors='orange', alpha=0.2)
+        ax0.plot(-0.54719,-1.54719, 'ro', markersize=10)
+        ax0.plot(1.54719, 0.54719, 'ro', markersize=10)
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
+        ax0.set_title('Contour plot')
+        ax1.set_title('Surface plot')
     """
 
     def __call__(self, x):
-        return np.sin(x[:,0] + x[:,1]) + (x[:,0] - x[:,1])**2 - 1.5 * x[:,0] + 2.5*x[:,1] + 1
+        return np.sin(x[..., 0] + x[...,1]) + (x[...,0] - x[...,1])**2 - 1.5 * x[...,0] + 2.5*x[...,1] + 1
 
 
 class Rosenbrock(objective):
     """Rosenbrock's function
 
-    Rosenbrock's function is a multimodal function with 4 global minima at
-    :math:`(1,1)`, :math:`(1,1)`, :math:`(1,1)`, and
+    Rosenbrock's function is a multimodal function with a global minimum at
     :math:`(1,1)`. The function is defined as
 
     .. math::
@@ -109,11 +177,45 @@ class Rosenbrock(objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from polarcbo.objectives import Rosenbrock
+    >>> from cbx.objectives import Rosenbrock
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Rosenbrock()
     >>> f(x)
     array([  0.,  76.,  76.])
+
+    Visualization
+    -------------
+
+    .. plot::
+
+        import matplotlib.pyplot as plt
+        from matplotlib import cm
+        import numpy as np
+        from cbx.objectives import Rosenbrock
+        fig = plt.figure(figsize=(15,5))
+        x_min = -2.
+        x_max = 2.
+        y_min = -1.
+        y_max = 3.
+        f = Rosenbrock()
+
+        num_pts_landscape = 150
+        xx = np.linspace(x_min, x_max, num_pts_landscape)
+        yy = np.linspace(y_min, y_max, num_pts_landscape)
+        XX, YY = np.meshgrid(xx,yy)
+        XXYY = np.stack((XX.T,YY.T)).T
+        Z = np.zeros((num_pts_landscape,num_pts_landscape, 2))
+        Z[:,:,0:2] = XXYY
+        ZZ = f(Z)
+
+        ax0 = fig.add_subplot(121)
+        ax1 = fig.add_subplot(122, projection='3d')	
+        cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
+        ax0.contour(cs, colors='orange', alpha=0.2)
+        ax0.plot(1,1, 'ro', markersize=10)
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
+        ax0.set_title('Contour plot')
+        ax1.set_title('Surface plot')
 
     """
 
@@ -122,16 +224,14 @@ class Rosenbrock(objective):
         self.b = b
 
     def __call__(self, x):
-        return (self.a - x[:,0])**2 + self.b* (x[:,1] - x[:,0]**2)**2
+        return (self.a - x[..., 0])**2 + self.b* (x[..., 1] - x[..., 0]**2)**2
 
 
 
 class Himmelblau(objective):
     """Himmelblau's function
 
-    Himmelblau's function is a multimodal function with 4 global minima at
-    :math:`(3,2)`, :math:`(-2.805118,3.131312)`, :math:`(-3.779310,-3.283186)`, and
-    :math:`(3.584428,-1.848126)`. The function is defined as 
+    Himmelblau's function is a multimodal function with. The function is defined as 
 
     .. math::
 
@@ -144,10 +244,19 @@ class Himmelblau(objective):
     factor : float, optional    
         The factor by which the input is multiplied. The default is 1.0.
 
+        
+    Global minima
+    -------------
+    - :math:`f(x,y) = 0` at :math:`(x,y) = (3,2)`
+    - :math:`f(x,y) = 0` at :math:`(x,y) = (-2.805118,3.131312)`
+    - :math:`f(x,y) = 0` at :math:`(x,y) = (-3.779310,-3.283186)`
+    - :math:`f(x,y) = 0` at :math:`(x,y) = (3.584428,-1.848126)`
+
+
     Examples
     --------
     >>> import numpy as np
-    >>> from polarcbo.objectives import Himmelblau
+    >>> from cbx.objectives import Himmelblau
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Himmelblau()
     >>> f(x)
@@ -190,11 +299,45 @@ class Rastrigin(objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from polarcbo.objectives import Rastrigin
+    >>> from cbx.objectives import Rastrigin
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Rastrigin()
     >>> f(x)
     array([  68.,  148., 1556.])
+
+    Visualization
+    -------------
+
+    .. plot::
+
+        import matplotlib.pyplot as plt
+        from matplotlib import cm
+        import numpy as np
+        from cbx.objectives import Rastrigin
+        fig = plt.figure(figsize=(15,5))
+        x_min = -2.
+        x_max =  2.
+        y_min = -2.
+        y_max =  2.
+        f = Rastrigin()
+
+        num_pts_landscape = 100
+        xx = np.linspace(x_min, x_max, num_pts_landscape)
+        yy = np.linspace(y_min, y_max, num_pts_landscape)
+        XX, YY = np.meshgrid(xx,yy)
+        XXYY = np.stack((XX.T,YY.T)).T
+        Z = np.zeros((num_pts_landscape,num_pts_landscape, 2))
+        Z[:,:,0:2] = XXYY
+        ZZ = f(Z)
+
+        ax0 = fig.add_subplot(121)
+        ax1 = fig.add_subplot(122, projection='3d')	
+        cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
+        ax0.contour(cs, colors='orange', alpha=0.2)
+        ax0.plot(0, 0, 'ro', markersize=10)
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
+        ax0.set_title('Contour plot')
+        ax1.set_title('Surface plot')
 
     """
 
@@ -226,7 +369,7 @@ class Rastrigin_multimodal():
     Examples
     --------
     >>> import numpy as np
-    >>> from polarcbo.objectives import Rastrigin_multimodal
+    >>> from cbx.objectives import Rastrigin_multimodal
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> alpha = [2., 3.]
     >>> z = np.array([[2,3], [4,5]])
@@ -278,11 +421,45 @@ class Ackley():
     Examples
     --------
     >>> import numpy as np
-    >>> from polarcbo.objectives import Ackley
+    >>> from cbx.objectives import Ackley
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Ackley()
     >>> f(x)
     array([  68.,  148., 1556.])
+
+    Visualization
+    -------------
+
+    .. plot::
+
+        import matplotlib.pyplot as plt
+        from matplotlib import cm
+        import numpy as np
+        from cbx.objectives import Ackley
+        fig = plt.figure(figsize=(15,5))
+        x_min = -2.
+        x_max =  2.
+        y_min = -2.
+        y_max =  2.
+        f = Ackley()
+
+        num_pts_landscape = 100
+        xx = np.linspace(x_min, x_max, num_pts_landscape)
+        yy = np.linspace(y_min, y_max, num_pts_landscape)
+        XX, YY = np.meshgrid(xx,yy)
+        XXYY = np.stack((XX.T,YY.T)).T
+        Z = np.zeros((num_pts_landscape,num_pts_landscape, 2))
+        Z[:,:,0:2] = XXYY
+        ZZ = f(Z)
+
+        ax0 = fig.add_subplot(121)
+        ax1 = fig.add_subplot(122, projection='3d')	
+        cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
+        ax0.contour(cs, colors='orange', alpha=0.2)
+        ax0.plot(0, 0, 'ro', markersize=10)
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
+        ax0.set_title('Contour plot')
+        ax1.set_title('Surface plot')
     """
 
     def __init__(self, a=20., b=0.2, c=2*np.pi):
@@ -317,7 +494,7 @@ class Ackley_multimodal():
     Examples
     --------
     >>> import numpy as np
-    >>> from polarcbo.objectives import Ackley_multimodal
+    >>> from cbx.objectives import Ackley_multimodal
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> alpha = [2., 3.]
     >>> z = np.array([[2,3], [4,5]])
@@ -429,4 +606,391 @@ class Unimodal():
         ret = -np.log(0.5*np.exp( -(x[...,0]-a[0])**2/8 - (x[...,1]-a[1])**2/0.5 ))
         
         return ret
+    
+
+class Bukin6(objective):
+    r"""Bukin's function 6
+
+    Bunkin's sixth function is a function with many local minima and one global minimum. It is defined as
+    
+    .. math::
+
+        f(x,y) = 100\sqrt{|y - 0.01x^2|} + 0.01|x + 10|,
+
+    see, e.g., [1]_.
+
+    Parameters
+    ----------
+    None
+
+    
+    Global minima
+    -------------
+    - :math:`f(x,y) = 0` at :math:`(x,y) = (0,0)`
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from cbx.objectives import Ackley
+    >>> x = np.array([[1,2], [3,4], [5,6]])
+    >>> f = Ackley()
+    >>> f(x)
+    array([  68.,  148., 1556.])
+
+    Visualization
+    -------------
+
+    .. plot::
+
+        import matplotlib.pyplot as plt
+        from matplotlib import cm
+        import numpy as np
+        from cbx.objectives import Bukin6
+        fig = plt.figure(figsize=(15,5))
+        x_min = -2.
+        x_max =  2.
+        y_min = -2.
+        y_max =  2.
+        f = Bukin6()
+
+        num_pts_landscape = 100
+        xx = np.linspace(x_min, x_max, num_pts_landscape)
+        yy = np.linspace(y_min, y_max, num_pts_landscape)
+        XX, YY = np.meshgrid(xx,yy)
+        XXYY = np.stack((XX.T,YY.T)).T
+        Z = np.zeros((num_pts_landscape,num_pts_landscape, 2))
+        Z[:,:,0:2] = XXYY
+        ZZ = f(Z)
+
+        ax0 = fig.add_subplot(121)
+        ax1 = fig.add_subplot(122, projection='3d')	
+        cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
+        ax0.contour(cs, colors='orange', alpha=0.2)
+        ax0.plot(0, 0, 'ro', markersize=10)
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
+        ax0.set_title('Contour plot')
+        ax1.set_title('Surface plot')
+
+    References
+    ----------
+    .. [1] https://www.sfu.ca/~ssurjano/bukin6.html
+
+    """
+    def __init__(self,):
+        self.minima = np.array([[-10, 1]])
+    
+    def __call__(self, x):
+        return 100 * np.sqrt(np.abs(x[...,1] - 0.01 * x[...,0]**2)) + 0.01 * np.abs(x[...,0] + 10)
+    
+
+class cross_in_tray():
+    r"""Cross-In-Tray function
+
+    The Cross-In-Tray function is a function with many local minima and one global minimum [1]_. It is defined as
+    
+    .. math::
+
+        f(x,y) = -0.0001 \left( \left| \sin(x) \sin(y) \exp \left( \left| 100 - \frac{\sqrt{x^2 + y^2}}{\pi} \right| \right) + 1 \right| + 1 \right)^0.1,
+
+    see [1]_.
+
+    Parameters
+    ----------
+    None
+
+    
+    Global minima
+    -------------
+    - :math:`f(x,y) = -2.06261` at :math:`(x,y) = (1.34941, 1.34941)`
+    - :math:`f(x,y) = -2.06261` at :math:`(x,y) = (-1.34941, -1.34941)`
+    - :math:`f(x,y) = -2.06261` at :math:`(x,y) = (1.34941, -1.34941)`
+    - :math:`f(x,y) = -2.06261` at :math:`(x,y) = (-1.34941, 1.34941)`
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from cbx.objectives import cross_in_tray
+    >>> x = np.array([[1,2], [3,4], [5,6]])
+    >>> f = cross_in_tray()
+    >>> f(x)
+
+
+    Visualization
+    -------------
+
+    .. plot::
+
+        import matplotlib.pyplot as plt
+        from matplotlib import cm
+        import numpy as np
+        from cbx.objectives import cross_in_tray
+        fig = plt.figure(figsize=(15,5))
+        x_min = -2.
+        x_max =  2.
+        y_min = -2.
+        y_max =  2.
+        f = cross_in_tray()
+
+        num_pts_landscape = 100
+        xx = np.linspace(x_min, x_max, num_pts_landscape)
+        yy = np.linspace(y_min, y_max, num_pts_landscape)
+        XX, YY = np.meshgrid(xx,yy)
+        XXYY = np.stack((XX.T,YY.T)).T
+        Z = np.zeros((num_pts_landscape,num_pts_landscape, 2))
+        Z[:,:,0:2] = XXYY
+        ZZ = f(Z)
+
+        ax0 = fig.add_subplot(121)
+        ax1 = fig.add_subplot(122, projection='3d')	
+        cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
+        ax0.contour(cs, colors='orange', alpha=0.2)
+        ax0.plot(0, 0, 'ro', markersize=10)
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
+        ax0.set_title('Contour plot')
+        ax1.set_title('Surface plot')
+
+        
+    References
+    ----------
+    .. [1] https://www.sfu.ca/~ssurjano/crossit.html
+    """
+
+    def __init__(self):
+        self.minima = np.array([[1.34941, 1.34941], [-1.34941, 1.34941], [1.34941, -1.34941], [-1.34941, -1.34941]])
+
+    def __call__(self, x):
+        return -0.0001 * (np.abs(np.sin(x[...,0]) * np.sin(x[...,1]) * np.exp(np.abs(100 - np.sqrt(x[...,0]**2 + x[...,1]**2)/np.pi))) + 1)**0.1
+    
+
+class Easom():
+    r"""Easom
+
+    The Easom function is a function with many local minima and one global minimum [1]_. It is defined as
+    
+    .. math::
+
+        f(x,y) = -\cos(x) \cos(y) \exp \left( -\left( x - \pi \right)^2 - \left( y - \pi \right)^2 \right),
+
+    see [1]_.
+
+    Parameters
+    ----------
+    None
+
+    
+    Global minima
+    -------------
+    - :math:`f(x,y) = -1` at :math:`(x,y) = (\pi, \pi)`
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from cbx.objectives import Easom
+    >>> x = np.array([[1,2], [3,4], [5,6]])
+    >>> f = Easom()
+    >>> f(x)
+
+
+    Visualization
+    -------------
+
+    .. plot::
+
+        import matplotlib.pyplot as plt
+        from matplotlib import cm
+        import numpy as np
+        from cbx.objectives import Easom
+        fig = plt.figure(figsize=(15,5))
+        x_min = 0
+        x_max =  2. * np.pi
+        y_min = 0.
+        y_max =  2. * np.pi
+        f = Easom()
+
+        num_pts_landscape = 100
+        xx = np.linspace(x_min, x_max, num_pts_landscape)
+        yy = np.linspace(y_min, y_max, num_pts_landscape)
+        XX, YY = np.meshgrid(xx,yy)
+        XXYY = np.stack((XX.T,YY.T)).T
+        Z = np.zeros((num_pts_landscape,num_pts_landscape, 2))
+        Z[:,:,0:2] = XXYY
+        ZZ = f(Z)
+
+        ax0 = fig.add_subplot(121)
+        ax1 = fig.add_subplot(122, projection='3d')	
+        cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
+        ax0.contour(cs, colors='orange', alpha=0.2)
+        ax0.plot(f.minima[:, 0], f.minima[:, 1], 'ro', markersize=5)
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet)
+        ax0.set_title('Contour plot')
+        ax1.set_title('Surface plot')
+
+        
+    References
+    ----------
+    .. [1] https://www.sfu.ca/~ssurjano/easom.html
+    """
+    def __init__(self):
+        self.minima = np.array([[np.pi, np.pi]])
+
+    def __call__(self, x):
+        return -np.cos(x[...,0]) * np.cos(x[...,1]) * np.exp(-((x[...,0] - np.pi)**2 + (x[...,1] - np.pi)**2))
+    
+
+
+class drop_wave(objective):
+    r"""Drop Wave
+
+    The Drop Wave function is a function with many local minima and one global minimum [1]_. It is defined as
+    
+    .. math::
+
+        f(x,y) = -\left( 1 + \cos(12 \sqrt{x^2 + y^2}) \right) \exp \left( -\frac{x^2 + y^2}{2(1 + 0.001(x^2 + y^2))} \right),
+
+    see [1]_.
+
+    Parameters
+    ----------
+    None
+
+    
+    Global minima
+    -------------
+    - :math:`f(x,y) = -1` at :math:`(x,y) = (0, 0)`
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from cbx.objectives import drop_wave
+    >>> x = np.array([[1,2], [3,4], [5,6]])
+    >>> f = drop_wave()
+    >>> f(x)
+
+
+    Visualization
+    -------------
+
+    .. plot::
+
+        import matplotlib.pyplot as plt
+        from matplotlib import cm
+        import numpy as np
+        from cbx.objectives import drop_wave
+        fig = plt.figure(figsize=(15,5))
+        x_min = -2.
+        x_max =  2.
+        y_min = -2.
+        y_max =  2.
+        f = drop_wave()
+
+        num_pts_landscape = 100
+        xx = np.linspace(x_min, x_max, num_pts_landscape)
+        yy = np.linspace(y_min, y_max, num_pts_landscape)
+        XX, YY = np.meshgrid(xx,yy)
+        XXYY = np.stack((XX.T,YY.T)).T
+        Z = np.zeros((num_pts_landscape,num_pts_landscape, 2))
+        Z[:,:,0:2] = XXYY
+        ZZ = f(Z)
+
+        ax0 = fig.add_subplot(121)
+        ax1 = fig.add_subplot(122, projection='3d')	
+        cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
+        ax0.contour(cs, colors='orange', alpha=0.2)
+        ax0.plot(f.minima[:, 0], f.minima[:, 1], 'ro', markersize=5)
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet) 
+        ax0.set_title('Contour plot')
+        ax1.set_title('Surface plot')
+
+    
+    References
+    ----------
+    .. [1] https://www.sfu.ca/~ssurjano/drop.html
+    """
+    def __init__(self):
+        self.minima = np.array([[0, 0]])
+
+    def __call__(self, x):
+        return -(1 + np.cos(12 * np.sqrt(x[...,0]**2 + x[...,1]**2))) * np.exp(-0.5 * (x[...,0]**2 + x[...,1]**2) / (1 + 0.001 * (x[...,0]**2 + x[...,1]**2)))
+    
+
+class Holder_table(objective):
+    r"""Holder table
+
+    The Holder table function is a function with many local minima and four global minimum [1]_. It is defined as
+
+    .. math::
+
+        f(x,y) = -\left| \sin(x) \cos(y) \exp \left( \left| 1 - \frac{\sqrt{x^2 + y^2}}{\pi} \right| \right) \right|,
+
+    see [1]_.
+
+    Parameters
+    ----------
+    None
+
+
+    Global minima
+    -------------
+    - :math:`f(x,y) = -19.2085` at :math:`(x,y) = (8.05502, 9.66459)`
+    - :math:`f(x,y) = -19.2085` at :math:`(x,y) = (-8.05502, 9.66459)`
+    - :math:`f(x,y) = -19.2085` at :math:`(x,y) = (8.05502, -9.66459)`
+    - :math:`f(x,y) = -19.2085` at :math:`(x,y) = (-8.05502, -9.66459)`
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from cbx.objectives import Holder_table
+    >>> x = np.array([[1,2], [3,4], [5,6]])
+    >>> f = Holder_table()
+    >>> f(x)
+
+
+    Visualization
+    -------------
+    
+    .. plot::
+
+        import matplotlib.pyplot as plt
+        from matplotlib import cm
+        import numpy as np
+        from cbx.objectives import Holder_table
+        fig = plt.figure(figsize=(15,5))
+        x_min = -12.
+        x_max =  12.
+        y_min = -12.
+        y_max =  12.
+        f = Holder_table()
+
+        num_pts_landscape = 200
+        xx = np.linspace(x_min, x_max, num_pts_landscape)
+        yy = np.linspace(y_min, y_max, num_pts_landscape)
+        XX, YY = np.meshgrid(xx,yy)
+        XXYY = np.stack((XX.T,YY.T)).T
+        Z = np.zeros((num_pts_landscape,num_pts_landscape, 2))
+        Z[:,:,0:2] = XXYY
+        ZZ = f(Z)
+
+        ax0 = fig.add_subplot(121)
+        ax1 = fig.add_subplot(122, projection='3d')	
+        cs = ax0.contourf(XX,YY,ZZ, 20, cmap=cm.jet)
+        ax0.contour(cs, colors='orange', alpha=0.2)
+        ax0.plot(f.minima[:, 0], f.minima[:, 1], 'ro', markersize=5)
+        ax1.plot_surface(XX,YY,ZZ, cmap=cm.jet) 
+        ax0.set_title('Contour plot')
+        ax1.set_title('Surface plot')
+
+    
+    References
+    ----------
+    .. [1] https://www.sfu.ca/~ssurjano/holdertable.html
+
+    """
+
+    def __init__(self):
+        self.minima = np.array([[8.05502, 9.66459], [-8.05502, 9.66459], [8.05502, -9.66459], [-8.05502, -9.66459]])
+
+    def __call__(self, x):
+        return -np.abs(np.sin(x[...,0]) * np.cos(x[...,1]) * np.exp(np.abs(1 - np.sqrt(x[...,0]**2 + x[...,1]**2) / np.pi)))
+
+
                 
