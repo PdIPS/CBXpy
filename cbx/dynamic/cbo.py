@@ -70,19 +70,18 @@ class CBO(ParticleDynamic):
         
         """
         
-        for i in range(self.N):
-            x_old = self.x.copy()
-            self.update_mean()      
-            self.m_diff = self.x - self.m_alpha
+        x_old = self.x.copy()
+        self.update_mean()      
+        self.m_diff = self.x - self.m_alpha
 
-            step_correction = self.correction(self.energy - self.f(self.m_alpha))
-            
-            self.x = self.x -\
-                     self.lamda * self.dt * self.m_diff * step_correction[:, None] +\
-                     self.sigma * self.noise(self.m_diff)
+        step_correction = self.correction(self.energy - self.f(self.m_alpha))
+        
+        self.x = self.x -\
+                    self.lamda * self.dt * self.m_diff * step_correction[:, None] +\
+                    self.sigma * self.noise(self.m_diff)
 
-            self.update_diff = np.linalg.norm(self.x - x_old)
-            self.f_min = np.min(self.energy)
+        self.update_diff = np.linalg.norm(self.x - x_old)
+        self.f_min = np.min(self.energy)
         
         
     def update_mean(self) -> None:

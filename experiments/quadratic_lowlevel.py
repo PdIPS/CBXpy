@@ -38,7 +38,7 @@ while t < conf.T:
     t += conf.dt
     
     if it%10 == 0:
-        print(dyn.V_min)
+        print(dyn.f_min)
         
     it+=1
 

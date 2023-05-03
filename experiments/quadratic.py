@@ -9,7 +9,7 @@ d = 200
 
 #%%
 opt = cbx.solver(f, method='cbo',
-                 T = 2.2,
+                 T = 100.2,
                  d=d, M=3, verbosity=3,
                  energy_tol = 1e-8,
                  num_cores=4,
