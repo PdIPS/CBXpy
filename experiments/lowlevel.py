@@ -32,14 +32,11 @@ scheduler = cbx.scheduler.exponential(dyn, r=1.1)
 #%% Run the CBO algorithm
 t = 0
 it = 0
-while t < conf.T:
-    dyn.step(t)
+while not dyn.terminate():
+    dyn.step()
     scheduler.update()
-    t += conf.dt
     
     if it%10 == 0:
         print(dyn.f_min)
         
     it+=1
-
-    

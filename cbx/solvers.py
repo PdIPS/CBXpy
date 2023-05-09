@@ -29,6 +29,8 @@ class solver:
             alpha = kwargs.get('alpha', 30.0)
             x_min = kwargs.get('x_min', -1.)
             x_max = kwargs.get('x_max', 1.)
+            max_eval = kwargs.get('max_eval', float('inf'))
+            batch_size = kwargs.get('batch_size', None)
             batch_eval = kwargs.get('batch_eval', False)
             noise = cbx.noise.comp_noise(dt = dt)
             
@@ -39,7 +41,8 @@ class solver:
                 dyn = cbx.dynamic.CBO(
                         x, f, noise, batch_eval=batch_eval, 
                         alpha = alpha, dt = dt, sigma = sigma, 
-                        lamda = lamda)
+                        lamda = lamda, max_eval = max_eval,
+                        batch_size=batch_size)
                 self.runs.append(cbx_run(dyn, cbx.scheduler.exponential(dyn, r = 1.1), i, 
                                          verbosity=verbosity,
                                          energy_tol=energy_tol, diff_tol=diff_tol,
@@ -68,7 +71,10 @@ class solver:
                 x_best = run.x_best
                 idx_best = run.idx
         
+        print('='*20)
         print('Run: ' + str(idx_best) + ' returned the best particle with f_min = ' + str(f_min))
+        print('Number of function evaluations: ' + str(self.runs[idx_best].dyn.num_f_eval))
+        print('='*20)
         return x_best
 
 
@@ -93,38 +99,25 @@ class cbx_run:
         self.dyn = dyn
         self.scheduler = scheduler
         self.verbosity = verbosity
-        self.t = 0
         self.it = 0
         self.idx = idx
         self.diff_tol = diff_tol
         self.energy_tol = energy_tol
         self.T = T
-
-    def term_crit(self):
-        if self.t > self.T:
-            return True
-        elif self.dyn.f_min < self.energy_tol:
-            return True
-        elif self.dyn.update_diff < self.diff_tol:
-            return True
-        return False
     
 def single_cbx_run(run, verbosity=0):
     print('.'*20)
     print('Starting run ' + str(run.idx))
     print('.'*20)
-    while not run.term_crit():
-        run.dyn.step(run.t)
+    while not run.dyn.terminate():
+        run.dyn.step()
         run.scheduler.update()
-        run.t += run.dyn.dt
 
-        if (verbosity > 1) and (run.it%10 == 0):
-            print('Time: ' + "{:.3f}".format(run.t) + ', best energy: ' + str(run.dyn.f_min))
+        if (verbosity > 1):
+            print('Time: ' + "{:.3f}".format(run.dyn.t) + ', best energy: ' + str(run.dyn.f_min))
 
             if verbosity > 2:
                 print('Current alpha: ' + str(run.dyn.alpha))
-
-        run.it+=1
 
     print('-'*20)
     print('Finished cbx run ' + str(run.idx))
