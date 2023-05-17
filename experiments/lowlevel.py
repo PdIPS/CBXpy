@@ -11,23 +11,28 @@ from cbx.objectives import Quadratic
 conf = cbx.utils.config(**{
         'alpha': 10.0,
         'dt': 0.01,
-        'sigma': 5.0,
+        'sigma': 8.1,
         'lamda': 1.0,
-        'd': 20,
+        'batch_size':100,
+        'd': 200,
         'T': 100,
-        'N': 50,})
+        'N': 100,
+        'M': 3})
 
 #%% Define the objective function
 f = Quadratic()
 
 #%% Define the initial positions of the particles
-x = cbx.utils.init_particles(d = conf.d, N = conf.N, x_min=-3., x_max = 3.)
+x = cbx.utils.init_particles(shape=(conf.M, conf.N, conf.d), x_min=-3., x_max = 3.)
 
 #%% Define the noise function
 noise = cbx.noise.comp_noise(dt = conf.dt)
 
 #%% Define the CBO algorithm
-dyn = CBO(x, f, noise, batch_eval=False, alpha = conf.alpha, dt = conf.dt, sigma = conf.sigma, lamda = conf.lamda)
+dyn = CBO(x, f, noise, f_dim='2D', 
+          alpha = conf.alpha, dt = conf.dt, 
+          sigma = conf.sigma, lamda = conf.lamda,
+          batch_size=conf.batch_size)
 scheduler = cbx.scheduler.exponential(dyn, r=1.1)
 #%% Run the CBO algorithm
 t = 0

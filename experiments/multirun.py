@@ -5,21 +5,21 @@ import cbx
 def f(x):
     return np.linalg.norm(x)**2
 
-d = 200
-
 #%%
 opt = cbx.solver(f, method='cbo',
                  T = 100.,
                  max_eval = 3e5,
                  N = 20,
-                 d=d, M=3, verbosity=3,
+                 d=200, M=5, verbosity=3,
+                 num_runs = 3,
                  energy_tol = 1e-8,
                  sigma=8.,
+                 alpha=10.,
+                 r=1.001,
+                 dt=0.01,
                  batch_size=50,
-                 num_cores=4,
-                 correction = 'heavi_side_reg',
-                 parallel = True)
+                 #correction = 'heavi_side_reg',
+                 parallel = False)
 
 #%%
-if __name__ == '__main__':
-    x = opt.solve()
+x = opt.solve()

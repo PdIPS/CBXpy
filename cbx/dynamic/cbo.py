@@ -36,26 +36,10 @@ class CBO(ParticleDynamic):
     """
 
     def __init__(self, x, f, noise,
-                 batch_eval: bool = False,
-                 alpha: float = 1.0, dt: float = 0.1, sigma: float =1.0, 
-                 lamda: float = 1.0,
-                 batch_size: int = None,
-                 correction: str = None,
-                 correction_eps: float = 1e-3,
-                 max_eval: int = float('inf'),
-                 T: float = 100.) -> None:
+                 **kwargs) -> None:
         
         super(CBO, self).__init__(
-                    x, f, batch_eval=batch_eval,
-                    batch_size=batch_size,
-                    correction=correction, correction_eps = correction_eps,
-                    T = T, max_eval=max_eval)
-        
-        # additional parameters
-        self.dt = dt
-        self.alpha = alpha
-        self.sigma = sigma
-        self.lamda = lamda
+                    x, f, **kwargs)
 
         # set noise model
         self.noise = noise
@@ -73,20 +57,27 @@ class CBO(ParticleDynamic):
         None
         
         """
-        x_old = self.x.copy() # save old positions
-        self.set_batch_idx() # set batch indices
-        self.update_mean() # update mean
-        
-        self.x[self.batch_idx, :] = self.x[self.batch_idx, :] -\
-            self.lamda * self.dt * self.m_diff * self.correction(self) +\
-            self.sigma * self.noise(self.m_diff)
+        self.set_batch_idx()
+        self.x_old = self.x.copy() # save old positions
+        x_batch = self.x[self.M_idx, self.batch_idx, :] # get batch
 
-        self.update_diff = np.linalg.norm(self.x - x_old)
-        self.f_min = np.min(self.energy)
-        self.t += self.dt
+        
+        # first update
+        self.m_alpha = self.compute_mean(x_batch) # update mean
+        self.m_diff = x_batch - self.m_alpha
+        
+        # inter step
+        self.s = self.sigma * self.noise(self.m_diff)
+
+        self.x[self.M_idx, self.batch_idx, :] = (
+            x_batch -
+            self.lamda * self.dt * self.m_diff * self.correction(self)[self.M_idx, self.batch_idx, :] +
+            self.s)
+        
+        self.post_step()
         
         
-    def update_mean(self) -> None:
+    def compute_mean(self, x_batch) -> None:
         r"""Updates the weighted mean of the particles.
 
         Parameters
@@ -98,11 +89,9 @@ class CBO(ParticleDynamic):
         None
 
         """
-        x_batch = self.x[self.batch_idx, :] # get batch
         self.energy = self.f(x_batch) # update energy
-        self.num_f_eval += self.batch_size # update number of function evaluations
+        self.num_f_eval += np.ones(self.M) * self.batch_size # update number of function evaluations
         
         weights = - self.alpha * self.energy
-        coeffs = np.expand_dims(np.exp(weights - logsumexp(weights)), axis=1)
-        self.m_alpha = np.sum(x_batch * coeffs, axis=0)
-        self.m_diff = x_batch - self.m_alpha
+        coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
+        return np.sum(x_batch * coeffs, axis=-2, keepdims=True)

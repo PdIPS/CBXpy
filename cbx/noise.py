@@ -67,7 +67,7 @@ class normal_noise(noise_model):
 
     def __call__(self, m_diff):
         z = np.sqrt(self.dt) * np.random.normal(0, 1, size=m_diff.shape)
-        return z * np.linalg.norm(m_diff, axis=1,keepdims=True)
+        return z * np.linalg.norm(m_diff, axis=-1,keepdims=True)
     
 class comp_noise(noise_model):   
     """Model for componentwise normal distributed noise
