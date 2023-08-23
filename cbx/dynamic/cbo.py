@@ -61,17 +61,19 @@ class CBO(ParticleDynamic):
         self.x_old = self.x.copy() # save old positions
         x_batch = self.x[self.M_idx, self.batch_idx, :] # get batch
 
-        
+        mind = self.get_mean_ind()
+        ind = self.get_ind()#
+        #ind = iind
         # first update
-        self.m_alpha = self.compute_mean(x_batch) # update mean
-        self.m_diff = x_batch - self.m_alpha
+        self.m_alpha = self.compute_mean(self.x[mind])        
+        self.m_diff = self.x[ind] - self.m_alpha
         
         # inter step
         self.s = self.sigma * self.noise(self.m_diff)
 
-        self.x[self.M_idx, self.batch_idx, :] = (
-            x_batch -
-            self.lamda * self.dt * self.m_diff * self.correction(self)[self.M_idx, self.batch_idx, :] +
+        self.x[ind] = (
+            self.x[ind] -
+            self.lamda * self.dt * self.m_diff * self.correction(self)[ind] +
             self.s)
         
         self.post_step()
@@ -89,9 +91,10 @@ class CBO(ParticleDynamic):
         None
 
         """
+        e_ind = self.get_mean_ind()[:2]
         self.energy = self.f(x_batch) # update energy
         self.num_f_eval += np.ones(self.M) * self.batch_size # update number of function evaluations
         
-        weights = - self.alpha * self.energy
+        weights = - self.alpha * self.energy#[e_ind]
         coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
         return np.sum(x_batch * coeffs, axis=-2, keepdims=True)

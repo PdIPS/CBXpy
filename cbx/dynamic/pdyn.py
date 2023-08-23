@@ -29,11 +29,14 @@ class ParticleDynamic():
             self, x: np.ndarray, 
             f: Callable, f_dim: str = '1D',
             batch_size: Union[None, int] = None,
+            batch_partial: bool = False,
             energy_tol: float = float('-inf'), diff_tol: float = 0.,
             max_eval: int = float('inf'),
             dt: float = 0.1, alpha: float = 1.0, sigma: float =1.0,
             lamda: float = 1.0,
-            correction: Union[None, str, Callable] = None, correction_eps: float = 1e-3,
+            correction: Union[None, str, Callable] = None, 
+            correction_eps: float = 1e-3,
+            check_list: list = ['max_eval'],
             T: float = 100.) -> None:
         self.M = x.shape[-3]
         self.N = x.shape[-2]
@@ -44,7 +47,7 @@ class ParticleDynamic():
         self.f = self._promote_objective(f, f_dim)
         self.f_min = float('inf') * np.ones((self.M,)) # minimum function value
         self.num_f_eval = 0 * np.ones((self.M,)) # number of function evaluations
-        self.energy = np.ones((self.M, self.N, 1)) * float('inf')
+        self.energy = np.ones((self.M, self.N)) * float('inf')
         self.update_diff = float('inf')
 
         # termination parameters
@@ -64,7 +67,15 @@ class ParticleDynamic():
         self.it = 0
 
         # termination checks
-        self.checks = [self.check_max_time, self.check_energy, self.check_update_diff, self.check_max_eval]
+        self.checks = []
+        check_dic = {'max_time': self.check_max_time,
+                     'update_diff':  self.check_update_diff,
+                     'max_eval': self.check_max_eval}
+        for check in check_list:
+            self.checks.append(check_dic[check])
+            
+        self.all_check = np.zeros(self.M,dtype=bool)
+        self.term_reason = {}
 
         if correction is None:
             self.correction = no_correction()
@@ -84,7 +95,7 @@ class ParticleDynamic():
         self.indices = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
         self.indices = self.batch_rng.permuted(self.indices, axis=1)
         self.M_idx = np.repeat(np.arange(self.M)[:,None], self.batch_size, axis=1)
-
+        self.batch_partial = batch_partial
 
 
     def _promote_objective(self, f, f_dim):
@@ -109,9 +120,20 @@ class ParticleDynamic():
             indices = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
             indices = self.batch_rng.permuted(indices, axis=1)
             self.indices = np.concatenate((self.indices, indices), axis=1)
+            
+            #self.batch_size
 
         self.batch_idx = self.indices[:,:self.batch_size] # get batch indices
         self.indices = self.indices[:, self.batch_size:] # remove batch indices from indices
+
+    def get_mean_ind(self):
+        return (self.M_idx, self.batch_idx, Ellipsis)
+    
+    def get_ind(self):
+        if self.batch_partial:
+            return self.get_mean_ind()
+        else:
+            return Ellipsis
 
     def check_max_time(self):
         return self.t > self.T
@@ -126,12 +148,22 @@ class ParticleDynamic():
         return self.num_f_eval > self.max_eval
     
     def terminate(self):
-        self.all_check = np.zeros(self.M, dtype=bool)
-        for check in self.checks:
-            self.all_check += check()
+        loc_check = np.zeros((self.M,len(self.checks)), dtype=bool)
+        for i,check in enumerate(self.checks):
+            loc_check[:,i] = check()
+            
+        all_check = np.sum(loc_check, axis=1)
+            
+        for j in range(self.M):
+            if all_check[j] and not self.all_check[j]:
+                self.term_reason[j] = np.where(loc_check[j,:])[0]
+        self.all_check = all_check
 
         if np.all(self.all_check):
-            print('Returning on check: ' + check.__name__)
+            for j in range(self.M):
+                print('Run ' + str(j) + ' returning on checks: ')
+                for k in self.term_reason[j]:
+                    print(self.checks[k].__name__)
             return True
         else:
             return False
@@ -172,7 +204,7 @@ class heavi_side:
         x = dyn.energy - dyn.f(dyn.m_alpha)
         dyn.num_f_eval += dyn.m_alpha.shape[0] # update number of function evaluations
 
-        return np.where(x > 0, 1,0)
+        return np.where(x > 0, 1,0)[...,None]
 
 class heavi_side_reg:
     def __init__(self, eps=1e-3):
