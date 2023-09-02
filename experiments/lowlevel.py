@@ -37,14 +37,14 @@ dyn = CBO(x, f, noise, f_dim='2D',
           sigma = conf.sigma, lamda = conf.lamda,
           batch_size=conf.batch_size,
           check_list=conf.check_list)
-scheduler = cbx.scheduler.scheduler(dyn, [multiply(name='alpha', factor=1.01, maximum=1e3),
+sched = cbx.scheduler.scheduler(dyn, [multiply(name='alpha', factor=1.01, maximum=1e3),
                                           multiply(name='sigma', factor=1.005, maximum=10.)])
 #%% Run the CBO algorithm
 t = 0
 it = 0
 while not dyn.terminate():
     dyn.step()
-    scheduler.update()
+    sched.update()
     
     if it%10 == 0:
         print(dyn.f_min)

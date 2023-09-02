@@ -385,7 +385,7 @@ class Rastrigin(objective):
         self.minima = np.array([[self.b, self.b]])
         
     def __call__(self, x):
-        return (1/x.shape[1]) * np.sum((x - self.b)**2 - \
+        return (1/x.shape[-1]) * np.sum((x - self.b)**2 - \
                 10*np.cos(2*np.pi*(x - self.b)) + 10, axis=-1) + self.c
             
             

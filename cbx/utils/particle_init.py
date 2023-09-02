@@ -1,6 +1,4 @@
-
 import numpy as np
-from scipy.special import logsumexp
 
 def init_particles(shape=(1,1), x_min=-1.0, x_max = 1.0, delta=1.0, method="uniform"):
     r"""Initialize particles
@@ -38,13 +36,3 @@ def init_particles(shape=(1,1), x_min=-1.0, x_max = 1.0, delta=1.0, method="unif
         raise Exception('Unknown method for init_particles specified!')
         
     return x
-        
-
-class config:
-    r"""Configuration class
-    """
-    def __init__(self, **entries):
-        self.__dict__.update(entries)
-        
-
-        

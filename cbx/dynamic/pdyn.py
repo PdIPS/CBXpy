@@ -1,5 +1,10 @@
 #%%
 from typing import Callable, Union
+from ..noise import normal_noise
+from ..utils.particle_init import init_particles
+from ..utils.scheduler import scheduler
+from ..utils.numpy_torch_comp import copy_particles
+from ..utils.objective_handling import _promote_objective
 
 #%%
 from typing import Callable, Union
@@ -26,56 +31,92 @@ class ParticleDynamic():
     """
 
     def __init__(
-            self, x: np.ndarray, 
+            self, 
             f: Callable, f_dim: str = '1D',
+            x: Union[None, np.ndarray] = None,
+            x_min: float = -1., x_max: float = 1.,
+            M: int = 1, N: int = 20, d: int = None,
+            noise: Union[None, Callable] = None,
             batch_size: Union[None, int] = None,
             batch_partial: bool = False,
-            energy_tol: float = float('-inf'), diff_tol: float = 0.,
-            max_eval: int = float('inf'),
+            batch_seed: int = 42,
+            energy_tol: Union[float, None] = None, 
+            diff_tol: Union[float, None] = None,
+            max_eval: Union[int, None] = None,
+            max_time: Union[float, None] = None,
+            max_it: Union[int, None] = None,
             dt: float = 0.1, alpha: float = 1.0, sigma: float =1.0,
             lamda: float = 1.0,
             correction: Union[None, str, Callable] = None, 
             correction_eps: float = 1e-3,
-            check_list: list = ['max_eval'],
-            T: float = 100.) -> None:
+            array_mode: str = 'numpy') -> None:
+        
+        # init particles        
+        if x is None:
+            if d is None:
+                raise RuntimeError('If the inital partical system is not given, the dimension d must be specified!')
+            x = init_particles(
+                    shape=(M, N, d), 
+                    x_min = x_min, x_max = x_max
+                )
+        else: # if x is given correct shape
+            if len(x.shape) == 1:
+                x = x[None, None, :]
+            elif len(x.shape) == 2:
+                x = x[None, :]
+
         self.M = x.shape[-3]
         self.N = x.shape[-2]
         self.d = x.shape[-1]
 
-        self.x = x.copy()
-
-        self.f = self._promote_objective(f, f_dim)
+        self.copy_particles = lambda x: copy_particles(x, mode=array_mode)
+        self.x = self.copy_particles(x)
+        self.array_mode = array_mode
+        if f_dim != '3D' and array_mode == 'pytorch':
+            raise RuntimeError('Pytorch array_mode only supported for 3D objective functions.')
+        self.f = _promote_objective(f, f_dim)
         self.f_min = float('inf') * np.ones((self.M,)) # minimum function value
         self.num_f_eval = 0 * np.ones((self.M,)) # number of function evaluations
-        self.energy = np.ones((self.M, self.N)) * float('inf')
+        self.energy = None # energy of the particles
         self.update_diff = float('inf')
 
-        # termination parameters
+        # set noise model
+        if noise is None:
+            self.noise = normal_noise(dt = dt)
+        else:
+            self.noise = noise
+
+        # termination parameters and checks
         self.energy_tol = energy_tol
         self.diff_tol = diff_tol
         self.max_eval = max_eval
-        self.T = T
+        self.max_time = max_time
+        self.max_it = max_it
+    
+        self.checks = []
+        if not energy_tol is None:
+            self.checks.append(self.check_energy)
+        if not diff_tol is None:
+            self.checks.append(self.check_update_diff)
+        if not max_eval is None:
+            self.checks.append(self.check_max_eval)
+        if not max_time is None:
+            self.checks.append(self.check_max_time)
+        if not max_it is None:
+            self.checks.append(self.check_max_it)
         
+        self.all_check = np.zeros(self.M, dtype=bool)
+        self.term_reason = {}
+        self.t = 0.
+        self.it = 0
+
         # additional parameters
         self.dt = dt
         self.alpha = alpha
         self.sigma = sigma
         self.lamda = lamda
         
-        self.m_alpha = np.zeros((1, self.d))
-        self.t = 0.
-        self.it = 0
-
-        # termination checks
-        self.checks = []
-        check_dic = {'max_time': self.check_max_time,
-                     'update_diff':  self.check_update_diff,
-                     'max_eval': self.check_max_eval}
-        for check in check_list:
-            self.checks.append(check_dic[check])
-            
-        self.all_check = np.zeros(self.M,dtype=bool)
-        self.term_reason = {}
+        self.m_alpha = None # mean of the particles
 
         if correction is None:
             self.correction = no_correction()
@@ -87,28 +128,62 @@ class ParticleDynamic():
             self.correction = correction
 
         # batching
+        self.batch_partial = batch_partial
         if batch_size is None:
             self.batch_size = self.N
         else:
             self.batch_size = min(batch_size, self.N)
-        self.batch_rng = np.random.default_rng()
+        # set indices for batching
         self.indices = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
-        self.indices = self.batch_rng.permuted(self.indices, axis=1)
         self.M_idx = np.repeat(np.arange(self.M)[:,None], self.batch_size, axis=1)
-        self.batch_partial = batch_partial
-
-
-    def _promote_objective(self, f, f_dim):
-        if not callable(f):
-            raise TypeError("Objective function must be callable.")
-        if f_dim == '3D':
-            return f
-        elif f_dim == '2D':
-            return batched_objective_from_2D(f)
-        elif f_dim == '1D':
-            return batched_objective_from_1D(f)
+        if self.batch_size == self.N:
+            self.batched = False
         else:
-            raise ValueError("f_dim must be '1D', '2D' or '3D'.")
+            self.batched = True
+            self.batch_rng = np.random.default_rng(batch_seed)
+            self.indices = self.batch_rng.permuted(self.indices, axis=1)
+
+    def step(self,) -> None:
+        self.post_step()
+
+    def optimize(self, 
+                 verbosity:int = 0, 
+                 save_particles:bool = False, 
+                 print_int:int = 100,
+                 sched = None):
+        
+        if verbosity > 0:
+            print('.'*20)
+            print('Starting Optimization with dynamic: ' + self.__class__.__name__)
+            print('.'*20)
+
+        if sched is None:
+            sched = scheduler(self, [])
+
+        x_history = [self.copy_particles(self.x)]
+
+        while not self.terminate(verbosity=verbosity):
+            self.step()
+            sched.update()
+
+            if (self.it % print_int == 0):
+                if verbosity > 0:
+                    print('Time: ' + "{:.3f}".format(self.t) + ', best energy: ' + str(self.f_min))
+                    print('Number of function evaluations: ' + str(self.num_f_eval))
+
+                if verbosity > 1:
+                    print('Current alpha: ' + str(self.alpha))
+                    
+                if save_particles:
+                    x_history.append(self.copy_particles(self.x))
+
+        if verbosity > 0:
+            print('-'*20)
+            print('Finished solver.')
+            print('Best energy: ' + str(self.f_min))
+            print('-'*20)
+
+        return self.best_particle(), x_history
 
     def set_batch_idx(self,):
         r"""Set batch indices
@@ -118,9 +193,9 @@ class ParticleDynamic():
             
         if self.indices.shape[1] < self.batch_size: # if indices are exhausted
             indices = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
-            indices = self.batch_rng.permuted(indices, axis=1)
+            if self.batched:
+                indices = self.batch_rng.permuted(indices, axis=1)
             self.indices = np.concatenate((self.indices, indices), axis=1)
-            
             #self.batch_size
 
         self.batch_idx = self.indices[:,:self.batch_size] # get batch indices
@@ -136,7 +211,7 @@ class ParticleDynamic():
             return Ellipsis
 
     def check_max_time(self):
-        return self.t > self.T
+        return self.t >= self.max_time
             
     def check_energy(self):
         return self.f_min < self.energy_tol
@@ -145,9 +220,12 @@ class ParticleDynamic():
         return self.update_diff < self.diff_tol
     
     def check_max_eval(self):
-        return self.num_f_eval > self.max_eval
+        return self.num_f_eval >= self.max_eval
     
-    def terminate(self):
+    def check_max_it(self):
+        return self.it >= self.max_it
+    
+    def terminate(self, verbosity = 0):
         loc_check = np.zeros((self.M,len(self.checks)), dtype=bool)
         for i,check in enumerate(self.checks):
             loc_check[:,i] = check()
@@ -161,37 +239,30 @@ class ParticleDynamic():
 
         if np.all(self.all_check):
             for j in range(self.M):
-                print('Run ' + str(j) + ' returning on checks: ')
-                for k in self.term_reason[j]:
-                    print(self.checks[k].__name__)
+                if verbosity > 0:
+                    print('Run ' + str(j) + ' returning on checks: ')
+                    for k in self.term_reason[j]:
+                        print(self.checks[k].__name__)
             return True
         else:
             return False
         
     def post_step(self):
-        self.update_diff = np.linalg.norm(self.x - self.x_old)
-        self.f_min = np.min(self.energy, axis=-1)
-        self.f_min_idx = np.argmin(self.energy, axis=-1)
+        if hasattr(self, 'x_old'):
+            self.update_diff = np.linalg.norm(self.x - self.x_old)
+
+        if not self.energy is None:
+            self.f_min = self.energy.min(axis=-1)
+            self.f_min_idx = self.energy.argmin(axis=-1)
+        else:
+            self.f_min = float('inf') * np.ones((self.M,))
+            self.f_min_idx = np.zeros((self.M,), dtype=int)
         self.t += self.dt
         self.it+=1
 
     def best_particle(self):
         return self.x[np.arange(self.M), self.f_min_idx, :]
     
-
-class batched_objective_from_1D:
-    def __init__(self, f):
-        self.f = f
-    
-    def __call__(self, x):
-        return np.apply_along_axis(self.f, 1, np.atleast_2d(x.reshape(-1, x.shape[-1]))).reshape(-1,x.shape[-2])
-    
-class batched_objective_from_2D:
-    def __init__(self, f):
-        self.f = f
-    
-    def __call__(self, x):
-        return self.f(np.atleast_2d(x.reshape(-1, x.shape[-1]))).reshape(-1,x.shape[-2])
     
     
 

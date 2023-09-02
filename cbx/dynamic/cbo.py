@@ -35,14 +35,9 @@ class CBO(ParticleDynamic):
 
     """
 
-    def __init__(self, x, f, noise,
-                 **kwargs) -> None:
+    def __init__(self, f, **kwargs) -> None:
         
-        super(CBO, self).__init__(
-                    x, f, **kwargs)
-
-        # set noise model
-        self.noise = noise
+        super(CBO, self).__init__(f, **kwargs)
         
     
     def step(self,) -> None:
@@ -58,12 +53,11 @@ class CBO(ParticleDynamic):
         
         """
         self.set_batch_idx()
-        self.x_old = self.x.copy() # save old positions
+        self.x_old = self.copy_particles(self.x) # save old positions
         x_batch = self.x[self.M_idx, self.batch_idx, :] # get batch
 
         mind = self.get_mean_ind()
         ind = self.get_ind()#
-        #ind = iind
         # first update
         self.m_alpha = self.compute_mean(self.x[mind])        
         self.m_diff = self.x[ind] - self.m_alpha
@@ -97,4 +91,4 @@ class CBO(ParticleDynamic):
         
         weights = - self.alpha * self.energy#[e_ind]
         coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
-        return np.sum(x_batch * coeffs, axis=-2, keepdims=True)
+        return (x_batch * coeffs).sum(axis=-2, keepdims=True)
