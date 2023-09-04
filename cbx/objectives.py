@@ -423,11 +423,12 @@ class Rastrigin_multimodal():
 
     """
 
-    def __init__(self, alpha = [1.], z = np.array([[0]])):
+    def __init__(self, alpha = None, z = None):
+        self.alpha = alpha if alpha else [1.]
+        self.z = z if z else np.zeros((len(alpha), 1))
+
         self.V = Rastrigin()
-        self.alpha = alpha
-        self.z = z
-        self.minima = z
+        self.minima = self.z
         self.num_terms = len(alpha)
         
     def __call__(self, x):
@@ -549,11 +550,12 @@ class Ackley_multimodal():
 
     """
 
-    def __init__(self, alpha = [1.], z = np.array([[0]])):
+    def __init__(self, alpha = None, z = None):
+        self.alpha = alpha if alpha else [1.]
+        self.z = z if z else np.zeros((len(alpha), 1))
         self.V = Ackley()
         self.alpha = alpha
-        self.z = z
-        self.minima = z
+        self.minima = self.z
         self.num_terms = len(alpha)
         
     def __call__(self, x):
@@ -569,8 +571,6 @@ class test2d():
     def __call__(self, x):
         return np.cos(x.T[0])+np.sin(x.T[1])
 
-
-        
 class accelerated_sinus():
     def __init__(self, a=1.0):
         self.a = a
@@ -620,14 +620,12 @@ class Banana():
     def __call__(self, x):
         G = ((x[...,1]-1)**2-(x[...,0]-2.5) -1)
         Phi = 0.5/(self.sigma**2)*(G - self.m)**2
-        I = Phi + 0.5/(self.sigma_prior**2)*np.linalg.norm(x,axis=-1)**2
-        
-        return I
+        return Phi + 0.5/(self.sigma_prior**2)*np.linalg.norm(x,axis=-1)**2
 
 class Bimodal():
-    def __init__(self, a=[1., 1.5], b=[-1.2, -0.7]):
-        self.a = a
-        self.b = b
+    def __init__(self, a=None, b=None):
+        self.a = a if a else [1., 1.5]
+        self.b = b if b else [-1.2, -0.7]
     
     def __call__(self, x):
         a = self.a
@@ -638,8 +636,8 @@ class Bimodal():
         
 
 class Unimodal():
-    def __init__(self, a=[-1.2, -0.7]):
-        self.a = a
+    def __init__(self, a = None):
+        self.a = a if a else [-1.2, -0.7]
     
     def __call__(self, x):
         a = self.a

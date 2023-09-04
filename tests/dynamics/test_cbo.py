@@ -1,4 +1,3 @@
-import cbx
 from cbx.dynamic.cbo import CBO
 import pytest
 import numpy as np
@@ -84,7 +83,6 @@ class Test_cbo(test_abstract_dynamic):
     def test_step_batched_partial(self, dynamic, f):
         '''Test if partial batched step is correctly performed'''
         x = np.random.uniform(-1,1,(3,5,7))
-        delta = np.random.uniform(-1,1,(3,5,7))
 
         dyn = dynamic(f, x=x, batch_size=2, batch_partial=True)
         dyn.step()

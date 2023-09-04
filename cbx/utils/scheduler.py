@@ -117,7 +117,7 @@ class effective_number(param_update):
     def __init__(self, name = 'alpha', eta=1.0, maximum=1e5, factor=1.05):
         super(effective_number, self).__init__(name = name, maximum=maximum)
         if self.name != 'alpha':
-            warnings.warn('effective_number scheduler only works for alpha parameter! You specified name = {}!'.format(self.name))
+            warnings.warn('effective_number scheduler only works for alpha parameter! You specified name = {}!'.format(self.name), stacklevel=2)
         self.eta = eta
         self.J_eff = 1.0
         self.factor=factor

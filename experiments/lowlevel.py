@@ -1,8 +1,4 @@
 import numpy as np
-
-from sys import path
-path.append('..')
-
 import cbx as cbx
 from cbx.dynamic.cbo import CBO
 from cbx.objectives import Quadratic
@@ -37,7 +33,7 @@ dyn = CBO(x, f, noise, f_dim='2D',
           sigma = conf.sigma, lamda = conf.lamda,
           batch_size=conf.batch_size,
           check_list=conf.check_list)
-sched = cbx.scheduler.scheduler(dyn, [multiply(name='alpha', factor=1.01, maximum=1e3),
+sched = scheduler(dyn, [multiply(name='alpha', factor=1.01, maximum=1e3),
                                           multiply(name='sigma', factor=1.005, maximum=10.)])
 #%% Run the CBO algorithm
 t = 0

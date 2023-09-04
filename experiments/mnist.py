@@ -17,14 +17,14 @@ train_loader = torch.utils.data.DataLoader(train_data, batch_size=16,
 #%% initializ network
 class Perceptron(nn.Module):
     def __init__(self, mean = 0.0, std = 1.0, 
-                 act_fun=nn.ReLU(),
-                 sizes=[784, 10]):
+                 act_fun=nn.ReLU,
+                 sizes = None):
         super(Perceptron, self).__init__()
         #
         self.mean = mean
         self.std = std
-        self.act_fun = act_fun
-        self.sizes = sizes
+        self.act_fun = act_fun()
+        self.sizes = sizes if sizes else [784, 10]
         self.linear = nn.Linear(sizes[0], sizes[1])
 
     def forward(self, x):
@@ -48,7 +48,7 @@ def f(w):
         model.linear.bias.data   = w[0, i, 7840:]
     
     loss = np.zeros((1, M))  
-    for batch_idx, (x, y) in enumerate(train_loader):
+    for (x, y) in iter(train_loader):
         x, y = x.to(device), y.to(device)
         
         for i in range(M):

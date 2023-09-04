@@ -1,5 +1,4 @@
 #%%
-from typing import Callable, Union
 from ..noise import normal_noise
 from ..utils.particle_init import init_particles
 from ..utils.scheduler import scheduler
@@ -8,7 +7,6 @@ from ..utils.objective_handling import _promote_objective
 
 #%%
 from typing import Callable, Union
-
 import numpy as np
 
 
@@ -70,9 +68,11 @@ class ParticleDynamic():
         self.N = x.shape[-2]
         self.d = x.shape[-1]
 
-        self.copy_particles = lambda x: copy_particles(x, mode=array_mode)
-        self.x = self.copy_particles(x)
+        # torch compatibility for copying particles
         self.array_mode = array_mode
+        self.x = self.copy_particles(x)
+        
+        # set and promote objective function
         if f_dim != '3D' and array_mode == 'pytorch':
             raise RuntimeError('Pytorch array_mode only supported for 3D objective functions.')
         self.f = _promote_objective(f, f_dim)
@@ -101,15 +101,15 @@ class ParticleDynamic():
         self.max_it = max_it
     
         self.checks = []
-        if not energy_tol is None:
+        if energy_tol is not None:
             self.checks.append(self.check_energy)
-        if not diff_tol is None:
+        if diff_tol is not None:
             self.checks.append(self.check_update_diff)
-        if not max_eval is None:
+        if max_eval is not None:
             self.checks.append(self.check_max_eval)
-        if not max_time is None:
+        if max_time is not None:
             self.checks.append(self.check_max_time)
-        if not max_it is None:
+        if max_it is not None:
             self.checks.append(self.check_max_it)
         
         self.all_check = np.zeros(self.M, dtype=bool)
@@ -192,6 +192,9 @@ class ParticleDynamic():
 
         return self.best_particle(), x_history
 
+    def copy_particles(self, x):
+        return copy_particles(x, mode=self.array_mode)
+
     def set_batch_idx(self,):
         r"""Set batch indices
 
@@ -258,7 +261,7 @@ class ParticleDynamic():
         if hasattr(self, 'x_old'):
             self.update_diff = np.linalg.norm(self.x - self.x_old)
 
-        if not self.energy is None:
+        if self.energy is not None:
             self.f_min = self.energy.min(axis=-1)
             self.f_min_idx = self.energy.argmin(axis=-1)
         else:

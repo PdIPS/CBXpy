@@ -1,10 +1,10 @@
 import pytest
 import numpy as np
-from cbx.utils.objective_handling import _promote_objective, batched_objective_from_1D, batched_objective_from_2D
+from cbx.utils.objective_handling import _promote_objective
 
 def test_f_dim_1D_handeling():
     '''Test if f_dim is correctly handeled for 1D'''
-    f = lambda x: np.sum(x**2)
+    def f(x): return np.sum(x**2)
     f_dim = '1D'
     f_promote = _promote_objective(f, f_dim)
     x = np.random.uniform(-1,1,(6,5,7))
@@ -14,7 +14,7 @@ def test_f_dim_1D_handeling():
 
 def test_f_dim_2D_handeling():
     '''Test if f_dim is correctly handeled for 2D'''
-    f = lambda x: np.sum(x**2, axis=-1)
+    def f(x): return np.sum(x**2, axis=-1)
     f_dim = '2D'
     f_promote = _promote_objective(f, f_dim)
     x = np.random.uniform(-1,1,(6,5,7))
@@ -24,8 +24,8 @@ def test_f_dim_2D_handeling():
 
 def test_f_dim_unknown():
     '''Test if f_dim raises error for unknown f_dim'''
-    f = lambda x: np.sum(x**2)
+    def f(x): return np.sum(x**2)
     f_dim = '4D'
 
     with pytest.raises(ValueError):
-        f_promote = _promote_objective(f, f_dim)
+        _promote_objective(f, f_dim)

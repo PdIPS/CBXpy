@@ -1,4 +1,3 @@
-import cbx
 from cbx.dynamic.pdyn import ParticleDynamic
 import pytest
 import numpy as np
@@ -54,12 +53,12 @@ class Test_pdyn(test_abstract_dynamic):
 
     def test_f_wrong_dims(self, dynamic):
         '''Test if f_dim raises error for wrong dimensions'''
-        f = lambda x: x
+        def f(x): return x
         f_dim = '1D'
         x = np.random.uniform(-1,1,(6,5,7))
 
         with pytest.raises(ValueError):
-            dyn = dynamic(f, x=x, f_dim=f_dim)
+            dynamic(f, x=x, f_dim=f_dim)
 
     
 

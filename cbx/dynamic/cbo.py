@@ -54,7 +54,7 @@ class CBO(ParticleDynamic):
         """
         self.set_batch_idx()
         self.x_old = self.copy_particles(self.x) # save old positions
-        x_batch = self.x[self.M_idx, self.batch_idx, :] # get batch
+        #x_batch = self.x[self.M_idx, self.batch_idx, :] # get batch
 
         mind = self.get_mean_ind()
         ind = self.get_ind()#
@@ -85,7 +85,6 @@ class CBO(ParticleDynamic):
         None
 
         """
-        e_ind = self.get_mean_ind()[:2]
         self.energy = self.f(x_batch) # update energy
         self.num_f_eval += np.ones(self.M) * self.batch_size # update number of function evaluations
         

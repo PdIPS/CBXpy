@@ -1,4 +1,3 @@
-import pytest
 import numpy as np
 from cbx.utils.numpy_torch_comp import copy_particles
 import torch
@@ -12,5 +11,5 @@ def test_torch_handeling():
     
     assert np.all(x == x_copy)
     assert torch.all(x_torch == x_torch_copy)
-    assert not (x is x_copy)
-    assert not (x_torch is x_torch_copy)
+    assert x is not x_copy
+    assert x_torch is not x_torch_copy

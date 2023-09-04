@@ -35,10 +35,10 @@ def init_particles(shape=(1,1,1), x_min=-1.0, x_max = 1.0, delta=1.0, method="un
             N, d = shape
             M = 1
         else:
-            raise Exception('Normal initialization only supported for 2D or 3D shapes!')
+            raise RuntimeError('Normal initialization only supported for 2D or 3D shapes!')
         
         x = np.random.multivariate_normal(np.zeros((d,)), delta * np.eye(d), (M, N))
     else:
-        raise Exception('Unknown method for init_particles specified!')
+        raise RuntimeError('Unknown method for init_particles specified!')
         
     return x

@@ -1,9 +1,8 @@
 import cbx
 import pytest
-from abc import ABC, abstractmethod
-import numpy as np
+#from abc import ABC
 
-class test_abstract_dynamic(ABC):
+class test_abstract_dynamic():
     
     @pytest.fixture
     def dynamic(self):

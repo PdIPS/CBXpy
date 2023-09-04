@@ -18,10 +18,10 @@ def test_particle_init_normal(in_shape, out_shape):
 
 def test_particle_init_normal_wrong_shape():
     '''Test if exception is raised when normal initialization is used for 2D particles'''
-    with pytest.raises(Exception):
-        x = init_particles(shape=(3,), method="normal")
+    with pytest.raises(RuntimeError):
+        init_particles(shape=(3,), method="normal")
 
 def test_particle_init_unknown_method():
     '''Test if exception is raised when unknown method is specified'''
-    with pytest.raises(Exception):
-        x = init_particles(shape=(3,5,7), method="unknown")
+    with pytest.raises(RuntimeError):
+        init_particles(shape=(3,5,7), method="unknown")

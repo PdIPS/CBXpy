@@ -1,7 +1,4 @@
 import numpy as np
-from sys import path
-path.append('..')
-
 import cbx as cbx
 import cbx.objectives as obj
 from cbx.utils.scheduler import scheduler, multiply

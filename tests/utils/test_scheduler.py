@@ -1,4 +1,3 @@
-import pytest
 import numpy as np
 import cbx
 from cbx.utils.scheduler import multiply, scheduler, effective_number
