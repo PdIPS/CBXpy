@@ -30,7 +30,7 @@ jobs:
       - name: Install package
         run: |
           pip install --upgrade build
-          python -m build
+          pip install .
       - name: Test with pytest
         run: |
           pytest
