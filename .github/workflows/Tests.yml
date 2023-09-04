@@ -28,7 +28,9 @@ jobs:
           # default set of ruff rules with GitHub Annotations
           ruff --format=github --target-version=py37 .
       - name: Install package
-        run: python setup.py install
+        run: |
+          pip install --upgrade build
+          python -m build
       - name: Test with pytest
         run: |
           pytest
