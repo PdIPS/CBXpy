@@ -49,7 +49,8 @@ class ParticleDynamic():
             lamda: float = 1.0,
             correction: Union[None, str, Callable] = None, 
             correction_eps: float = 1e-3,
-            array_mode: str = 'numpy') -> None:
+            array_mode: str = 'numpy',
+            check_f_dims: bool = True) -> None:
         
         # init particles        
         if x is None:
@@ -75,8 +76,14 @@ class ParticleDynamic():
         if f_dim != '3D' and array_mode == 'pytorch':
             raise RuntimeError('Pytorch array_mode only supported for 3D objective functions.')
         self.f = _promote_objective(f, f_dim)
+        self.num_f_eval = 0 * np.ones((self.M,)) # number of function evaluations  
+        if check_f_dims: # check if f returns correct shape
+            x = np.random.uniform(-1,1,(self.M, self.N, self.d))
+            if self.f(x).shape != (self.M,self.N):
+                raise ValueError("The given objective function does not return the correct shape!")
+            self.num_f_eval = N * np.ones((self.M,)) # number of function evaluations
         self.f_min = float('inf') * np.ones((self.M,)) # minimum function value
-        self.num_f_eval = 0 * np.ones((self.M,)) # number of function evaluations
+        
         self.energy = None # energy of the particles
         self.update_diff = float('inf')
 
@@ -262,9 +269,6 @@ class ParticleDynamic():
 
     def best_particle(self):
         return self.x[np.arange(self.M), self.f_min_idx, :]
-    
-    
-    
 
 class no_correction:
     def __call__(self, dyn):

@@ -1,6 +1,6 @@
 import numpy as np
 
-def init_particles(shape=(1,1), x_min=-1.0, x_max = 1.0, delta=1.0, method="uniform"):
+def init_particles(shape=(1,1,1), x_min=-1.0, x_max = 1.0, delta=1.0, method="uniform"):
     r"""Initialize particles
     
     Parameters
@@ -24,14 +24,20 @@ def init_particles(shape=(1,1), x_min=-1.0, x_max = 1.0, delta=1.0, method="unif
     x : numpy.ndarray
         Array of particles of shape (N, d)
     """
-    d = shape[-1]
-    N = shape[-2]
-    M = shape[-3]
+
 
     if method == "uniform":
         x = np.random.uniform(x_min, x_max, shape)
     elif method == "normal":
-        x = np.random.multivariate_normal(np.array([0,0,0]),delta*np.eye(d),(M,N))
+        if len(shape) == 3:
+            M, N, d = shape
+        elif len(shape) == 2:
+            N, d = shape
+            M = 1
+        else:
+            raise Exception('Normal initialization only supported for 2D or 3D shapes!')
+        
+        x = np.random.multivariate_normal(np.zeros((d,)), delta * np.eye(d), (M, N))
     else:
         raise Exception('Unknown method for init_particles specified!')
         
