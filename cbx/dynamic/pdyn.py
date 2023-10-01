@@ -42,7 +42,7 @@ class ParticleDynamic():
             diff_tol: Union[float, None] = None,
             max_eval: Union[int, None] = None,
             max_time: Union[float, None] = None,
-            max_it: Union[int, None] = None,
+            max_it: Union[int, None] = 1000,
             dt: float = 0.1, alpha: float = 1.0, sigma: float =1.0,
             lamda: float = 1.0,
             correction: Union[None, str, Callable] = None, 
