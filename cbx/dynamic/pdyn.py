@@ -21,7 +21,7 @@ class ParticleDynamic():
     x : array_like, shape (J, d)
         The initial positions of the particles. For a system of :math:`J` particles, the i-th row of this array ``x[i,:]``
         represents the position :math:`x_i` of the i-th particle.
-    f : obejective
+    f : objective
         The objective function :math:`f(x)` of the system.
     alpha : float, optional
         The heat parameter :math:`\alpha` of the system. The default is 1.0.

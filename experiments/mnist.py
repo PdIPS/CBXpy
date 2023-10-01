@@ -15,7 +15,7 @@ train_loader = torch.utils.data.DataLoader(train_data, batch_size=16,
                                            shuffle=True, num_workers=2)
 
 #%% initializ network
-class Perceptron(nn.Module):
+class Perceptron():
     def __init__(self, mean = 0.0, std = 1.0, 
                  act_fun=nn.ReLU,
                  sizes = None):
@@ -25,34 +25,35 @@ class Perceptron(nn.Module):
         self.std = std
         self.act_fun = act_fun()
         self.sizes = sizes if sizes else [784, 10]
-        self.linear = nn.Linear(sizes[0], sizes[1])
+        #self.linear = nn.Linear(self.sizes[0], self.sizes[1])
 
-    def forward(self, x):
+    def __call__(self, x, W, b):
+        x = x.view([-1, 784])
         x = (x - self.mean)/self.std
-        x = self.linear(x)
+        x = W@x + b
         x = self.act_fun(x)
 
         # apply softmax
         x = nn.Softmax()(x)
         return x
-#%% Initilaize copies of the model
-M = 10
-models = [Perceptron() for i in range(M)]
+
 #%% define loss function
 device = 'cpu'
 loss_fct = nn.CrossEntropyLoss()
+model = Perceptron()
+
 def f(w):
-    #%% set weights
-    for i, model in enumerate(models):
-        model.linear.weight.data = w[0, i, :7840]
-        model.linear.bias.data   = w[0, i, 7840:]
+    print(w.shape)
+    # set weights
+    N = w.shape[1]
     
-    loss = np.zeros((1, M))  
+    loss = np.zeros((1, N))  
     for (x, y) in iter(train_loader):
         x, y = x.to(device), y.to(device)
-        
-        for i in range(M):
-            loss[0, i] += loss_fct(models[i](x), y)
+        for i in range(N):
+            loss[0, i] += loss_fct(model(x, w[0,i,:7840], w[0,i,7840:]))
+            
+            
             
     return loss
             
@@ -61,31 +62,30 @@ kwargs = {'alpha':0.01,
         'dt': 0.01,
         'sigma': 0.5,
         'lamda': 1.0,
-        'check_list': ['max_time'],
-        'T': 20,
-        'batch_size': M}
-N = 100
-conf = cbx.utils.config(**kwargs)
-x = np.zeros((1, N, 10*784 + 10))
-for i in range(N):
-    model = Perceptron()
-    x[0, i, :7840] = model.linear.weight.data.flatten()
-    x[0, i, 7840:] = model.linear.bias.data
+        'max_it':20,
+        'max_time': 20,
+        #'batch_size': M,
+        'array_mode':'torch',
+        'check_f_dims':False}
+N = 10
+x = torch.normal(0, 0.1, (1, N, 10*784 + 10))
     
-noise = cbx.noise.comp_noise(dt = conf.dt)
+noise = cbx.noise.comp_noise(dt = kwargs['dt'])
 
-dyn = CBO(x, f, noise, f_dim='3D', **kwargs)   
-
-#%%
-t = 0
-it = 0
-while not dyn.terminate():
-    dyn.step()
-    #sched.update()
+dyn = CBO(f, x=x, noise=noise,**kwargs)
+ 
+if __name__=='__main__':
+    f(dyn.x)
+# #%%
+# t = 0
+# it = 0
+# while not dyn.terminate():
+#     dyn.step()
+#     #sched.update()
     
-    if it%10 == 0:
-        print(dyn.f_min)
-        print('Alpha: ' + str(dyn.alpha))
-        print('Sigma: ' + str(dyn.sigma))
+#     if it%10 == 0:
+#         print(dyn.f_min)
+#         print('Alpha: ' + str(dyn.alpha))
+#         print('Sigma: ' + str(dyn.sigma))
         
-    it+=1    
+#     it+=1    

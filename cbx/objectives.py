@@ -669,9 +669,9 @@ class Bukin6(objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.objectives import Ackley
+    >>> from cbx.objectives import Bukin6
     >>> x = np.array([[1,2], [3,4], [5,6]])
-    >>> f = Ackley()
+    >>> f = Bukin6()
     >>> f(x)
     array([  68.,  148., 1556.])
 
