@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Union
 from scipy.special import logsumexp
 
 from .cbo import CBO
@@ -48,7 +49,7 @@ class CBOMemory(CBO):
                  f, 
                  #beta: float = float('inf'),
                  lamda_memory: float = 0.4,
-                 sigma_memory: float = 0.4,
+                 sigma_memory: Union[float, None] = None,
                  **kwargs) -> None:
         
         super(CBOMemory, self).__init__(f, **kwargs)
@@ -57,7 +58,13 @@ class CBOMemory(CBO):
         
         #self.beta = beta
         self.lamda_memory = lamda_memory
-        self.sigma_memory = sigma_memory
+        
+        if sigma_memory is None:
+            self.sigma_memory = self.lamda_memory * self.sigma
+        else:
+            self.sigma_memory = self.sigma_memory
+            
+        self.energy = self.f(self.x)
         
     
     def step(self,) -> None:
@@ -81,7 +88,7 @@ class CBOMemory(CBO):
         mind = self.get_mean_ind()
         ind = self.get_ind()#
         # first update
-        self.m_alpha = self.compute_mean(self.y[mind])        
+        self.m_alpha = self.compute_mean(self.y[mind], self.energy[mind])        
         self.m_diff = self.x[ind] - self.m_alpha
         self.memory_diff = self.x[ind] - self.y[ind]
         
@@ -96,8 +103,27 @@ class CBOMemory(CBO):
             self.s + 
             self.s_memory)
         
-        energy_new = self.f(self.x[ind])
+        energy_new = self.f(self.x[ind])            
         self.y[ind] = self.y[ind] + ((self.energy>energy_new)[:, :, np.newaxis]) * (self.x[ind] - self.y[ind])
+        self.energy = np.minimum(self.energy, energy_new)
         
         self.post_step()
+        
+    def compute_mean(self, x_batch, energy) -> None:
+        r"""Updates the weighted mean of the particles.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        """
+        self.num_f_eval += np.ones(self.M) * self.batch_size # update number of function evaluations
+        
+        weights = - self.alpha * energy#[e_ind]
+        coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
+        return (x_batch * coeffs).sum(axis=-2, keepdims=True)
         

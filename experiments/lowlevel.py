@@ -1,23 +1,24 @@
 import numpy as np
 import cbx as cbx
-from cbx.dynamic.cbo import CBO
-from cbx.objectives import Quadratic
+from cbx.dynamic import CBO, CBOMemory
+from cbx.objectives import Quadratic, Rastrigin
 from cbx.utils.scheduler import scheduler, multiply
 
 np.random.seed(42)
 #%%
-conf = {'alpha': 0.01,
-        'dt': 0.05,
-        'sigma': 0.5,
+conf = {'alpha': 100.0,
+        'dt': 0.01,
+        'sigma': 6.0,
         'lamda': 1.0,
-        'batch_size':50,
-        'd': 200,
+        'batch_size':100,
+        'd': 20,
         'max_it': 5000,
-        'N': 50,
+        'N': 100,
         'M': 2}
 
 #%% Define the objective function
 f = Quadratic()
+f = Rastrigin()
 
 #%% Define the initial positions of the particles
 x = cbx.utils.init_particles(shape=(conf['M'], conf['N'], conf['d']), x_min=-3., x_max = 3.)
@@ -26,10 +27,11 @@ x = cbx.utils.init_particles(shape=(conf['M'], conf['N'], conf['d']), x_min=-3.,
 noise = cbx.noise.comp_noise(dt = conf['dt'])
 
 #%% Define the CBO algorithm
-dyn = CBO(f, x=x, noise=noise, f_dim='2D', 
+dyn = CBOMemory(f, x=x, noise=noise, f_dim='2D', 
           **conf)
-sched = scheduler(dyn, [multiply(name='alpha', factor=1.01, maximum=1e3),
-                        multiply(name='sigma', factor=1.005, maximum=3.)])
+sched = scheduler(dyn, [multiply(name='alpha', factor=1.1, maximum=1e15),
+                        #multiply(name='sigma', factor=1.005, maximum=6.)
+                        ])
 #%% Run the CBO algorithm
 t = 0
 it = 0
