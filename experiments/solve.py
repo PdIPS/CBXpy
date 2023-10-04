@@ -3,7 +3,8 @@ import cbx
 import matplotlib.pyplot as plt
 
 #%% define the objective function and solve
-f = lambda x:np.sin(x) * np.exp(-x**2)
+def f(x):
+    return np.sin(x) * np.exp(-x**2)
 dyn = cbx.dynamic.CBO(f, d=1)
 x,hist = dyn.optimize()
 

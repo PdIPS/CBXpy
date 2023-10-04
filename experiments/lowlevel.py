@@ -1,6 +1,6 @@
 import numpy as np
 import cbx as cbx
-from cbx.dynamic import CBO, CBOMemory
+from cbx.dynamic import CBO
 from cbx.objectives import Quadratic, Rastrigin
 from cbx.utils.scheduler import scheduler, multiply
 
@@ -27,7 +27,7 @@ x = cbx.utils.init_particles(shape=(conf['M'], conf['N'], conf['d']), x_min=-3.,
 noise = cbx.noise.comp_noise(dt = conf['dt'])
 
 #%% Define the CBO algorithm
-dyn = CBOMemory(f, x=x, noise=noise, f_dim='2D', 
+dyn = CBO(f, x=x, noise=noise, f_dim='2D', 
           **conf)
 sched = scheduler(dyn, [multiply(name='alpha', factor=1.1, maximum=1e15),
                         #multiply(name='sigma', factor=1.005, maximum=6.)
