@@ -5,10 +5,10 @@ from scipy.special import logsumexp
 from .pdyn import ParticleDynamic
 
 #%% CBO_Memory
-class CBOMemory(ParticleDynamic):
-    r"""Consensus-based optimization with memory effects (CBOMemory) class
+class PSO(ParticleDynamic):
+    r"""Particle Swarm Optimization class
 
-    This class implements the CBO algorithm with memory effects as described in [1,2]_. The algorithm
+    This class implements the PSO algorithm as described in [1,2]_. The algorithm
     is a particle dynamic algorithm that is used to minimize the objective function :math:`f(x)`.
 
     Parameters
@@ -21,10 +21,17 @@ class CBOMemory(ParticleDynamic):
     y : array_like, shape (N, d)
         The initial positions of the particles. For a system of :math:`N` particles, the i-th row of this array ``y[i,:]``
         represents the or an approximation of the historical best position :math:`y_i` of the i-th particle.
+    v : array_like, shape (N, d)
+        The initial velocities of the particles. For a system of :math:`N` particles, the i-th row of this array ``y[i,:]``
+        represents the or an approximation of the historical best position :math:`y_i` of the i-th particle.
     dt : float, optional
         The parameter :math:`dt` of the system. The default is 0.1.
     alpha : float, optional
         The heat parameter :math:`\alpha` of the system. The default is 1.0.
+    m : float, optional
+        The inertia :math:`m` of the system. The default is 0.1.
+    gamma : float, optional
+        The friction coefficient :math:`\gamma` of the system. The default is 1-m.
     lamda : float, optional
         The decay parameter :math:`\lambda` of the system. The default is 1.0.
     noise : noise_model, optional
@@ -40,20 +47,31 @@ class CBOMemory(ParticleDynamic):
     ----------
     .. [1] Grassi, S. & Pareschi, L. (2021). From particle swarm optimization to consensus based optimization: stochastic modeling and mean-field limit.
         Math. Models Methods Appl. Sci., 31(8):1625–1657.
-    .. [2] Riedl, K. (2023). Leveraging memory effects and gradient information in consensus-based optimization: On global convergence in mean-field law.
-        Eur. J. Appl. Math., XX (X), XX-XX.
+    .. [2] Huang, H. & Qiu, J. & Riedl, K (2023). On the global convergence of particle swarm optimization methods. Appl. Math. Optim., 88(2):30.
 
     """
 
     def __init__(self,
                  f,
+                 m: float = 0.001,
+                 gamma: Union[float, None] = None,
                  lamda_memory: float = 0.4,
                  sigma_memory: Union[float, None] = None,
                  **kwargs) -> None:
         
-        super(CBOMemory, self).__init__(f, **kwargs)
+        super(PSO, self).__init__(f, **kwargs)
+        
+        self.m = m
+        
+        if gamma is None:
+            self.gamma = 1 - m
+        else:
+            self.gamma = gamma
         
         self.lamda_memory = lamda_memory
+        
+        # init velocities of particles
+        self.v = np.zeros(self.x.shape)
         
         # init historical best positions of particles
         self.y = self.copy_particles(self.x)
@@ -68,7 +86,7 @@ class CBOMemory(ParticleDynamic):
         
     
     def step(self,) -> None:
-        r"""Performs one step of the CBOMemory algorithm.
+        r"""Performs one step of the PSO algorithm.
 
         Parameters
         ----------
@@ -82,6 +100,7 @@ class CBOMemory(ParticleDynamic):
         self.set_batch_idx()
         self.x_old = self.copy_particles(self.x) # save old positions
         self.y_old = self.copy_particles(self.y) # save old positions
+        self.v_old = self.copy_particles(self.v) # save old velocities
         #x_batch = self.x[self.M_idx, self.batch_idx, :] # get batch
         
         
@@ -97,13 +116,16 @@ class CBOMemory(ParticleDynamic):
         self.s_memory = self.sigma_memory * self.noise()
 
         # dynamcis update
-        # momentaneous positions of particles
-        self.x[ind] = (
-            self.x[ind] -
-            self.lamda * self.dt * self.drift * self.correction()[ind] -
+        # velocities of particles
+        self.v[ind] = (
+            self.m * self.dt * self.v[ind] +
+            self.lamda * self.dt * self.drift * self.correction()[ind] +
             self.lamda_memory * self.dt * self.memory_diff +
             self.s + 
-            self.s_memory)
+            self.s_memory)/(self.m+self.gamma*self.dt)
+        
+        # momentaneous positions of particles
+        self.x[ind] = self.x[ind] + self.dt * self.v[ind]
         
         # evaluation of objective function on all particles
         energy_new = self.f(self.x[ind])    
