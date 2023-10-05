@@ -1,7 +1,7 @@
 import numpy as np
 import cbx as cbx
 from cbx.dynamic import CBO
-from cbx.objectives import Quadratic, Rastrigin
+from cbx.objectives import Rastrigin
 from cbx.utils.objective_handling import batched_objective
 from cbx.utils.scheduler import scheduler, multiply
 

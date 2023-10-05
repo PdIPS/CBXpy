@@ -36,7 +36,7 @@ class Test_cbo(test_abstract_dynamic):
                 loc_denom += np.exp(-dyn.alpha * f(x[j,i,:]))
             mean[j,...] = loc_mean / loc_denom
 
-        assert np.allclose(dyn.m_alpha, mean)
+        assert np.allclose(dyn.consensus, mean)
     
     def test_mean_compute_batched(self, dynamic, f):
         '''Test if batched mean is correctly computed'''
@@ -54,30 +54,30 @@ class Test_cbo(test_abstract_dynamic):
                 loc_denom += np.exp(-dyn.alpha * f(x[j,ind[j, i],:]))
             mean[j,...] = loc_mean / loc_denom
 
-        assert np.allclose(dyn.m_alpha, mean)
+        assert np.allclose(dyn.consensus, mean)
 
     def test_step(self, dynamic, f):
         '''Test if step is correctly performed'''
         x = np.random.uniform(-1,1,(3,5,7))
         delta = np.random.uniform(-1,1,(3,5,7))
-        def noise(x):
+        def noise():
             return delta
 
         dyn = dynamic(f, x=x, noise=noise)
         dyn.step()
-        x_new = x - dyn.lamda * dyn.dt * (x - dyn.m_alpha) + dyn.sigma * delta
+        x_new = x - dyn.lamda * dyn.dt * (x - dyn.consensus) + dyn.sigma * delta
         assert np.allclose(dyn.x, x_new)
 
     def test_step_batched(self, dynamic, f):
         '''Test if batched step is correctly performed'''
         x = np.random.uniform(-1,1,(3,5,7))
         delta = np.random.uniform(-1,1,(3,5,7))
-        def noise(x):
+        def noise():
             return delta
 
         dyn = dynamic(f, x=x, noise=noise, batch_size=2)
         dyn.step()
-        x_new = x - dyn.lamda * dyn.dt * (x - dyn.m_alpha) + dyn.sigma * delta
+        x_new = x - dyn.lamda * dyn.dt * (x - dyn.consensus) + dyn.sigma * delta
         assert np.allclose(dyn.x, x_new)
 
     def test_step_batched_partial(self, dynamic, f):
@@ -89,6 +89,6 @@ class Test_cbo(test_abstract_dynamic):
         ind = dyn.get_ind()[1]
         for j in range(x.shape[0]):
             for i in range(ind.shape[1]):
-                x[j, ind[j,i], :] = x[j, ind[j,i], :] - dyn.lamda * dyn.dt * (x[j, ind[j,i], :] - dyn.m_alpha[j, 0, :]) + dyn.s[j,i,:]
+                x[j, ind[j,i], :] = x[j, ind[j,i], :] - dyn.lamda * dyn.dt * (x[j, ind[j,i], :] - dyn.consensus[j, 0, :]) + dyn.s[j,i,:]
             
         assert np.allclose(dyn.x, x)

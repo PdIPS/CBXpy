@@ -92,15 +92,15 @@ class ParticleDynamic():
         self.update_diff = float('inf')
 
         # set noise model
-        if noise == 'isotropic':
+        if noise == 'isotropic' or noise is None:
             self.noise = self.isotropic_noise
         elif noise == 'anisotropic':
             self.noise = self.anisotropic_noise
         elif noise == 'sampling':
             self.noise = self.covariance_noise
-            warnings.warn('Currently not bug-free!')
+            warnings.warn('Currently not bug-free!', stacklevel=2)
         else:
-            raise ValueError('Unknown noise model specified')
+            self.noise = noise
 
         # termination parameters and checks
         self.energy_tol = energy_tol
@@ -299,10 +299,10 @@ class ParticleDynamic():
     
 
     def anisotropic_noise(self,):
-            """
-            """
-            z = np.random.normal(0, np.sqrt(self.dt), size=self.drift.shape) * self.drift
-            return z
+        """
+        """
+        z = np.random.normal(0, np.sqrt(self.dt), size=self.drift.shape) * self.drift
+        return z
         
     def isotropic_noise(self,):
         r"""Model for normal distributed noise
@@ -335,9 +335,8 @@ class ParticleDynamic():
 
         """
 
-        def __call__(self,):
-            z = np.sqrt(self.dt) * np.random.normal(0, 1, size=self.drift.shape)
-            return z * np.linalg.norm(self.drift, axis=-1,keepdims=True)
+        z = np.sqrt(self.dt) * np.random.normal(0, 1, size=self.drift.shape)
+        return z * np.linalg.norm(self.drift, axis=-1,keepdims=True)
         
     def covariance_noise(self,):
         self.update_covariance()

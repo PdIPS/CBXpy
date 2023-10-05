@@ -12,7 +12,7 @@ class test_abstract_dynamic():
     def f(self):
         return cbx.objectives.Quadratic()
     
-    def test_torch_handeling(self, f, dynamic):
+    def test_torch_handling(self, f, dynamic):
         '''Test if torch is correctly handled'''
         import torch
         x = torch.zeros((6,5,7))
