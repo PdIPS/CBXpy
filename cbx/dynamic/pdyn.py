@@ -1,9 +1,9 @@
+import warnings
 #%%
-from ..noise import normal_noise
 from ..utils.particle_init import init_particles
 from ..utils.scheduler import scheduler
 from ..utils.numpy_torch_comp import copy_particles
-from ..utils.objective_handling import _promote_objective
+from ..utils.objective_handling import _promote_objective, batched_objective
 
 #%%
 from typing import Callable, Union
@@ -45,7 +45,7 @@ class ParticleDynamic():
             max_it: Union[int, None] = 1000,
             dt: float = 0.1, alpha: float = 1.0, sigma: float =1.0,
             lamda: float = 1.0,
-            correction: Union[None, str, Callable] = None, 
+            correction: str = 'no_correction', 
             correction_eps: float = 1e-3,
             array_mode: str = 'numpy',
             check_f_dims: bool = True) -> None:
@@ -73,9 +73,13 @@ class ParticleDynamic():
         self.x = self.copy_particles(x)
         
         # set and promote objective function
-        if f_dim != '3D' and array_mode == 'pytorch':
-            raise RuntimeError('Pytorch array_mode only supported for 3D objective functions.')
-        self.f = _promote_objective(f, f_dim)
+        if not isinstance(f, batched_objective):
+            if f_dim != '3D' and array_mode == 'pytorch':
+                raise RuntimeError('Pytorch array_mode only supported for 3D objective functions.')
+            self.f = _promote_objective(f, f_dim)
+        else:
+            self.f = f
+        
         self.num_f_eval = 0 * np.ones((self.M,)) # number of function evaluations  
         if check_f_dims: # check if f returns correct shape
             x = np.random.uniform(-1,1,(self.M, self.N, self.d))
@@ -88,10 +92,15 @@ class ParticleDynamic():
         self.update_diff = float('inf')
 
         # set noise model
-        if noise is None:
-            self.noise = normal_noise(dt = dt)
+        if noise == 'isotropic':
+            self.noise = self.isotropic_noise
+        elif noise == 'anisotropic':
+            self.noise = self.anisotropic_noise
+        elif noise == 'sampling':
+            self.noise = self.covariance_noise
+            warnings.warn('Currently not bug-free!')
         else:
-            self.noise = noise
+            raise ValueError('Unknown noise model specified')
 
         # termination parameters and checks
         self.energy_tol = energy_tol
@@ -123,14 +132,14 @@ class ParticleDynamic():
         self.sigma = sigma
         self.lamda = lamda
         
-        self.m_alpha = None # mean of the particles
-
-        if correction is None:
-            self.correction = no_correction()
+        self.consensus = None # mean of the particles
+        
+        if correction == 'no_correction':
+            self.correction = self.no_correction
         elif correction == 'heavi_side':
-            self.correction = heavi_side()
+            self.correction = self.heavi_side
         elif correction == 'heavi_side_reg':
-            self.correction = heavi_side_reg(eps = correction_eps)
+            self.correction = self.heavi_side_reg
         else:
             self.correction = correction
 
@@ -273,23 +282,72 @@ class ParticleDynamic():
     def best_particle(self):
         return self.x[np.arange(self.M), self.f_min_idx, :]
 
-class no_correction:
-    def __call__(self, dyn):
-        return np.ones(dyn.x.shape)
+    def no_correction(self,):
+        return np.ones(self.x.shape)
 
-class heavi_side:
-    def __call__(self, dyn):
-        x = dyn.energy - dyn.f(dyn.m_alpha)
-        dyn.num_f_eval += dyn.m_alpha.shape[0] # update number of function evaluations
+    def heavi_side_correction(self,):
+        z = self.energy - self.f(self.consensus)
+        self.num_f_eval += self.consensus.shape[0] # update number of function evaluations
 
-        return np.where(x > 0, 1,0)[...,None]
+        return np.where(z > 0, 1,0)[...,None]
 
-class heavi_side_reg:
-    def __init__(self, eps=1e-3):
-        self.eps = eps
+    def heavi_side_reg_correction(self,):
+        z = self.energy - self.f(self.consensus)
+        self.num_f_eval += self.consensus.shape[0] # update number of function evaluations
+
+        return 0.5 + 0.5 * np.tanh(z/self.correction_eps)
     
-    def __call__(self, dyn):
-        x = dyn.energy - dyn.f(dyn.m_alpha)
-        dyn.num_f_eval += dyn.m_alpha.shape[0] # update number of function evaluations
 
-        return 0.5 + 0.5 * np.tanh(x/dyn.eps)
+    def anisotropic_noise(self,):
+            """
+            """
+            z = np.random.normal(0, np.sqrt(self.dt), size=self.drift.shape) * self.drift
+            return z
+        
+    def isotropic_noise(self,):
+        r"""Model for normal distributed noise
+
+        This class implements a normal noise model with zero mean and covariance matrix :math:`\dt I_d`
+        where :math:`\dt` is a parameter of the class. Given the vector :math:`x_i - \mathsf{m}(x_i)`,
+        the noise vector is computed as
+
+        .. math::
+
+            n_i = \dt \sqrt{\|x_i - \mathsf{m}(x_i)\|_2}\ \mathcal{N}(0,1)
+
+
+        Parameters
+        ----------
+        dt : float, optional
+            The parameter :math:`\dt` of the noise model. The default is 0.1.
+        
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from polarcbo.noise import normal_noise
+        >>> drift = np.array([[2,3], [4,5], [1,4.]])
+        >>> noise = normal_noise(dt=0.1)
+        >>> noise(drift)
+        array([[-2.4309445 ,  1.34997294],
+               [-1.08502177,  0.24030935],
+               [ 0.1794014 , -1.09228077]])
+
+
+        """
+
+        def __call__(self,):
+            z = np.sqrt(self.dt) * np.random.normal(0, 1, size=self.drift.shape)
+            return z * np.linalg.norm(self.drift, axis=-1,keepdims=True)
+        
+    def covariance_noise(self,):
+        self.update_covariance()
+        z = np.random.normal(0, 1, size=self.x.shape) # num, d
+        noise = np.zeros(self.x.shape)
+        
+        # the following needs to be optimized
+        for j in range(self.x.shape[0]):
+            noise[j,:] = self.C_sqrt[j,::]@(z[j,:])
+        return (np.sqrt(1/self.lamda * (1 - self.alpha**2))) * noise
+    
+    def update_covariance(self,):
+        pass

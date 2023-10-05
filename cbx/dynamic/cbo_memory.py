@@ -88,17 +88,17 @@ class CBOMemory(ParticleDynamic):
         mind = self.get_mean_ind()
         ind = self.get_ind()#
         # first update
-        self.m_alpha = self.compute_mean(self.y[mind], self.energy[mind])        
-        self.m_diff = self.x[ind] - self.m_alpha
+        self.consensus = self.compute_mean(self.y[mind], self.energy[mind])        
+        self.drift = self.x[ind] - self.consensus
         self.memory_diff = self.x[ind] - self.y[ind]
         
         # inter step
-        self.s = self.sigma * self.noise(self.m_diff)
+        self.s = self.sigma * self.noise()
         self.s_memory = self.sigma_memory * self.noise(self.memory_diff)
 
         self.x[ind] = (
             self.x[ind] -
-            self.lamda * self.dt * self.m_diff * self.correction(self)[ind] -
+            self.lamda * self.dt * self.drift * self.correction()[ind] -
             self.lamda_memory * self.dt * self.memory_diff +
             self.s + 
             self.s_memory)

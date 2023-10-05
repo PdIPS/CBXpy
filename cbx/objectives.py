@@ -1,5 +1,5 @@
 """
-Objectives
+batched_objectives
 ==========
 
 This module implements obejective functions to test the performance of consesus 
@@ -8,31 +8,10 @@ algorithms.
 """
 
 import numpy as np
-from abc import ABC, abstractmethod
-#%% Objective function
-
-class objective(ABC):
-    """Abstract objective function class"""
-
-    @abstractmethod
-    def __call__(self, x):
-        """Call method for classes that inherit from ``objective``
-
-        Parameters
-        ----------
-        x : array_like, shape (J, d)
-            For a system of :math:`J` particles, the i-th row of this array ``x[i,:]`` 
-            represents the position of the i-th particle.
-            
-        Returns
-        -------
-        y : array_like, shape (J,)
-            The value of the objective function at the positions ``x``.
-
-        """
+from .utils.objective_handling import batched_objective
     
-
-class three_hump_camel(objective):
+#%%
+class three_hump_camel(batched_objective):
     """Three-hump camel function
 
 
@@ -46,7 +25,7 @@ class three_hump_camel(objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.objectives import three_hump_camel
+    >>> from cbx.batched_objectives import three_hump_camel
     >>> x = np.array([[1,2], [3,4], [5,6.]])
     >>> obj = three_hump_camel()
     >>> obj(x)
@@ -60,7 +39,7 @@ class three_hump_camel(objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.objectives import three_hump_camel
+        from cbx.batched_objectives import three_hump_camel
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max =  2.
@@ -95,7 +74,7 @@ class three_hump_camel(objective):
 
 
 
-class McCormick(objective):
+class McCormick(batched_objective):
     """McCormick's function
     
     McCormick's function is a multimodal function with two global minima at
@@ -112,7 +91,7 @@ class McCormick(objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.objectives import McCormick
+    >>> from cbx.batched_objectives import McCormick
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = McCormick()
     >>> f(x)
@@ -126,7 +105,7 @@ class McCormick(objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.objectives import McCormick
+        from cbx.batched_objectives import McCormick
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max = 3.
@@ -158,7 +137,7 @@ class McCormick(objective):
         return np.sin(x[..., 0] + x[...,1]) + (x[...,0] - x[...,1])**2 - 1.5 * x[...,0] + 2.5*x[...,1] + 1
 
 
-class Rosenbrock(objective):
+class Rosenbrock(batched_objective):
     """Rosenbrock's function
 
     Rosenbrock's function is a multimodal function with a global minimum at
@@ -180,7 +159,7 @@ class Rosenbrock(objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.objectives import Rosenbrock
+    >>> from cbx.batched_objectives import Rosenbrock
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Rosenbrock()
     >>> f(x)
@@ -194,7 +173,7 @@ class Rosenbrock(objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.objectives import Rosenbrock
+        from cbx.batched_objectives import Rosenbrock
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max = 2.
@@ -231,7 +210,7 @@ class Rosenbrock(objective):
 
 
 
-class Himmelblau(objective):
+class Himmelblau(batched_objective):
     """Himmelblau's function
 
     Himmelblau's function is a multimodal function with. The function is defined as 
@@ -259,7 +238,7 @@ class Himmelblau(objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.objectives import Himmelblau
+    >>> from cbx.batched_objectives import Himmelblau
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Himmelblau()
     >>> f(x)
@@ -273,7 +252,7 @@ class Himmelblau(objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.objectives import Himmelblau
+        from cbx.batched_objectives import Himmelblau
         fig = plt.figure(figsize=(15,5))
         x_min = -5.
         x_max = 5.
@@ -309,7 +288,7 @@ class Himmelblau(objective):
         x = self.factor*x
         return (x[...,0]**2 + x[...,1] - 11)**2 + (x[...,0] + x[...,1]**2 - 7)**2
 
-class Rastrigin(objective):
+class Rastrigin(batched_objective):
     r"""Rastrigin's function
 
     Rastrigin's function is a multimodal function with a global minima at
@@ -337,7 +316,7 @@ class Rastrigin(objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.objectives import Rastrigin
+    >>> from cbx.batched_objectives import Rastrigin
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Rastrigin()
     >>> f(x)
@@ -351,7 +330,7 @@ class Rastrigin(objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.objectives import Rastrigin
+        from cbx.batched_objectives import Rastrigin
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max =  2.
@@ -408,7 +387,7 @@ class Rastrigin_multimodal():
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.objectives import Rastrigin_multimodal
+    >>> from cbx.batched_objectives import Rastrigin_multimodal
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> alpha = [2., 3.]
     >>> z = np.array([[2,3], [4,5]])
@@ -461,7 +440,7 @@ class Ackley():
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.objectives import Ackley
+    >>> from cbx.batched_objectives import Ackley
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Ackley()
     >>> f(x)
@@ -475,7 +454,7 @@ class Ackley():
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.objectives import Ackley
+        from cbx.batched_objectives import Ackley
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max =  2.
@@ -535,7 +514,7 @@ class Ackley_multimodal():
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.objectives import Ackley_multimodal
+    >>> from cbx.batched_objectives import Ackley_multimodal
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> alpha = [2., 3.]
     >>> z = np.array([[2,3], [4,5]])
@@ -646,7 +625,7 @@ class Unimodal():
         return ret
     
 
-class Bukin6(objective):
+class Bukin6(batched_objective):
     r"""Bukin's function 6
 
     Bunkin's sixth function is a function with many local minima and one global minimum. It is defined as
@@ -669,7 +648,7 @@ class Bukin6(objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.objectives import Bukin6
+    >>> from cbx.batched_objectives import Bukin6
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Bukin6()
     >>> f(x)
@@ -683,7 +662,7 @@ class Bukin6(objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.objectives import Bukin6
+        from cbx.batched_objectives import Bukin6
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max =  2.
@@ -747,7 +726,7 @@ class cross_in_tray():
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.objectives import cross_in_tray
+    >>> from cbx.batched_objectives import cross_in_tray
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = cross_in_tray()
     >>> f(x)
@@ -761,7 +740,7 @@ class cross_in_tray():
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.objectives import cross_in_tray
+        from cbx.batched_objectives import cross_in_tray
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max =  2.
@@ -822,7 +801,7 @@ class Easom():
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.objectives import Easom
+    >>> from cbx.batched_objectives import Easom
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Easom()
     >>> f(x)
@@ -836,7 +815,7 @@ class Easom():
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.objectives import Easom
+        from cbx.batched_objectives import Easom
         fig = plt.figure(figsize=(15,5))
         x_min = 0
         x_max =  2. * np.pi
@@ -876,7 +855,7 @@ class Easom():
     
 
 
-class drop_wave(objective):
+class drop_wave(batched_objective):
     r"""Drop Wave
 
     The Drop Wave function is a function with many local minima and one global minimum [1]_. It is defined as
@@ -899,7 +878,7 @@ class drop_wave(objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.objectives import drop_wave
+    >>> from cbx.batched_objectives import drop_wave
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = drop_wave()
     >>> f(x)
@@ -913,7 +892,7 @@ class drop_wave(objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.objectives import drop_wave
+        from cbx.batched_objectives import drop_wave
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max =  2.
@@ -951,7 +930,7 @@ class drop_wave(objective):
         return -(1 + np.cos(12 * np.sqrt(x[...,0]**2 + x[...,1]**2))) * np.exp(-0.5 * (x[...,0]**2 + x[...,1]**2) / (1 + 0.001 * (x[...,0]**2 + x[...,1]**2)))
     
 
-class Holder_table(objective):
+class Holder_table(batched_objective):
     r"""Holder table
 
     The Holder table function is a function with many local minima and four global minima [1]_. It is defined as
@@ -977,7 +956,7 @@ class Holder_table(objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.objectives import Holder_table
+    >>> from cbx.batched_objectives import Holder_table
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Holder_table()
     >>> f(x)
@@ -991,7 +970,7 @@ class Holder_table(objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.objectives import Holder_table
+        from cbx.batched_objectives import Holder_table
         fig = plt.figure(figsize=(15,5))
         x_min = -10.
         x_max =  10.
@@ -1066,7 +1045,7 @@ class snowflake():
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.objectives import snowflake
+        from cbx.batched_objectives import snowflake
         fig = plt.figure(figsize=(15,5))
         x_min = -2.5
         x_max =  2.5
@@ -1153,7 +1132,7 @@ class eggholder:
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.objectives import eggholder
+        from cbx.batched_objectives import eggholder
         fig = plt.figure(figsize=(15,5))
         x_min = -600
         x_max =  600
@@ -1220,7 +1199,7 @@ class Michalewicz:
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.objectives import Michalewicz
+        from cbx.batched_objectives import Michalewicz
         fig = plt.figure(figsize=(15,5))
         x_min = 0.
         x_max =  4.

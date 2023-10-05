@@ -2,6 +2,7 @@ import numpy as np
 import cbx as cbx
 from cbx.dynamic import CBO
 from cbx.objectives import Quadratic, Rastrigin
+from cbx.utils.objective_handling import batched_objective
 from cbx.utils.scheduler import scheduler, multiply
 
 np.random.seed(42)
@@ -17,17 +18,19 @@ conf = {'alpha': 100.0,
         'M': 2}
 
 #%% Define the objective function
-f = Quadratic()
-f = Rastrigin()
+mode = 'import'
+if mode == 'import':
+    f = Rastrigin()
+else:
+    @batched_objective
+    def f(x):
+        return np.linalg.norm(x, axis=-1)
 
 #%% Define the initial positions of the particles
 x = cbx.utils.init_particles(shape=(conf['M'], conf['N'], conf['d']), x_min=-3., x_max = 3.)
 
-#%% Define the noise function
-noise = cbx.noise.comp_noise(dt = conf['dt'])
-
 #%% Define the CBO algorithm
-dyn = CBO(f, x=x, noise=noise, f_dim='2D', 
+dyn = CBO(f, x=x, noise='anisotropic', f_dim='2D', 
           **conf)
 sched = scheduler(dyn, [multiply(name='alpha', factor=1.1, maximum=1e15),
                         #multiply(name='sigma', factor=1.005, maximum=6.)

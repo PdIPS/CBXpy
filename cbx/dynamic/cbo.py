@@ -59,15 +59,15 @@ class CBO(ParticleDynamic):
         mind = self.get_mean_ind()
         ind = self.get_ind()#
         # first update
-        self.m_alpha = self.compute_mean(self.x[mind])        
-        self.m_diff = self.x[ind] - self.m_alpha
+        self.consensus = self.compute_mean(self.x[mind])        
+        self.drift = self.x[ind] - self.consensus
         
         # inter step
-        self.s = self.sigma * self.noise(self.m_diff)
+        self.s = self.sigma * self.noise()
 
         self.x[ind] = (
             self.x[ind] -
-            self.lamda * self.dt * self.m_diff * self.correction(self)[ind] +
+            self.lamda * self.dt * self.drift * self.correction()[ind] +
             self.s)
         
         self.post_step()
