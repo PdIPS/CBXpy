@@ -11,12 +11,13 @@ conf = {'alpha': 30.0,
         'dt': 0.01,
         'sigma': 5.1,#8,#5.1,#8.0,
         'lamda': 1.0,
-        'batch_size':70,
+        'batch_size':50,
+        'batch_partial': False,
         'd': 20,
         'max_it': 10000,
         'N': 100,
         'M': 2,
-        'track_list': ['update_norm', 'energy',],
+        'track_list': ['update_norm', 'energy','x', 'consensus', 'drift'],
         'resampling': False,
         'update_thresh': 0.002}
 
@@ -51,3 +52,7 @@ while not dyn.terminate():
         print('Sigma: ' + str(dyn.sigma))
         
     it+=1
+    
+#%%
+from cbx.plotting import plot_evolution
+plot_evolution(dyn, wait=0.5, freq=1, dims=[0,19], cf_args={'x_min':-3, 'x_max':3})

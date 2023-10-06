@@ -156,10 +156,12 @@ class ParticleDynamic():
 
                 
         self.resampling = resampling
+        self.num_resampling = np.zeros((self.M,), dtype=int)
         self.update_thresh = update_thresh
         self.verbosity = verbosity 
 
     def step(self,) -> None:
+        self.pre_step()
         self.post_step()
 
     def optimize(self,
@@ -216,15 +218,12 @@ class ParticleDynamic():
 
         self.batch_idx = self.indices[:,:self.batch_size] # get batch indices
         self.indices = self.indices[:, self.batch_size:] # remove batch indices from indices
-
-    def get_mean_ind(self):
-        return (self.M_idx, self.batch_idx, Ellipsis)
-    
-    def get_ind(self):
+        
+        self.consensus_idx = (self.M_idx, self.batch_idx, Ellipsis)
         if self.batch_partial:
-            return self.get_mean_ind()
+            self.particle_idx = self.consensus_idx
         else:
-            return Ellipsis
+            self.particle_idx = Ellipsis
 
     def check_max_time(self):
         return self.t >= self.max_time
@@ -263,6 +262,13 @@ class ParticleDynamic():
         else:
             return False
         
+    def pre_step(self,):
+        # save old positions
+        self.x_old = self.copy_particles(self.x)
+        
+        # set new batch indices
+        self.set_batch_idx()
+        
     def post_step(self):
         if hasattr(self, 'x_old'):
             self.update_diff = np.linalg.norm(self.x - self.x_old, axis=(-2,-1))/self.N
@@ -282,21 +288,35 @@ class ParticleDynamic():
         self.history = {}
         for key in self.track_list:
             if key == 'x':
-                self.history[key] = []
+                self.history[key] = np.zeros((self.max_it, self.M, self.N, self.d))
+            elif key == 'consensus':
+                self.history[key] = np.zeros((self.max_it, self.M, 1, self.d))
             elif key == 'update_norm':
-                self.history[key] = np.zeros((self.M, self.max_it))
+                self.history[key] = np.zeros((self.max_it, self.M,))
             elif key == 'energy':
-                self.history[key] = np.zeros((self.M, self.max_it))
+                self.history[key] = np.zeros((self.max_it, self.M,))
+            elif key == 'drift_mean':
+                self.history[key] = np.zeros((self.max_it, self.M,))
+            elif key == 'drift':
+                self.history[key] = []
+                self.history['particle_idx'] = []
             else:
                 raise ValueError('Unknown key ' + str(key) + ' for tracked values.')
         
     def track(self,):
         if 'x' in self.track_list:
-            self.history['x'].append(self.copy_particles(self.x))
+            self.history['x'][self.it, ...] = self.copy_particles(self.x)
+        if 'consensus' in self.track_list:
+            self.history['consensus'][self.it, ...] = self.copy_particles(self.consensus)
         if 'update_norm' in self.track_list:
-            self.history['update_norm'][:, self.it] = self.update_diff
+            self.history['update_norm'][self.it, :] = self.update_diff
         if 'energy' in self.track_list:
-            self.history['energy'][:, self.it] = self.best_cur_energy
+            self.history['energy'][self.it, :] = self.best_cur_energy
+        if 'drift_mean' in self.track_list:
+            self.history['drift_mean'][self.it, :] = np.mean(np.abs(self.drift), axis=(-2,-1))
+        if 'drift' in self.track_list:
+            self.history['drift'].append(self.drift)
+            self.history['particle_idx'].append(self.particle_idx)
         
     
     
@@ -305,6 +325,7 @@ class ParticleDynamic():
         if len(idx)>0:
             z = np.random.normal(0, 1., size=(len(idx), self.N, self.d))
             self.x[idx, ...] += self.sigma * np.sqrt(self.dt) * z
+            self.num_resampling[idx] += 1
             if self.verbosity > 0:
                     print('Resampled in runs ' + str(idx))
 
@@ -331,8 +352,8 @@ class ParticleDynamic():
         else:
             self.correction = correction
     
-    def no_correction(self,):
-        return np.ones(self.x.shape)
+    def no_correction(self, x):
+        return x
 
     def heavi_side_correction(self,):
         z = self.energy - self.f(self.consensus)

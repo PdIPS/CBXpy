@@ -52,26 +52,20 @@ class CBO(ParticleDynamic):
         None
         
         """
-        # save old positions
-        self.x_old = self.copy_particles(self.x)
-        
-        # set new batch indices
-        self.set_batch_idx()
-        mind = self.get_mean_ind()
-        ind = self.get_ind()
+        self.pre_step()
         
         # update, consensus point, drift and energy
-        self.consensus, energy = self.compute_mean(self.x[mind])        
-        self.drift = self.x[ind] - self.consensus
-        self.energy[mind] = energy
+        self.consensus, energy = self.compute_consensus(self.x[self.consensus_idx])        
+        self.drift = self.x[self.particle_idx] - self.consensus
+        self.energy[self.consensus_idx] = energy
         
-        # inter step
+        # compute noise
         self.s = self.sigma * self.noise()
 
-        # dynamcis update
-        self.x[ind] = (
-            self.x[ind] -
-            self.lamda * self.dt * self.drift * self.correction()[ind] +
+        #  update particle positions
+        self.x[self.particle_idx] = (
+            self.x[self.particle_idx] -
+            self.correction(self.lamda * self.dt * self.drift) +
             self.s)
         
         print(self.batch_idx[0,:].shape)
@@ -80,7 +74,7 @@ class CBO(ParticleDynamic):
         self.post_step()
         
         
-    def compute_mean(self, x_batch) -> None:
+    def compute_consensus(self, x_batch) -> None:
         r"""Updates the weighted mean of the particles.
 
         Parameters
@@ -98,4 +92,9 @@ class CBO(ParticleDynamic):
         
         weights = - self.alpha * energy
         coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
+        
+        problem_idx = np.where(np.abs(coeffs.sum(axis=-2)-1) > 0.1)[0]
+        if len(problem_idx) > 0:
+            raise RuntimeError('Problematic consensus computation!')
+        
         return (x_batch * coeffs).sum(axis=-2, keepdims=True), energy
