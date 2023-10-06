@@ -5,17 +5,20 @@ from cbx.objectives import Rastrigin
 from cbx.utils.objective_handling import batched_objective
 from cbx.utils.scheduler import scheduler, multiply
 
-np.random.seed(42)
+np.random.seed(420)
 #%%
-conf = {'alpha': 100.0,
+conf = {'alpha': 30.0,
         'dt': 0.01,
-        'sigma': 8.0,
+        'sigma': 5.1,#8,#5.1,#8.0,
         'lamda': 1.0,
-        'batch_size':999,
+        'batch_size':70,
         'd': 20,
-        'max_it': 5000,
-        'N': 1000,
-        'M': 2}
+        'max_it': 10000,
+        'N': 100,
+        'M': 2,
+        'track_list': ['update_norm', 'energy',],
+        'resampling': False,
+        'update_thresh': 0.002}
 
 #%% Define the objective function
 mode = 'import'
@@ -30,7 +33,7 @@ else:
 x = cbx.utils.init_particles(shape=(conf['M'], conf['N'], conf['d']), x_min=-3., x_max = 3.)
 
 #%% Define the CBO algorithm
-dyn = CBO(f, x=x, noise='anisotropic', f_dim='2D', 
+dyn = CBO(f, x=x, noise='anisotropic', f_dim='3D', 
           **conf)
 sched = scheduler(dyn, [multiply(name='alpha', factor=1.1, maximum=1e15),
                         #multiply(name='sigma', factor=1.005, maximum=6.)

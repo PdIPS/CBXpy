@@ -52,15 +52,18 @@ class CBO(ParticleDynamic):
         None
         
         """
+        # save old positions
+        self.x_old = self.copy_particles(self.x)
+        
+        # set new batch indices
         self.set_batch_idx()
-        self.x_old = self.copy_particles(self.x) # save old positions
-        #x_batch = self.x[self.M_idx, self.batch_idx, :] # get batch
-
         mind = self.get_mean_ind()
-        ind = self.get_ind()#
-        # first update
-        self.consensus = self.compute_mean(self.x[mind])        
+        ind = self.get_ind()
+        
+        # update, consensus point, drift and energy
+        self.consensus, energy = self.compute_mean(self.x[mind])        
         self.drift = self.x[ind] - self.consensus
+        self.energy[mind] = energy
         
         # inter step
         self.s = self.sigma * self.noise()
@@ -90,9 +93,9 @@ class CBO(ParticleDynamic):
 
         """
         # evaluation of objective function on batch
-        self.energy = self.f(x_batch) # update energy
-        self.num_f_eval += np.ones(self.M) * self.batch_size # update number of function evaluations
+        energy = self.f(x_batch) # update energy
+        self.num_f_eval += np.prod(x_batch.shape[:-1]) # update number of function evaluations
         
-        weights = - self.alpha * self.energy#[e_ind]
+        weights = - self.alpha * energy
         coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
-        return (x_batch * coeffs).sum(axis=-2, keepdims=True)
+        return (x_batch * coeffs).sum(axis=-2, keepdims=True), energy

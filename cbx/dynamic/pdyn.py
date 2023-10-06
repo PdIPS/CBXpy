@@ -48,7 +48,11 @@ class ParticleDynamic():
             correction: str = 'no_correction', 
             correction_eps: float = 1e-3,
             array_mode: str = 'numpy',
-            check_f_dims: bool = True) -> None:
+            check_f_dims: bool = True,
+            track_list: list = None,
+            resampling: bool = False,
+            update_thresh: float = 0.1,
+            verbosity: int = 1) -> None:
         
         # init particles        
         if x is None:
@@ -88,19 +92,14 @@ class ParticleDynamic():
             self.num_f_eval = N * np.ones((self.M,)) # number of function evaluations
         self.f_min = float('inf') * np.ones((self.M,)) # minimum function value
         
-        self.energy = None # energy of the particles
+        self.energy = float('inf') * np.ones((self.M, self.N)) # energy of the particles
+        self.best_energy = float('inf') * np.ones((self.M,))
+        self.best_particle = np.zeros((self.M,self.d))
         self.update_diff = float('inf')
 
-        # set noise model
-        if noise == 'isotropic' or noise is None:
-            self.noise = self.isotropic_noise
-        elif noise == 'anisotropic':
-            self.noise = self.anisotropic_noise
-        elif noise == 'sampling':
-            self.noise = self.covariance_noise
-            warnings.warn('Currently not bug-free!', stacklevel=2)
-        else:
-            self.noise = noise
+
+        self.set_noise(noise)
+
 
         # termination parameters and checks
         self.energy_tol = energy_tol
@@ -134,14 +133,7 @@ class ParticleDynamic():
         
         self.consensus = None # mean of the particles
         
-        if correction == 'no_correction':
-            self.correction = self.no_correction
-        elif correction == 'heavi_side':
-            self.correction = self.heavi_side
-        elif correction == 'heavi_side_reg':
-            self.correction = self.heavi_side_reg
-        else:
-            self.correction = correction
+        self.set_correction(correction)
 
         # batching
         self.batch_partial = batch_partial
@@ -158,17 +150,23 @@ class ParticleDynamic():
             self.batched = True
             self.batch_rng = np.random.default_rng(batch_seed)
             self.indices = self.batch_rng.permuted(self.indices, axis=1)
+            
+        self.track_list = track_list if not track_list is None else ['update_norm', 'energy']
+        self.init_history()
+
+                
+        self.resampling = resampling
+        self.update_thresh = update_thresh
+        self.verbosity = verbosity 
 
     def step(self,) -> None:
         self.post_step()
 
-    def optimize(self, 
-                 verbosity:int = 0, 
-                 save_particles:bool = False, 
+    def optimize(self,
                  print_int:int = 100,
                  sched = None):
         
-        if verbosity > 0:
+        if self.verbosity > 0:
             print('.'*20)
             print('Starting Optimization with dynamic: ' + self.__class__.__name__)
             print('.'*20)
@@ -176,30 +174,28 @@ class ParticleDynamic():
         if sched is None:
             sched = scheduler(self, [])
 
-        x_history = [self.copy_particles(self.x)]
+        self.history['x'] = [self.copy_particles(self.x)]
+        self.history['update_norm'] = [np.linalg.norm(self.x, axis=(-2,-1))]
 
-        while not self.terminate(verbosity=verbosity):
+        while not self.terminate(verbosity=self.verbosity):
             self.step()
             sched.update()
 
             if (self.it % print_int == 0):
-                if verbosity > 0:
+                if self.verbosity > 0:
                     print('Time: ' + "{:.3f}".format(self.t) + ', best energy: ' + str(self.f_min))
                     print('Number of function evaluations: ' + str(self.num_f_eval))
 
-                if verbosity > 1:
+                if self.verbosity > 1:
                     print('Current alpha: ' + str(self.alpha))
-                    
-                if save_particles:
-                    x_history.append(self.copy_particles(self.x))
 
-        if verbosity > 0:
+        if self.verbosity > 0:
             print('-'*20)
             print('Finished solver.')
             print('Best energy: ' + str(self.f_min))
             print('-'*20)
 
-        return self.best_particle(), x_history
+        return self.best_particle()
 
     def copy_particles(self, x):
         return copy_particles(x, mode=self.array_mode)
@@ -213,7 +209,8 @@ class ParticleDynamic():
         if self.indices.shape[1] < self.batch_size: # if indices are exhausted
             indices = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
             if self.batched:
-                indices = self.batch_rng.permuted(indices, axis=1)
+                pass
+                #indices = self.batch_rng.permuted(indices, axis=1)
             self.indices = np.concatenate((self.indices, indices), axis=1)
             #self.batch_size
 
@@ -268,20 +265,72 @@ class ParticleDynamic():
         
     def post_step(self):
         if hasattr(self, 'x_old'):
-            self.update_diff = np.linalg.norm(self.x - self.x_old)
+            self.update_diff = np.linalg.norm(self.x - self.x_old, axis=(-2,-1))/self.N
+        
+        self.set_best_cur_particle()
+        self.update_best_particle()
+        self.track()
 
-        if self.energy is not None:
-            self.f_min = self.energy.min(axis=-1)
-            self.f_min_idx = self.energy.argmin(axis=-1)
-        else:
-            self.f_min = float('inf') * np.ones((self.M,))
-            self.f_min_idx = np.zeros((self.M,), dtype=int)
+        if self.resampling:
+            self.resample()
+            
         self.t += self.dt
         self.it+=1
+        
+        
+    def init_history(self,):
+        self.history = {}
+        for key in self.track_list:
+            if key == 'x':
+                self.history[key] = []
+            elif key == 'update_norm':
+                self.history[key] = np.zeros((self.M, self.max_it))
+            elif key == 'energy':
+                self.history[key] = np.zeros((self.M, self.max_it))
+            else:
+                raise ValueError('Unknown key ' + str(key) + ' for tracked values.')
+        
+    def track(self,):
+        if 'x' in self.track_list:
+            self.history['x'].append(self.copy_particles(self.x))
+        if 'update_norm' in self.track_list:
+            self.history['update_norm'][:, self.it] = self.update_diff
+        if 'energy' in self.track_list:
+            self.history['energy'][:, self.it] = self.best_cur_energy
+        
+    
+    
+    def resample(self,) -> None:
+        idx = np.where(self.update_diff < self.update_thresh)[0]
+        if len(idx)>0:
+            z = np.random.normal(0, 1., size=(len(idx), self.N, self.d))
+            self.x[idx, ...] += self.sigma * np.sqrt(self.dt) * z
+            if self.verbosity > 0:
+                    print('Resampled in runs ' + str(idx))
 
-    def best_particle(self):
-        return self.x[np.arange(self.M), self.f_min_idx, :]
+    def set_best_cur_particle(self,):
+        self.f_min = self.energy.min(axis=-1)
+        self.f_min_idx = self.energy.argmin(axis=-1)
+        self.best_cur_particle = self.x[np.arange(self.M), self.f_min_idx, :]
+        self.best_cur_energy = self.energy[np.arange(self.M), self.f_min_idx]
+    
+    def update_best_particle(self,):
+        idx = np.where(self.best_energy > self.best_cur_energy)[0]
+        if len(idx) > 0:
+            self.best_energy[idx] = self.best_cur_energy[idx]
+            self.best_particle[idx, :] = self.best_cur_particle[idx, :]
 
+
+    def set_correction(self, correction):
+        if correction == 'no_correction':
+            self.correction = self.no_correction
+        elif correction == 'heavi_side':
+            self.correction = self.heavi_side
+        elif correction == 'heavi_side_reg':
+            self.correction = self.heavi_side_reg
+        else:
+            self.correction = correction
+    
     def no_correction(self,):
         return np.ones(self.x.shape)
 
@@ -297,12 +346,25 @@ class ParticleDynamic():
 
         return 0.5 + 0.5 * np.tanh(z/self.correction_eps)
     
+    def set_noise(self, noise):
+        # set noise model
+        if noise == 'isotropic' or noise is None:
+            self.noise = self.isotropic_noise
+        elif noise == 'anisotropic':
+            self.noise = self.anisotropic_noise
+        elif noise == 'sampling':
+            self.noise = self.covariance_noise
+            warnings.warn('Currently not bug-free!', stacklevel=2)
+        else:
+            warnings.warn('Custom noise specified. This is not the recommended\
+                          for choosing a custom noise model.', stacklevel=2)
+            self.noise = noise
 
     def anisotropic_noise(self,):
         """
         """
-        z = np.random.normal(0, np.sqrt(self.dt), size=self.drift.shape) * self.drift
-        return z
+        z = np.random.normal(0, 1, size=self.drift.shape) * self.drift
+        return np.sqrt(self.dt) * z
         
     def isotropic_noise(self,):
         r"""Model for normal distributed noise
@@ -350,3 +412,4 @@ class ParticleDynamic():
     
     def update_covariance(self,):
         pass
+    
