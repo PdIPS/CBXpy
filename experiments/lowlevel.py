@@ -9,12 +9,12 @@ np.random.seed(42)
 #%%
 conf = {'alpha': 100.0,
         'dt': 0.01,
-        'sigma': 6.0,
+        'sigma': 8.0,
         'lamda': 1.0,
-        'batch_size':100,
+        'batch_size':999,
         'd': 20,
         'max_it': 5000,
-        'N': 100,
+        'N': 1000,
         'M': 2}
 
 #%% Define the objective function
