@@ -12,21 +12,21 @@ class CBO(ParticleDynamic):
 
     Parameters
     ----------
-    x : array_like, shape (J, d)
-        The initial positions of the particles. For a system of :math:`J` particles, the i-th row of this array ``x[i,:]``
+    x : array_like, shape (N, d)
+        The initial positions of the particles. For a system of :math:`N` particles, the i-th row of this array ``x[i,:]``
         represents the position :math:`x_i` of the i-th particle.
-    f : obejective
+    f : objective
         The objective function :math:`f(x)` of the system.
+    dt : float, optional
+        The parameter :math:`dt` of the system. The default is 0.1.
+    lamda : float, optional
+        The decay parameter :math:`\lambda` of the system. The default is 1.0.
     alpha : float, optional
         The heat parameter :math:`\alpha` of the system. The default is 1.0.
     noise : noise_model, optional
         The noise model that is used to compute the noise vector. The default is ``normal_noise(dt=0.1)``.
-    dt : float, optional
-        The parameter :math:`dt` of the noise model. The default is 0.1.
     sigma : float, optional
         The parameter :math:`\sigma` of the noise model. The default is 1.0.
-    lamda : float, optional
-        The decay parameter :math:`\lambda` of the noise model. The default is 1.0.
     
     References
     ----------
@@ -65,6 +65,7 @@ class CBO(ParticleDynamic):
         # inter step
         self.s = self.sigma * self.noise()
 
+        # dynamcis update
         self.x[ind] = (
             self.x[ind] -
             self.lamda * self.dt * self.drift * self.correction()[ind] +
@@ -88,6 +89,7 @@ class CBO(ParticleDynamic):
         None
 
         """
+        # evaluation of objective function on batch
         self.energy = self.f(x_batch) # update energy
         self.num_f_eval += np.ones(self.M) * self.batch_size # update number of function evaluations
         
