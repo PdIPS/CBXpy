@@ -45,9 +45,10 @@ def plot_evolution(dyn, num_run = 0, dims = None,
         scc = ax.scatter(c[0, num_run, :, dims[0]], c[0, num_run, :, dims[1]], **scc_args)
         
     if plot_d:
-        quiver = ax.quiver(x[0, :][pidx[0]][..., dims[0]], x[0, :][pidx[0]][..., dims[1]], 
-                           d[0][num_run, :,dims[0]], d[0][num_run, :,dims[1]],
-                           scale=1.,scale_units='xy', angles='xy', width=0.001)
+        quiver = ax.quiver(x[0, :][pidx[0]][..., dims[0]][num_run,:], x[0, :][pidx[0]][..., dims[1]][num_run,:], 
+                           -d[0][num_run, :,dims[0]], -d[0][num_run, :,dims[1]],
+                           scale=1.,scale_units='xy', angles='xy', width=0.001,
+                           color='orange')
     for i in range(x.shape[0]):
         if i%freq == 0:
             scx.set_offsets(x[i, num_run, ...][:, dims])
@@ -56,8 +57,9 @@ def plot_evolution(dyn, num_run = 0, dims = None,
                 scc.set_offsets(c[i, num_run, ...][:, dims])
             # plot drift  
             if plot_d:
-                quiver.set_offsets(np.array([x[i,...][pidx[i]][...,dims[0]], x[i,...][pidx[i]][...,dims[1]]]).T)
-                quiver.set_UVC(d[i][num_run, dims[0]], d[i][num_run, dims[1]])
+                quiver.set_offsets(np.array([x[i,...][pidx[i]][...,dims[0]][num_run,:], 
+                                             x[i,...][pidx[i]][...,dims[1]][num_run,:]]).T)
+                quiver.set_UVC(-d[i][num_run, :, dims[0]], -d[i][num_run, :, dims[1]])
             ax.set_title('Iteration: ' + str(i))
             plt.pause(wait)
         

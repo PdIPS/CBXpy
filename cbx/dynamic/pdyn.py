@@ -288,7 +288,8 @@ class ParticleDynamic():
         self.history = {}
         for key in self.track_list:
             if key == 'x':
-                self.history[key] = np.zeros((self.max_it, self.M, self.N, self.d))
+                self.history[key] = np.zeros((self.max_it+1, self.M, self.N, self.d))
+                self.history[key][0, ...] = self.x
             elif key == 'consensus':
                 self.history[key] = np.zeros((self.max_it, self.M, 1, self.d))
             elif key == 'update_norm':
@@ -305,7 +306,7 @@ class ParticleDynamic():
         
     def track(self,):
         if 'x' in self.track_list:
-            self.history['x'][self.it, ...] = self.copy_particles(self.x)
+            self.history['x'][self.it+1, ...] = self.copy_particles(self.x)
         if 'consensus' in self.track_list:
             self.history['consensus'][self.it, ...] = self.copy_particles(self.consensus)
         if 'update_norm' in self.track_list:
