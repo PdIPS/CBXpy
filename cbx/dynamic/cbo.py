@@ -68,9 +68,6 @@ class CBO(ParticleDynamic):
             self.correction(self.lamda * self.dt * self.drift) +
             self.s)
         
-        print(self.batch_idx[0,:].shape)
-        print(np.unique(self.batch_idx[0,:]).shape)
-        
         self.post_step()
         
         

@@ -585,6 +585,7 @@ class p_4th_order(batched_objective):
     
 class Quadratic(batched_objective):
     def __init__(self, alpha=1.0):
+        super().__init__(self)
         self.alpha = alpha
 
     def __call__(self, x):
@@ -592,6 +593,7 @@ class Quadratic(batched_objective):
     
 class Banana(batched_objective):
     def __init__(self, m=0, sigma=0.5, sigma_prior=2):
+        super().__init__(self)
         self.m = m
         self.sigma = sigma
         self.sigma_prior = sigma_prior

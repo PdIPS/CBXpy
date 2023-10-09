@@ -151,7 +151,7 @@ class ParticleDynamic():
             self.batch_rng = np.random.default_rng(batch_seed)
             self.indices = self.batch_rng.permuted(self.indices, axis=1)
             
-        self.track_list = track_list if not track_list is None else ['update_norm', 'energy']
+        self.track_list = track_list if track_list is not None else ['update_norm', 'energy']
         self.init_history()
 
                 
@@ -176,9 +176,6 @@ class ParticleDynamic():
         if sched is None:
             sched = scheduler(self, [])
 
-        self.history['x'] = [self.copy_particles(self.x)]
-        self.history['update_norm'] = [np.linalg.norm(self.x, axis=(-2,-1))]
-
         while not self.terminate(verbosity=self.verbosity):
             self.step()
             sched.update()
@@ -197,7 +194,7 @@ class ParticleDynamic():
             print('Best energy: ' + str(self.f_min))
             print('-'*20)
 
-        return self.best_particle()
+        return self.best_particle
 
     def copy_particles(self, x):
         return copy_particles(x, mode=self.array_mode)

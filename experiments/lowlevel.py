@@ -4,6 +4,7 @@ from cbx.dynamic import CBO
 from cbx.objectives import Rastrigin
 from cbx.utils.objective_handling import batched_objective
 from cbx.utils.scheduler import scheduler, multiply
+from cbx.plotting import plot_evolution
 
 np.random.seed(420)
 #%%
@@ -54,5 +55,4 @@ while not dyn.terminate():
     it+=1
     
 #%%
-from cbx.plotting import plot_evolution
 plot_evolution(dyn, wait=0.5, freq=1, dims=[0,19], cf_args={'x_min':-3, 'x_max':3})

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 def f(x):
     return np.sin(x) * np.exp(-x**2)
 dyn = cbx.dynamic.CBO(f, d=1)
-x,hist = dyn.optimize()
+x = dyn.optimize()
 
 #%% visualize
 plt.close('all')

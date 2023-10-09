@@ -24,12 +24,16 @@ def contour_2D(f, ax = None, num_pts = 50,
 
 def plot_evolution(dyn, num_run = 0, dims = None,
                    wait = 0.5, freq=5,
-                   cf_args={}, scx_args={}, scc_args={}):
-    dims = dims if not dims is None else [0,1]
+                   cf_args=None, scx_args=None, scc_args=None):
+    cf_args = cf_args if cf_args is not None else {}
+    scx_args = scx_args if scx_args is not None else {}
+    scc_args = scc_args if scc_args is not None else {}
+    
+    dims = dims if dims is not None else [0,1]
     fig, ax = plt.subplots(1,)
     _ = contour_2D(dyn.f, ax=ax, **cf_args)
     
-    if not 'x' in dyn.history:
+    if 'x' not in dyn.history:
         raise RuntimeError('The dynamic has no particle history!')
     if 'consensus' in dyn.history:
         c = dyn.history['consensus']
