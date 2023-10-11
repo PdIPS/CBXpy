@@ -39,7 +39,7 @@ class CBO(ParticleDynamic):
         super(CBO, self).__init__(f, **kwargs)
         
     
-    def step(self,) -> None:
+    def inner_step(self,) -> None:
         r"""Performs one step of the CBO algorithm.
 
         Parameters
@@ -51,8 +51,6 @@ class CBO(ParticleDynamic):
         None
         
         """
-        self.pre_step()
-        
         # update, consensus point, drift and energy
         self.consensus, energy = self.compute_consensus(self.x[self.consensus_idx])        
         self.drift = self.x[self.particle_idx] - self.consensus
@@ -66,8 +64,6 @@ class CBO(ParticleDynamic):
             self.x[self.particle_idx] -
             self.correction(self.lamda * self.dt * self.drift) +
             self.s)
-        
-        self.post_step()
         
         
     def compute_consensus(self, x_batch) -> None:

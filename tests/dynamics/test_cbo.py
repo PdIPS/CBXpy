@@ -2,6 +2,7 @@ from cbx.dynamics.cbo import CBO
 import pytest
 import numpy as np
 from test_abstraction import test_abstract_dynamic
+from cbx.utils.objective_handling import cbx_objective_fh
 
 class Test_cbo(test_abstract_dynamic):
     
@@ -92,3 +93,16 @@ class Test_cbo(test_abstract_dynamic):
                 x[j, ind[j,i], :] = x[j, ind[j,i], :] - dyn.lamda * dyn.dt * (x[j, ind[j,i], :] - dyn.consensus[j, 0, :]) + dyn.s[j,i,:]
             
         assert np.allclose(dyn.x, x)
+        
+    def test_torch_handling(self, f, dynamic):
+        '''Test if torch is correctly handled'''
+        import torch
+        x = torch.zeros((6,5,7))
+        
+        @cbx_objective_fh
+        def g(x):
+            return torch.sum(x, dim=-1)
+        
+        dyn = dynamic(g, x=x, max_it=2, array_mode='torch')
+        dyn.optimize()
+        assert dyn.x.shape == (6,5,7)

@@ -12,7 +12,7 @@ from .utils.objective_handling import cbx_objective
     
 #%%
 
-class three_hump_camel:
+class three_hump_camel(cbx_objective):
     """Three-hump camel function
 
 
@@ -70,13 +70,13 @@ class three_hump_camel:
     def __init__(self):
         self.minima = np.array([[0,0]])
 
-    def __call__(self, x):
+    def apply(self, x):
         return 2*x[..., 0]**2 - 1.05 * x[..., 0]**4 + (1/6) * x[..., 0]**6 + x[..., 0]*x[..., 1] + x[..., 1]**2
 
 
 
-class McCormick:
-    """McCormick's function
+class McCormick(cbx_objective):
+    r"""McCormick's function
     
     McCormick's function is a multimodal function with two global minima at
     :math:`(-0.54719,-1.54719)` and :math:`(1.54719,0.54719)`. The function is defined as
@@ -134,11 +134,11 @@ class McCormick:
         ax1.set_title('Surface plot')
     """
 
-    def __call__(self, x):
+    def apply(self, x):
         return np.sin(x[..., 0] + x[...,1]) + (x[...,0] - x[...,1])**2 - 1.5 * x[...,0] + 2.5*x[...,1] + 1
 
 
-class Rosenbrock:
+class Rosenbrock(cbx_objective):
     """Rosenbrock's function
 
     Rosenbrock's function is a multimodal function with a global minimum at
@@ -206,12 +206,12 @@ class Rosenbrock:
         self.a = a
         self.b = b
 
-    def __call__(self, x):
+    def apply(self, x):
         return (self.a - x[..., 0])**2 + self.b* (x[..., 1] - x[..., 0]**2)**2
 
 
 
-class Himmelblau:
+class Himmelblau(cbx_objective):
     """Himmelblau's function
 
     Himmelblau's function is a multimodal function with. The function is defined as 
@@ -282,10 +282,11 @@ class Himmelblau:
     """
 
     def __init__(self, factor=1.0):
+        super().__init__()
         self.factor = factor
         self.minima = np.array([[3,2], [-2.805118,3.131312], [-3.779310,-3.283186], [3.584428,-1.848126]])
         
-    def __call__(self, x):
+    def apply(self, x):
         x = self.factor*x
         return (x[...,0]**2 + x[...,1] - 11)**2 + (x[...,0] + x[...,1]**2 - 7)**2
 
@@ -366,12 +367,12 @@ class Rastrigin(cbx_objective):
         self.c = c
         self.minima = np.array([[self.b, self.b]])
         
-    def __call__(self, x):
+    def apply(self, x):
         return (1/x.shape[-1]) * np.sum((x - self.b)**2 - \
                 10*np.cos(2*np.pi*(x - self.b)) + 10, axis=-1) + self.c
             
             
-class Rastrigin_multimodal():
+class Rastrigin_multimodal(cbx_objective):
     r"""Multimodal Rastrigin's function
     
     Let :math:`V` be the Rastrigin's function. Then the multimodal Rastrigin's function is defined as
@@ -406,7 +407,7 @@ class Rastrigin_multimodal():
     """
 
     def __init__(self, alpha = None, z = None):
-        ().__init__(self,)
+        super().__init__()
         self.alpha = alpha if alpha else [1.]
         self.z = z if z else np.zeros((len(alpha), 1))
 
@@ -414,14 +415,14 @@ class Rastrigin_multimodal():
         self.minima = self.z
         self.num_terms = len(alpha)
         
-    def __call__(self, x):
+    def apply(self, x):
         y = np.ones(x.shape[0:-1]   )
         for i in range(self.num_terms):
             y *= self.V(self.alpha[i] * (x - self.z[i,:]))
         return y            
 
 
-class Ackley():
+class Ackley(cbx_objective):
     r"""Ackley's function
 
     Ackley's function is a multimodal function with a global minima at
@@ -487,12 +488,13 @@ class Ackley():
     """
 
     def __init__(self, a=20., b=0.2, c=2*np.pi):
+        super().__init__()
         self.a=a
         self.b=b
         self.c=c
         self.minima = np.array([[0,0]])
     
-    def __call__(self, x):
+    def apply(self, x):
         d = x.shape[-1]
         
         arg1 = -self.b * np.sqrt(1/d) * np.linalg.norm(x,axis=-1)
@@ -501,8 +503,8 @@ class Ackley():
         return -self.a * np.exp(arg1) - np.exp(arg2) + self.a + np.e
 
 
-class Ackley_multimodal:
-    """Multimodal Ackley's function
+class Ackley_multimodal(cbx_objective):
+    r"""Multimodal Ackley's function
 
     Let :math:`V` be the Ackley's function. Then the multimodal Ackley's function is defined as
 
@@ -536,7 +538,7 @@ class Ackley_multimodal:
     """
 
     def __init__(self, alpha = None, z = None):
-        ().__init__(self,)
+        super().__init__()
         self.alpha = alpha if alpha else [1.]
         self.z = z if z else np.zeros((len(alpha), 1))
         self.V = Ackley()
@@ -544,7 +546,7 @@ class Ackley_multimodal:
         self.minima = self.z
         self.num_terms = len(alpha)
         
-    def __call__(self, x):
+    def apply(self, x):
         y = np.ones(x.shape[0:-1]   )
         for i in range(self.num_terms):
             y *= self.V(self.alpha[i] * (x - self.z[i,:]))
@@ -555,19 +557,21 @@ def test2d(x):
     return np.cos(x.T[0])+np.sin(x.T[1])
 
 
-class accelerated_sinus:
+class accelerated_sinus(cbx_objective):
     def __init__(self, a=1.0):
+        super().__init__()
         self.a = a
 
-    def __call__(self, x):
+    def apply(self, x):
         return np.sin((self.a * x)/(1+x*x)).squeeze() + 1
 
 
-class nd_sinus:
+class nd_sinus(cbx_objective):
     def __init__(self, a=1.0):
+        super().__init__()
         self.a = a
 
-    def __call__(self, x):
+    def apply(self, x):
         
         x = 0.3*x
         z = 1/x.shape[-1] * np.linalg.norm(x,axis=-1)**2
@@ -577,43 +581,46 @@ class nd_sinus:
         return res.squeeze() 
 
   
-class p_4th_order:
-    def __call__(self, x):
-        #n = np.sqrt(1/x.shape[-1]) * np.linalg.norm(x, axis=-1)
-        #n = 1/x.shape[-1] *np.sum(x, axis = -1)
+class p_4th_order(cbx_objective):
+    def __init__(self,):
+        super().__init__()
+        
+    def apply(self, x):
         n =  x
         
-        #res = (n**4 - n**2 + 1)
         res = (np.sum(n**4,axis=-1) - np.sum(n**2,axis=-1) + 1)
         return res.squeeze() 
 
 
-class Quadratic:
+class Quadratic(cbx_objective):
     def __init__(self, alpha=1.0):
+        super().__init__()
         self.alpha = alpha
 
-    def __call__(self, x):
+    def apply(self, x):
         return np.linalg.norm(self.alpha*x, axis=-1)**2
 
     
-class Banana:
+class Banana(cbx_objective):
     def __init__(self, m=0, sigma=0.5, sigma_prior=2):
+        super().__init__()
         self.m = m
         self.sigma = sigma
         self.sigma_prior = sigma_prior
     
-    def __call__(self, x):
+    def apply(self, x):
         G = ((x[...,1]-1)**2-(x[...,0]-2.5) -1)
         Phi = 0.5/(self.sigma**2)*(G - self.m)**2
         return Phi + 0.5/(self.sigma_prior**2)*np.linalg.norm(x,axis=-1)**2
 
 
-class Bimodal:
+class Bimodal(cbx_objective):
     def __init__(self, a=None, b=None):
+        super().__init__()
         self.a = a if a else [1., 1.5]
         self.b = b if b else [-1.2, -0.7]
     
-    def __call__(self, x):
+    def apply(self, x):
         a = self.a
         b = self.b         
         ret = -np.log(np.exp(-((x[...,0]-a[0])**2 + (x[...,1]-a[1])**2/0.2)) \
@@ -621,18 +628,19 @@ class Bimodal:
         return ret
         
 
-class Unimodal:
+class Unimodal(cbx_objective):
     def __init__(self, a = None):
+        super().__init__()
         self.a = a if a else [-1.2, -0.7]
     
-    def __call__(self, x):
+    def apply(self, x):
         a = self.a
         ret = -np.log(0.5*np.exp( -(x[...,0]-a[0])**2/8 - (x[...,1]-a[1])**2/0.5 ))
         
         return ret
     
 
-class Bukin6:
+class Bukin6(cbx_objective):
     r"""Bukin's function 6
 
     Bunkin's sixth function is a function with many local minima and one global minimum. It is defined as
@@ -701,13 +709,14 @@ class Bukin6:
 
     """
     def __init__(self,):
+        super().__init__()
         self.minima = np.array([[0, 0]])
     
-    def __call__(self, x):
+    def apply(self, x):
         return 100 * np.sqrt(np.abs(x[...,1] - 0.01 * x[...,0]**2)) + 0.01 * np.abs(x[...,0] + 10)
     
 
-class cross_in_tray:
+class cross_in_tray(cbx_objective):
     r"""Cross-In-Tray function
 
     The Cross-In-Tray function is a function with many local minima and one global minimum [1]_. It is defined as
@@ -780,13 +789,14 @@ class cross_in_tray:
     """
 
     def __init__(self):
+        super().__init__()
         self.minima = np.array([[1.34941, 1.34941], [-1.34941, 1.34941], [1.34941, -1.34941], [-1.34941, -1.34941]])
 
-    def __call__(self, x):
+    def apply(self, x):
         return -0.0001 * (np.abs(np.sin(x[...,0]) * np.sin(x[...,1]) * np.exp(np.abs(100 - np.sqrt(x[...,0]**2 + x[...,1]**2)/np.pi))) + 1)**0.1
     
 
-class Easom:
+class Easom(cbx_objective):
     r"""Easom
 
     The Easom function is a function with many local minima and one global minimum [1]_ . It is defined as
@@ -855,14 +865,15 @@ class Easom:
     """
 
     def __init__(self):
+        super().__init__()
         self.minima = np.array([[np.pi, np.pi]])
 
-    def __call__(self, x):
+    def apply(self, x):
         return -np.cos(x[...,0]) * np.cos(x[...,1]) * np.exp(-((x[...,0] - np.pi)**2 + (x[...,1] - np.pi)**2))
     
 
 
-class drop_wave:
+class drop_wave(cbx_objective):
     r"""Drop Wave
 
     The Drop Wave function is a function with many local minima and one global minimum [1]_. It is defined as
@@ -931,13 +942,14 @@ class drop_wave:
     .. [1] https://www.sfu.ca/~ssurjano/drop.html
     """
     def __init__(self):
+        super().__init__()
         self.minima = np.array([[0, 0]])
 
-    def __call__(self, x):
+    def apply(self, x):
         return -(1 + np.cos(12 * np.sqrt(x[...,0]**2 + x[...,1]**2))) * np.exp(-0.5 * (x[...,0]**2 + x[...,1]**2) / (1 + 0.001 * (x[...,0]**2 + x[...,1]**2)))
     
 
-class Holder_table:
+class Holder_table(cbx_objective):
     r"""Holder table
 
     The Holder table function is a function with many local minima and four global minima [1]_. It is defined as
@@ -1011,13 +1023,14 @@ class Holder_table:
     """
 
     def __init__(self):
+        super().__init__()
         self.minima = np.array([[8.05502, 9.66459], [-8.05502, 9.66459], [8.05502, -9.66459], [-8.05502, -9.66459]])
 
-    def __call__(self, x):
+    def apply(self, x):
         return -np.abs(np.sin(x[...,0]) * np.cos(x[...,1]) * np.exp(np.abs(1 - np.sqrt(x[...,0]**2 + x[...,1]**2) / np.pi)))
 
 
-class snowflake:
+class snowflake(cbx_objective):
     r"""Snowflake
 
     The snowflake function is a function with many local minima and six global minima [1]_. Using polar coordinates, it is as
@@ -1088,6 +1101,7 @@ class snowflake:
 
 
     def __init__(self, alpha=.5):
+        super().__init__()
         self.alpha = alpha
         self.minima_polar = np.array([[ 1/self.alpha * 0.5**(1/4), np.pi/2],
                                       [-1/self.alpha * 0.5**(1/4), np.pi/2], 
@@ -1100,7 +1114,7 @@ class snowflake:
         self.minima[:, 0] = self.minima_polar[:, 0] * np.cos(self.minima_polar[:, 1])
         self.minima[:, 1] = self.minima_polar[:, 0] * np.sin(self.minima_polar[:, 1])
 
-    def __call__(self, x):
+    def apply(self, x):
         x = self.alpha * x 
         r = np.linalg.norm(x,axis=-1)
         phi = np.arctan2(x[...,1], x[...,0])
@@ -1114,7 +1128,7 @@ class snowflake:
         return res
                 
 
-class eggholder:
+class eggholder(cbx_objective):
     r"""Eggholder
 
     The Eggholder function is a function with many local minima and one global minimum [1]_. It is defined as
@@ -1173,13 +1187,14 @@ class eggholder:
     """
 
     def __init__(self):
+        super().__init__()
         self.minima = np.array([[512, 404.2319]])
 
-    def __call__(self, x):
+    def apply(self, x):
         return -(x[...,1] + 47) * np.sin(np.sqrt(np.abs(x[...,1] + x[...,0]/2 + 47))) - x[...,0] * np.sin(np.sqrt(np.abs(x[...,0] - (x[...,1] + 47))))
     
 
-class Michalewicz:
+class Michalewicz(cbx_objective):
     r"""Michalewicz
 
     Michalewicz function is a function with many local minima and one global minimum [1]_. It is defined as
@@ -1240,6 +1255,7 @@ class Michalewicz:
     """
         
     def __init__(self, d=2, m=10):
+        super().__init__()
         self.d = d
         self.m = m
         
@@ -1248,7 +1264,7 @@ class Michalewicz:
         else:
             self.minima = None
 
-    def __call__(self, x):
+    def apply(self, x):
         arr_shape = np.ones(x.ndim, dtype=int)
         arr_shape[-1] = x.shape[-1]
         arr = np.arange(x.shape[-1]).reshape(arr_shape) + 1

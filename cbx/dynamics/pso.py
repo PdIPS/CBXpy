@@ -82,10 +82,18 @@ class PSO(ParticleDynamic):
             self.sigma_memory = sigma_memory
         
         self.energy = self.f(self.x)
-        self.num_f_eval += np.ones(self.M) * self.N # update number of function evaluations   
+        self.num_f_eval += np.ones(self.M, dtype=int) * self.N # update number of function evaluations   
         
+    def pre_step(self,):
+        # save old positions
+        self.x_old = self.copy_particles(self.x) # save old positions
+        self.y_old = self.copy_particles(self.y) # save old positions
+        self.v_old = self.copy_particles(self.v) # save old velocities
+        
+        # set new batch indices
+        self.set_batch_idx()
     
-    def step(self,) -> None:
+    def inner_step(self,) -> None:
         r"""Performs one step of the PSO algorithm.
 
         Parameters
@@ -97,17 +105,11 @@ class PSO(ParticleDynamic):
         None
         
         """
-        self.set_batch_idx()
-        self.x_old = self.copy_particles(self.x) # save old positions
-        self.y_old = self.copy_particles(self.y) # save old positions
-        self.v_old = self.copy_particles(self.v) # save old velocities
-        #x_batch = self.x[self.M_idx, self.batch_idx, :] # get batch
         
-        
-        mind = self.get_mean_ind()
-        ind = self.get_ind()#
+        mind = self.consensus_idx
+        ind = self.particle_idx
         # first update
-        self.consensus = self.compute_mean(self.y[mind], self.energy[mind])        
+        self.consensus = self.compute_consensus(self.y[mind], self.energy[mind])        
         self.drift = self.x[ind] - self.consensus
         self.memory_diff = self.x[ind] - self.y[ind]
         
@@ -119,7 +121,7 @@ class PSO(ParticleDynamic):
         # velocities of particles
         self.v[ind] = (
             self.m * self.dt * self.v[ind] +
-            self.lamda * self.dt * self.drift * self.correction()[ind] +
+            self.correction(self.lamda * self.dt * self.drift) +
             self.lamda_memory * self.dt * self.memory_diff +
             self.s + 
             self.s_memory)/(self.m+self.gamma*self.dt)
@@ -129,16 +131,14 @@ class PSO(ParticleDynamic):
         
         # evaluation of objective function on all particles
         energy_new = self.f(self.x[ind])    
-        self.num_f_eval += np.ones(self.M) * self.N # update number of function evaluations   
+        self.num_f_eval += np.ones(self.M, dtype =int) * self.x[ind].shape[-2] # update number of function evaluations   
         
         # historical best positions of particles
         self.y[ind] = self.y[ind] + ((self.energy>energy_new)[:, :, np.newaxis]) * (self.x[ind] - self.y[ind])
         self.energy = np.minimum(self.energy, energy_new)
-        
-        self.post_step()
 
         
-    def compute_mean(self, x_batch, energy) -> None:
+    def compute_consensus(self, x_batch, energy) -> None:
         r"""Updates the weighted mean of the particles.
 
         Parameters

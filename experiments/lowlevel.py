@@ -1,10 +1,11 @@
 import numpy as np
 import cbx as cbx
-from cbx.dynamic import CBO
+from cbx.dynamics import CBO
 from cbx.objectives import Rastrigin
 from cbx.utils.objective_handling import cbx_objective_fh
 from cbx.utils.scheduler import scheduler, multiply
 from cbx.plotting import plot_evolution
+import matplotlib.pyplot as plt
 
 np.random.seed(420)
 #%%
@@ -55,4 +56,5 @@ while not dyn.terminate():
     it+=1
     
 #%%
-plot_evolution(dyn, wait=0.5, freq=1, dims=[0,19], cf_args={'x_min':-3, 'x_max':3})
+plt.close('all')
+plot_evolution(dyn, wait=0.05, freq=1, dims=[0,19], cf_args={'x_min':-3, 'x_max':3})

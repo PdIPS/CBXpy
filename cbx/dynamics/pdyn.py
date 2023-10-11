@@ -8,6 +8,7 @@ from ..utils.objective_handling import _promote_objective, cbx_objective
 #%%
 from typing import Callable, Union
 import numpy as np
+from numpy.random import Generator, MT19937
 
 
 class ParticleDynamic():
@@ -38,6 +39,7 @@ class ParticleDynamic():
             batch_size: Union[None, int] = None,
             batch_partial: bool = False,
             batch_seed: int = 42,
+            batch_var: str = 'resample',
             energy_tol: Union[float, None] = None, 
             diff_tol: Union[float, None] = None,
             max_eval: Union[int, None] = None,
@@ -86,7 +88,7 @@ class ParticleDynamic():
             self.f = f
         
         self.num_f_eval = 0 * np.ones((self.M,), dtype=int) # number of function evaluations  
-        if check_f_dims: # check if f returns correct shape
+        if check_f_dims and array_mode != 'torch': # check if f returns correct shape
             x = np.random.uniform(-1,1,(self.M, self.N, self.d))
             if self.f(x).shape != (self.M,self.N):
                 raise ValueError("The given objective function does not return the correct shape!")
@@ -138,7 +140,8 @@ class ParticleDynamic():
 
         self.init_batch_idx(batch_size=batch_size, 
                             batch_partial=batch_partial, 
-                            batch_seed=batch_seed)
+                            batch_seed=batch_seed,
+                            batch_var=batch_var)
 
             
         self.track_list = track_list if track_list is not None else ['update_norm', 'energy']
@@ -151,9 +154,35 @@ class ParticleDynamic():
         self.num_resampling = np.zeros((self.M,), dtype=int)
         self.update_thresh = update_thresh
         self.verbosity = verbosity 
+    
+    
+    def pre_step(self,):
+        # save old positions
+        self.x_old = self.copy_particles(self.x)
+        
+        # set new batch indices
+        self.set_batch_idx()
+        
+    def inner_step(self,):
+        pass
+        
+    def post_step(self):
+        if hasattr(self, 'x_old'):
+            self.update_diff = np.linalg.norm(self.x - self.x_old, axis=(-2,-1))/self.N
+        
+        self.set_best_cur_particle()
+        self.update_best_particle()
+        self.track()
 
+        if self.resampling:
+            self.resample()
+            
+        self.t += self.dt
+        self.it+=1
+        
     def step(self,) -> None:
         self.pre_step()
+        self.inner_step()
         self.post_step()
 
     def optimize(self,
@@ -194,8 +223,10 @@ class ParticleDynamic():
         return copy_particles(x, mode=self.array_mode)
 
 
-    def init_batch_idx(self, batch_size=None, batch_partial=True, batch_seed=42):
+    def init_batch_idx(self, batch_size=None, batch_partial=True, 
+                       batch_seed=42, batch_var='resample'):
         self.batch_partial = batch_partial
+        self.batch_var = batch_var
         
         # set batch size
         if batch_size is None:
@@ -210,7 +241,7 @@ class ParticleDynamic():
             self.batched = True
             self.M_idx = np.repeat(np.arange(self.M)[:,None], self.batch_size, axis=1)
             ind = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
-            self.batch_rng = np.random.default_rng(batch_seed)
+            self.batch_rng = Generator(MT19937(batch_seed))#np.random.default_rng(batch_seed)
             self.indices = self.batch_rng.permuted(ind, axis=1)
             
             
@@ -223,9 +254,12 @@ class ParticleDynamic():
             if self.indices.shape[1] < self.batch_size: # if indices are exhausted
                 indices = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
                 if self.batched:
-                    pass
-                    #indices = self.batch_rng.permuted(indices, axis=1)
-                self.indices = np.concatenate((self.indices, indices), axis=1)
+                    indices = self.batch_rng.permuted(indices, axis=1)
+                    
+                if self.batch_var == 'concat':
+                    self.indices = np.concatenate((self.indices, indices), axis=1)
+                else:
+                    self.indices = indices
                 #self.batch_size
     
             self.batch_idx = self.indices[:,:self.batch_size] # get batch indices
@@ -282,27 +316,6 @@ class ParticleDynamic():
         else:
             return False
         
-    def pre_step(self,):
-        # save old positions
-        self.x_old = self.copy_particles(self.x)
-        
-        # set new batch indices
-        self.set_batch_idx()
-        
-    def post_step(self):
-        if hasattr(self, 'x_old'):
-            self.update_diff = np.linalg.norm(self.x - self.x_old, axis=(-2,-1))/self.N
-        
-        self.set_best_cur_particle()
-        self.update_best_particle()
-        self.track()
-
-        if self.resampling:
-            self.resample()
-            
-        self.t += self.dt
-        self.it+=1
-        
         
     def init_history(self,):
         self.history = {}
@@ -329,7 +342,7 @@ class ParticleDynamic():
     def track(self,):
         if self.it % self.save_int == 0: 
             if 'x' in self.track_list:
-                self.history['x'][self.track_it+1, ...] = self.copy_particles(self.x)
+                self.history['x'][self.track_it + 1, ...] = self.copy_particles(self.x)
             if 'consensus' in self.track_list:
                 self.history['consensus'][self.track_it, ...] = self.copy_particles(self.consensus)
             if 'update_norm' in self.track_list:
@@ -459,4 +472,6 @@ class ParticleDynamic():
     
     def update_covariance(self,):
         pass
+        
+        
     
