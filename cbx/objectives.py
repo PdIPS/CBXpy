@@ -8,10 +8,11 @@ algorithms.
 """
 
 import numpy as np
-from .utils.objective_handling import batched_objective
+from .utils.objective_handling import cbx_objective
     
 #%%
-class three_hump_camel(batched_objective):
+
+class three_hump_camel:
     """Three-hump camel function
 
 
@@ -74,7 +75,7 @@ class three_hump_camel(batched_objective):
 
 
 
-class McCormick(batched_objective):
+class McCormick:
     """McCormick's function
     
     McCormick's function is a multimodal function with two global minima at
@@ -137,7 +138,7 @@ class McCormick(batched_objective):
         return np.sin(x[..., 0] + x[...,1]) + (x[...,0] - x[...,1])**2 - 1.5 * x[...,0] + 2.5*x[...,1] + 1
 
 
-class Rosenbrock(batched_objective):
+class Rosenbrock:
     """Rosenbrock's function
 
     Rosenbrock's function is a multimodal function with a global minimum at
@@ -210,7 +211,7 @@ class Rosenbrock(batched_objective):
 
 
 
-class Himmelblau(batched_objective):
+class Himmelblau:
     """Himmelblau's function
 
     Himmelblau's function is a multimodal function with. The function is defined as 
@@ -288,7 +289,8 @@ class Himmelblau(batched_objective):
         x = self.factor*x
         return (x[...,0]**2 + x[...,1] - 11)**2 + (x[...,0] + x[...,1]**2 - 7)**2
 
-class Rastrigin(batched_objective):
+
+class Rastrigin(cbx_objective):
     r"""Rastrigin's function
 
     Rastrigin's function is a multimodal function with a global minima at
@@ -359,6 +361,7 @@ class Rastrigin(batched_objective):
     """
 
     def __init__(self, b=0., c=0.):
+        super().__init__()
         self.b = b
         self.c = c
         self.minima = np.array([[self.b, self.b]])
@@ -403,6 +406,7 @@ class Rastrigin_multimodal():
     """
 
     def __init__(self, alpha = None, z = None):
+        ().__init__(self,)
         self.alpha = alpha if alpha else [1.]
         self.z = z if z else np.zeros((len(alpha), 1))
 
@@ -415,6 +419,7 @@ class Rastrigin_multimodal():
         for i in range(self.num_terms):
             y *= self.V(self.alpha[i] * (x - self.z[i,:]))
         return y            
+
 
 class Ackley():
     r"""Ackley's function
@@ -495,7 +500,8 @@ class Ackley():
         
         return -self.a * np.exp(arg1) - np.exp(arg2) + self.a + np.e
 
-class Ackley_multimodal(batched_objective):
+
+class Ackley_multimodal:
     """Multimodal Ackley's function
 
     Let :math:`V` be the Ackley's function. Then the multimodal Ackley's function is defined as
@@ -530,6 +536,7 @@ class Ackley_multimodal(batched_objective):
     """
 
     def __init__(self, alpha = None, z = None):
+        ().__init__(self,)
         self.alpha = alpha if alpha else [1.]
         self.z = z if z else np.zeros((len(alpha), 1))
         self.V = Ackley()
@@ -543,21 +550,20 @@ class Ackley_multimodal(batched_objective):
             y *= self.V(self.alpha[i] * (x - self.z[i,:]))
         return y
         
-class test2d(batched_objective):
-    def __init__(self):
-        return
-    
-    def __call__(self, x):
-        return np.cos(x.T[0])+np.sin(x.T[1])
 
-class accelerated_sinus(batched_objective):
+def test2d(x):
+    return np.cos(x.T[0])+np.sin(x.T[1])
+
+
+class accelerated_sinus:
     def __init__(self, a=1.0):
         self.a = a
 
     def __call__(self, x):
         return np.sin((self.a * x)/(1+x*x)).squeeze() + 1
-    
-class nd_sinus(batched_objective):
+
+
+class nd_sinus:
     def __init__(self, a=1.0):
         self.a = a
 
@@ -569,11 +575,9 @@ class nd_sinus(batched_objective):
         
         res = (np.sin(z) + 1) * (x[...,0]**4 - x[...,0]**2 + 1)
         return res.squeeze() 
-    
-class p_4th_order(batched_objective):
-    def __init__(self,):
-        pass
 
+  
+class p_4th_order:
     def __call__(self, x):
         #n = np.sqrt(1/x.shape[-1]) * np.linalg.norm(x, axis=-1)
         #n = 1/x.shape[-1] *np.sum(x, axis = -1)
@@ -582,18 +586,18 @@ class p_4th_order(batched_objective):
         #res = (n**4 - n**2 + 1)
         res = (np.sum(n**4,axis=-1) - np.sum(n**2,axis=-1) + 1)
         return res.squeeze() 
-    
-class Quadratic(batched_objective):
+
+
+class Quadratic:
     def __init__(self, alpha=1.0):
-        super().__init__(self)
         self.alpha = alpha
 
     def __call__(self, x):
         return np.linalg.norm(self.alpha*x, axis=-1)**2
+
     
-class Banana(batched_objective):
+class Banana:
     def __init__(self, m=0, sigma=0.5, sigma_prior=2):
-        super().__init__(self)
         self.m = m
         self.sigma = sigma
         self.sigma_prior = sigma_prior
@@ -603,7 +607,8 @@ class Banana(batched_objective):
         Phi = 0.5/(self.sigma**2)*(G - self.m)**2
         return Phi + 0.5/(self.sigma_prior**2)*np.linalg.norm(x,axis=-1)**2
 
-class Bimodal(batched_objective):
+
+class Bimodal:
     def __init__(self, a=None, b=None):
         self.a = a if a else [1., 1.5]
         self.b = b if b else [-1.2, -0.7]
@@ -616,7 +621,7 @@ class Bimodal(batched_objective):
         return ret
         
 
-class Unimodal(batched_objective):
+class Unimodal:
     def __init__(self, a = None):
         self.a = a if a else [-1.2, -0.7]
     
@@ -627,7 +632,7 @@ class Unimodal(batched_objective):
         return ret
     
 
-class Bukin6(batched_objective):
+class Bukin6:
     r"""Bukin's function 6
 
     Bunkin's sixth function is a function with many local minima and one global minimum. It is defined as
@@ -702,7 +707,7 @@ class Bukin6(batched_objective):
         return 100 * np.sqrt(np.abs(x[...,1] - 0.01 * x[...,0]**2)) + 0.01 * np.abs(x[...,0] + 10)
     
 
-class cross_in_tray(batched_objective):
+class cross_in_tray:
     r"""Cross-In-Tray function
 
     The Cross-In-Tray function is a function with many local minima and one global minimum [1]_. It is defined as
@@ -781,7 +786,7 @@ class cross_in_tray(batched_objective):
         return -0.0001 * (np.abs(np.sin(x[...,0]) * np.sin(x[...,1]) * np.exp(np.abs(100 - np.sqrt(x[...,0]**2 + x[...,1]**2)/np.pi))) + 1)**0.1
     
 
-class Easom(batched_objective):
+class Easom:
     r"""Easom
 
     The Easom function is a function with many local minima and one global minimum [1]_ . It is defined as
@@ -857,7 +862,7 @@ class Easom(batched_objective):
     
 
 
-class drop_wave(batched_objective):
+class drop_wave:
     r"""Drop Wave
 
     The Drop Wave function is a function with many local minima and one global minimum [1]_. It is defined as
@@ -932,7 +937,7 @@ class drop_wave(batched_objective):
         return -(1 + np.cos(12 * np.sqrt(x[...,0]**2 + x[...,1]**2))) * np.exp(-0.5 * (x[...,0]**2 + x[...,1]**2) / (1 + 0.001 * (x[...,0]**2 + x[...,1]**2)))
     
 
-class Holder_table(batched_objective):
+class Holder_table:
     r"""Holder table
 
     The Holder table function is a function with many local minima and four global minima [1]_. It is defined as
@@ -1012,7 +1017,7 @@ class Holder_table(batched_objective):
         return -np.abs(np.sin(x[...,0]) * np.cos(x[...,1]) * np.exp(np.abs(1 - np.sqrt(x[...,0]**2 + x[...,1]**2) / np.pi)))
 
 
-class snowflake(batched_objective):
+class snowflake:
     r"""Snowflake
 
     The snowflake function is a function with many local minima and six global minima [1]_. Using polar coordinates, it is as
@@ -1109,7 +1114,7 @@ class snowflake(batched_objective):
         return res
                 
 
-class eggholder(batched_objective):
+class eggholder:
     r"""Eggholder
 
     The Eggholder function is a function with many local minima and one global minimum [1]_. It is defined as
@@ -1174,7 +1179,7 @@ class eggholder(batched_objective):
         return -(x[...,1] + 47) * np.sin(np.sqrt(np.abs(x[...,1] + x[...,0]/2 + 47))) - x[...,0] * np.sin(np.sqrt(np.abs(x[...,0] - (x[...,1] + 47))))
     
 
-class Michalewicz(batched_objective):
+class Michalewicz:
     r"""Michalewicz
 
     Michalewicz function is a function with many local minima and one global minimum [1]_. It is defined as

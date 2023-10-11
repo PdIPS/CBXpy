@@ -2,7 +2,7 @@ import numpy as np
 import cbx as cbx
 from cbx.dynamic import CBO
 from cbx.objectives import Rastrigin
-from cbx.utils.objective_handling import batched_objective
+from cbx.utils.objective_handling import cbx_objective_fh
 from cbx.utils.scheduler import scheduler, multiply
 from cbx.plotting import plot_evolution
 
@@ -27,7 +27,7 @@ mode = 'import'
 if mode == 'import':
     f = Rastrigin()
 else:
-    @batched_objective
+    @cbx_objective_fh
     def f(x):
         return np.linalg.norm(x, axis=-1)
 

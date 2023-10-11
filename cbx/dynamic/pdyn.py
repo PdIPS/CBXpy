@@ -3,7 +3,7 @@ import warnings
 from ..utils.particle_init import init_particles
 from ..utils.scheduler import scheduler
 from ..utils.numpy_torch_comp import copy_particles
-from ..utils.objective_handling import _promote_objective, batched_objective
+from ..utils.objective_handling import _promote_objective, cbx_objective
 
 #%%
 from typing import Callable, Union
@@ -77,19 +77,19 @@ class ParticleDynamic():
         self.x = self.copy_particles(x)
         
         # set and promote objective function
-        if not isinstance(f, batched_objective):
+        if not isinstance(f, cbx_objective):
             if f_dim != '3D' and array_mode == 'pytorch':
                 raise RuntimeError('Pytorch array_mode only supported for 3D objective functions.')
             self.f = _promote_objective(f, f_dim)
         else:
             self.f = f
         
-        self.num_f_eval = 0 * np.ones((self.M,)) # number of function evaluations  
+        self.num_f_eval = 0 * np.ones((self.M,), dtype=int) # number of function evaluations  
         if check_f_dims: # check if f returns correct shape
             x = np.random.uniform(-1,1,(self.M, self.N, self.d))
             if self.f(x).shape != (self.M,self.N):
                 raise ValueError("The given objective function does not return the correct shape!")
-            self.num_f_eval = N * np.ones((self.M,)) # number of function evaluations
+            self.num_f_eval += N * np.ones((self.M,), dtype=int) # number of function evaluations
         self.f_min = float('inf') * np.ones((self.M,)) # minimum function value
         
         self.energy = float('inf') * np.ones((self.M, self.N)) # energy of the particles
@@ -353,13 +353,13 @@ class ParticleDynamic():
     def no_correction(self, x):
         return x
 
-    def heavi_side_correction(self,):
+    def heavi_side_correction(self, x):
         z = self.energy - self.f(self.consensus)
         self.num_f_eval += self.consensus.shape[0] # update number of function evaluations
 
         return np.where(z > 0, 1,0)[...,None]
 
-    def heavi_side_reg_correction(self,):
+    def heavi_side_reg_correction(self, x):
         z = self.energy - self.f(self.consensus)
         self.num_f_eval += self.consensus.shape[0] # update number of function evaluations
 

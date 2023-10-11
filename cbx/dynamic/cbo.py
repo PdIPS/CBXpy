@@ -36,7 +36,6 @@ class CBO(ParticleDynamic):
     """
 
     def __init__(self, f, **kwargs) -> None:
-        
         super(CBO, self).__init__(f, **kwargs)
         
     
@@ -85,7 +84,7 @@ class CBO(ParticleDynamic):
         """
         # evaluation of objective function on batch
         energy = self.f(x_batch) # update energy
-        self.num_f_eval += np.prod(x_batch.shape[:-1]) # update number of function evaluations
+        self.num_f_eval += self.N # update number of function evaluations
         
         weights = - self.alpha * energy
         coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
