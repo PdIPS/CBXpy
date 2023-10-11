@@ -2,7 +2,7 @@ import numpy as np
 import cbx as cbx
 import cbx.objectives as obj
 from cbx.utils.scheduler import scheduler, multiply
-from cbx.utils.plotting import contour_2D
+from cbx.plotting import contour_2D
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D 
 from scipy.interpolate import CubicSpline
@@ -13,8 +13,9 @@ kwargs = {'alpha': 1.1,
          'sigma': 0.1,
          'lamda': 1.0,
          'd': 2,
-         'max_time': 20,
-         'max_eval':1e5,
+         'save_int':1000,
+         'track_list': ['x'],
+         'max_it': 5000,
          'N': 5,
          'M': 1,}
 
@@ -24,18 +25,14 @@ f = obj.Ackley()
 
 #%% Define the initial positions of the particles
 x = np.loadtxt('initial.txt',)[None, :,:]
-dyn = cbx.dynamic.CBO(f, x=x, **kwargs)
+dyn = cbx.dynamics.CBO(f, x=x, **kwargs)
 sched = scheduler(dyn, [multiply(name='alpha', factor=1.01, maximum=1e3)])
-x_best, x_hist = dyn.optimize(
-                    sched = sched,
-                    verbosity=2, 
-                    print_int=1000, 
-                    save_particles=True)
+x_best = dyn.optimize(sched = sched)
 
 #%% plot particle history
-x_hist = np.array(x_hist)
-idx = [i for i in range(x_hist.shape[0]) if ((i%5==0) or i<4)]
-x_hist = x_hist[idx, ...]
+x_hist = dyn.history['x'][1:,...]
+#idx = [i for i in range(x_hist.shape[0]) if ((i%5==0) or i<4)]
+#x_hist = x_hist[idx, ...]
 x_min = -4
 x_max = 4
 

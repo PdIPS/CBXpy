@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 #%% define the objective function and solve
 def f(x):
     return np.sin(x) * np.exp(-x**2)
-dyn = cbx.dynamic.CBO(f, d=1)
+dyn = cbx.dynamics.CBO(f, d=1)
 x = dyn.optimize()
 
 #%% visualize

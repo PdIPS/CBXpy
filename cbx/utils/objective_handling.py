@@ -1,5 +1,5 @@
 import numpy as np
-from functools import wraps
+from typing import Callable, Any
 
 def _promote_objective(f, f_dim):
     if not callable(f):
@@ -7,55 +7,59 @@ def _promote_objective(f, f_dim):
     if f_dim == '3D':
         return f
     elif f_dim == '2D':
-        return batched_objective_from_2D(f)
+        return cbx_objective_f2D(f)
     elif f_dim == '1D':
-        return batched_objective_from_1D(f)
+        return cbx_objective_f1D(f)
     else:
         raise ValueError("f_dim must be '1D', '2D' or '3D'.")
+    
 
+def _apply_unimplemented(self, *input: Any) -> None:
+    r"""
 
-def create_hook(func, hook):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        hook(*args, **kwargs)
-        return func(*args, **kwargs)
-    return wrapper
+    .. note::
+        This is copied from PyTorch. The code can be found here
+        https://github.com/pytorch/pytorch/blob/main/torch/nn/modules/module.py#L362
+    """
+    raise NotImplementedError(f"Objective [{type(self).__name__}] is missing the required \"apply\" function")
 
 
 class cbx_objective:
-    def __init__(self,):
+    def __init__(self, f_extra=None):
         super().__init__()
-        self.eval_count = 0
+        self.num_eval = 0
         
-    def __new__(cls, *args, **kwargs):
-        cls.__call__ = create_hook(cls.__call__, cls.add_eval_hook)
-        return super().__new__(cls,)
-    
-    def add_eval_hook(self, x):
-        self.eval_count += np.prod(x.shape[:-1], dtype = int)
+    def __call__(self, x):
+        self.num_eval += np.prod(np.atleast_2d(x).shape[:-1], dtype = int)
+        return self.apply(x)
+        
+    apply: Callable[..., Any] = _apply_unimplemented
+        
+    def reset(self,):
+        self.num_eval = 0
+        
         
 class cbx_objective_fh(cbx_objective):
     def __init__(self, f):
         super().__init__()
         self.f = f
         
-    def __call__(self, x):
+    def apply(self, x):
         return self.f(x)
     
-
-
-class batched_objective_from_1D(cbx_objective_fh):
+class cbx_objective_f1D(cbx_objective_fh):
     def __init__(self, f):
         super().__init__(f)
     
-    def __call__(self, x):
-        self.eval_count += np.prod(x.shape[:-1])
-        return np.apply_along_axis(self.f, 1, np.atleast_2d(x.reshape(-1, x.shape[-1]))).reshape(-1,x.shape[-2])
+    def apply(self, x):
+        x = np.atleast_2d(x)
+        return np.apply_along_axis(self.f, 1, x.reshape(-1, x.shape[-1])).reshape(-1,x.shape[-2])
     
-class batched_objective_from_2D(cbx_objective_fh):
+    
+class cbx_objective_f2D(cbx_objective_fh):
     def __init__(self, f):
         super().__init__(f)
     
-    def __call__(self, x):
-        self.eval_count += np.prod(x.shape[:-1])
+    def apply(self, x):
+        x = np.atleast_2d(x)
         return self.f(np.atleast_2d(x.reshape(-1, x.shape[-1]))).reshape(-1,x.shape[-2])

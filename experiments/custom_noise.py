@@ -1,4 +1,4 @@
-from cbx.dynamic import CBO
+from cbx.dynamics import CBO
 import numpy as np
 
 #%%
@@ -14,5 +14,3 @@ def f(x):
 
 dyn = custom_noise(f, d=3)
 dyn.optimize()
-#%%
-print(dyn.x)

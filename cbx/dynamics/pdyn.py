@@ -43,13 +43,14 @@ class ParticleDynamic():
             max_eval: Union[int, None] = None,
             max_time: Union[float, None] = None,
             max_it: Union[int, None] = 1000,
-            dt: float = 0.1, alpha: float = 1.0, sigma: float =1.0,
+            dt: float = 0.01, alpha: float = 1.0, sigma: float = 5.1,
             lamda: float = 1.0,
             correction: str = 'no_correction', 
             correction_eps: float = 1e-3,
             array_mode: str = 'numpy',
             check_f_dims: bool = True,
             track_list: list = None,
+            save_int: int = 1,
             resampling: bool = False,
             update_thresh: float = 0.1,
             verbosity: int = 1) -> None:
@@ -135,24 +136,15 @@ class ParticleDynamic():
         
         self.set_correction(correction)
 
-        # batching
-        self.batch_partial = batch_partial
-        if batch_size is None:
-            self.batch_size = self.N
-        else:
-            self.batch_size = min(batch_size, self.N)
-        # set indices for batching
-        self.indices = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
-        self.M_idx = np.repeat(np.arange(self.M)[:,None], self.batch_size, axis=1)
-        if self.batch_size == self.N:
-            self.batched = False
-        else:
-            self.batched = True
-            self.batch_rng = np.random.default_rng(batch_seed)
-            self.indices = self.batch_rng.permuted(self.indices, axis=1)
+        self.init_batch_idx(batch_size=batch_size, 
+                            batch_partial=batch_partial, 
+                            batch_seed=batch_seed)
+
             
         self.track_list = track_list if track_list is not None else ['update_norm', 'energy']
+        self.save_int = save_int
         self.init_history()
+        
 
                 
         self.resampling = resampling
@@ -165,8 +157,10 @@ class ParticleDynamic():
         self.post_step()
 
     def optimize(self,
-                 print_int:int = 100,
+                 print_int: Union[int, None] = None,
                  sched = None):
+        
+        print_int = print_int if print_int is not None else self.save_int
         
         if self.verbosity > 0:
             print('.'*20)
@@ -199,28 +193,57 @@ class ParticleDynamic():
     def copy_particles(self, x):
         return copy_particles(x, mode=self.array_mode)
 
+
+    def init_batch_idx(self, batch_size=None, batch_partial=True, batch_seed=42):
+        self.batch_partial = batch_partial
+        
+        # set batch size
+        if batch_size is None:
+            self.batch_size = self.N
+        else:
+            self.batch_size = min(batch_size, self.N)
+        
+    
+        if self.batch_size == self.N:
+            self.batched = False
+        else: # set indices for batching
+            self.batched = True
+            self.M_idx = np.repeat(np.arange(self.M)[:,None], self.batch_size, axis=1)
+            ind = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
+            self.batch_rng = np.random.default_rng(batch_seed)
+            self.indices = self.batch_rng.permuted(ind, axis=1)
+            
+            
     def set_batch_idx(self,):
         r"""Set batch indices
 
-        This method sets the batch indices for the next iteration of the algorithm.
+        This method sets the batch indices for each iteration of the algorithm.
         """
+        if self.batched:   
+            if self.indices.shape[1] < self.batch_size: # if indices are exhausted
+                indices = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
+                if self.batched:
+                    pass
+                    #indices = self.batch_rng.permuted(indices, axis=1)
+                self.indices = np.concatenate((self.indices, indices), axis=1)
+                #self.batch_size
+    
+            self.batch_idx = self.indices[:,:self.batch_size] # get batch indices
+            self.indices = self.indices[:, self.batch_size:] # remove batch indices from indices
             
-        if self.indices.shape[1] < self.batch_size: # if indices are exhausted
-            indices = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
-            if self.batched:
-                pass
-                #indices = self.batch_rng.permuted(indices, axis=1)
-            self.indices = np.concatenate((self.indices, indices), axis=1)
-            #self.batch_size
-
-        self.batch_idx = self.indices[:,:self.batch_size] # get batch indices
-        self.indices = self.indices[:, self.batch_size:] # remove batch indices from indices
+            self.consensus_idx = (self.M_idx, self.batch_idx, Ellipsis)
+        else:
+            self.consensus_idx = Ellipsis
         
-        self.consensus_idx = (self.M_idx, self.batch_idx, Ellipsis)
         if self.batch_partial:
             self.particle_idx = self.consensus_idx
         else:
             self.particle_idx = Ellipsis
+            
+    def reset(self,):
+        self.it = 0
+        self.init_history()
+        
 
     def check_max_time(self):
         return self.t >= self.max_time
@@ -283,18 +306,20 @@ class ParticleDynamic():
         
     def init_history(self,):
         self.history = {}
+        max_save_it = int(np.ceil(self.max_it/self.save_int))
+        self.track_it = 0
         for key in self.track_list:
             if key == 'x':
-                self.history[key] = np.zeros((self.max_it+1, self.M, self.N, self.d))
+                self.history[key] = np.zeros((max_save_it+1, self.M, self.N, self.d))
                 self.history[key][0, ...] = self.x
             elif key == 'consensus':
-                self.history[key] = np.zeros((self.max_it, self.M, 1, self.d))
+                self.history[key] = np.zeros((max_save_it, self.M, 1, self.d))
             elif key == 'update_norm':
-                self.history[key] = np.zeros((self.max_it, self.M,))
+                self.history[key] = np.zeros((max_save_it, self.M,))
             elif key == 'energy':
-                self.history[key] = np.zeros((self.max_it, self.M,))
+                self.history[key] = np.zeros((max_save_it, self.M,))
             elif key == 'drift_mean':
-                self.history[key] = np.zeros((self.max_it, self.M,))
+                self.history[key] = np.zeros((max_save_it, self.M,))
             elif key == 'drift':
                 self.history[key] = []
                 self.history['particle_idx'] = []
@@ -302,19 +327,22 @@ class ParticleDynamic():
                 raise ValueError('Unknown key ' + str(key) + ' for tracked values.')
         
     def track(self,):
-        if 'x' in self.track_list:
-            self.history['x'][self.it+1, ...] = self.copy_particles(self.x)
-        if 'consensus' in self.track_list:
-            self.history['consensus'][self.it, ...] = self.copy_particles(self.consensus)
-        if 'update_norm' in self.track_list:
-            self.history['update_norm'][self.it, :] = self.update_diff
-        if 'energy' in self.track_list:
-            self.history['energy'][self.it, :] = self.best_cur_energy
-        if 'drift_mean' in self.track_list:
-            self.history['drift_mean'][self.it, :] = np.mean(np.abs(self.drift), axis=(-2,-1))
-        if 'drift' in self.track_list:
-            self.history['drift'].append(self.drift)
-            self.history['particle_idx'].append(self.particle_idx)
+        if self.it % self.save_int == 0: 
+            if 'x' in self.track_list:
+                self.history['x'][self.track_it+1, ...] = self.copy_particles(self.x)
+            if 'consensus' in self.track_list:
+                self.history['consensus'][self.track_it, ...] = self.copy_particles(self.consensus)
+            if 'update_norm' in self.track_list:
+                self.history['update_norm'][self.track_it, :] = self.update_diff
+            if 'energy' in self.track_list:
+                self.history['energy'][self.track_it, :] = self.best_cur_energy
+            if 'drift_mean' in self.track_list:
+                self.history['drift_mean'][self.track_it, :] = np.mean(np.abs(self.drift), axis=(-2,-1))
+            if 'drift' in self.track_list:
+                self.history['drift'].append(self.drift)
+                self.history['particle_idx'].append(self.particle_idx)
+                
+            self.track_it += 1
         
     
     

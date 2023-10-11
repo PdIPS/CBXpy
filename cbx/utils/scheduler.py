@@ -126,7 +126,7 @@ class effective_number(param_update):
         val = getattr(dyn, self.name)
         
         energy = dyn.f(dyn.x)
-        dyn.num_f_eval += np.ones(dyn.M) * dyn.batch_size
+        dyn.num_f_eval += np.ones(dyn.M, dtype=int) * dyn.x.shape[-1]
 
         term1 = logsumexp(-val * energy)
         term2 = logsumexp(-2 * val * energy)

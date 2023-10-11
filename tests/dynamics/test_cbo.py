@@ -1,4 +1,4 @@
-from cbx.dynamic.cbo import CBO
+from cbx.dynamics.cbo import CBO
 import pytest
 import numpy as np
 from test_abstraction import test_abstract_dynamic
@@ -44,7 +44,7 @@ class Test_cbo(test_abstract_dynamic):
         dyn = dynamic(f, x=x, batch_size=2)
         dyn.step()
         mean = np.zeros((3,1,7))
-        ind = dyn.get_mean_ind()[1]
+        ind = dyn.consensus_idx[1]
 
         for j in range(x.shape[0]):
             loc_mean = 0
@@ -62,8 +62,8 @@ class Test_cbo(test_abstract_dynamic):
         delta = np.random.uniform(-1,1,(3,5,7))
         def noise():
             return delta
-
-        dyn = dynamic(f, x=x, noise=noise)
+        with pytest.warns():
+            dyn = dynamic(f, x=x, noise=noise)
         dyn.step()
         x_new = x - dyn.lamda * dyn.dt * (x - dyn.consensus) + dyn.sigma * delta
         assert np.allclose(dyn.x, x_new)
@@ -74,8 +74,8 @@ class Test_cbo(test_abstract_dynamic):
         delta = np.random.uniform(-1,1,(3,5,7))
         def noise():
             return delta
-
-        dyn = dynamic(f, x=x, noise=noise, batch_size=2)
+        with pytest.warns():
+            dyn = dynamic(f, x=x, noise=noise, batch_size=2)
         dyn.step()
         x_new = x - dyn.lamda * dyn.dt * (x - dyn.consensus) + dyn.sigma * delta
         assert np.allclose(dyn.x, x_new)
@@ -86,7 +86,7 @@ class Test_cbo(test_abstract_dynamic):
 
         dyn = dynamic(f, x=x, batch_size=2, batch_partial=True)
         dyn.step()
-        ind = dyn.get_ind()[1]
+        ind = dyn.particle_idx[1]
         for j in range(x.shape[0]):
             for i in range(ind.shape[1]):
                 x[j, ind[j,i], :] = x[j, ind[j,i], :] - dyn.lamda * dyn.dt * (x[j, ind[j,i], :] - dyn.consensus[j, 0, :]) + dyn.s[j,i,:]

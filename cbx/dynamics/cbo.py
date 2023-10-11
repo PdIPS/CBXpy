@@ -84,7 +84,7 @@ class CBO(ParticleDynamic):
         """
         # evaluation of objective function on batch
         energy = self.f(x_batch) # update energy
-        self.num_f_eval += self.N # update number of function evaluations
+        self.num_f_eval += np.ones(self.M,dtype=int) * x_batch.shape[-2] # update number of function evaluations
         
         weights = - self.alpha * energy
         coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]

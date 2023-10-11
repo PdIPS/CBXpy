@@ -1,4 +1,4 @@
-from cbx.dynamic.pdyn import ParticleDynamic
+from cbx.dynamics.pdyn import ParticleDynamic
 import pytest
 import numpy as np
 from test_abstraction import test_abstract_dynamic
@@ -44,10 +44,9 @@ class Test_pdyn(test_abstract_dynamic):
 
     def test_opt_hist_and_output(self, dynamic, f):
         '''Test if optimization history is correctly saved and output is correct'''
-        dyn = dynamic(f, x = np.zeros((6,5,7)), max_it=10)
-        x, x_hist = dyn.optimize(save_particles=True, print_int=3)
-        x_hist = np.array(x_hist)
-        assert x_hist.shape == (4,6,5,7)
+        dyn = dynamic(f, x = np.zeros((6,5,7)), max_it=10, save_int = 3, track_list=['x'])
+        x = dyn.optimize()
+        assert dyn.history['x'].shape == (5,6,5,7)
         assert x.shape == (6,7)
         assert dyn.x.shape == (6,5,7)
 
