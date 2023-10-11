@@ -16,12 +16,6 @@ class Test_pdyn(test_abstract_dynamic):
         dyn.optimize()
         assert dyn.it == 7
 
-    def test_term_crit_maxtime(self, dynamic, f):
-        '''Test termination criterion on max time'''
-        dyn = dynamic(f, d=5, max_time=0.1, dt=0.02)
-        dyn.optimize()
-        assert dyn.t == 0.1
-
     def test_no_given_x(self, dynamic, f):
         '''Test if x is correctly initialized'''
         dyn = dynamic(f, d=5, M=4, N=3)

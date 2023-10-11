@@ -13,6 +13,3 @@ Classes
    :nosignatures:
    :recursive:
    :template: classtemplate.rst
-
-   utils.init_particles
-   utils.config

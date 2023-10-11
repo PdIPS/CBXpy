@@ -1,7 +1,7 @@
 import warnings
 #%%
+from ..scheduler import scheduler
 from ..utils.particle_init import init_particles
-from ..utils.scheduler import scheduler
 from ..utils.numpy_torch_comp import copy_particles
 from ..utils.objective_handling import _promote_objective, cbx_objective
 
@@ -31,29 +31,19 @@ class ParticleDynamic():
 
     def __init__(
             self, 
-            f: Callable, f_dim: str = '1D',
+            f: Callable, 
+            f_dim: str = '1D',
+            check_f_dims: bool = True,
             x: Union[None, np.ndarray] = None,
             x_min: float = -1., x_max: float = 1.,
             M: int = 1, N: int = 20, d: int = None,
-            noise: Union[None, Callable] = None,
-            batch_size: Union[None, int] = None,
-            batch_partial: bool = False,
-            batch_seed: int = 42,
-            batch_var: str = 'resample',
             energy_tol: Union[float, None] = None, 
             diff_tol: Union[float, None] = None,
             max_eval: Union[int, None] = None,
-            max_time: Union[float, None] = None,
             max_it: Union[int, None] = 1000,
-            dt: float = 0.01, alpha: float = 1.0, sigma: float = 5.1,
-            lamda: float = 1.0,
-            correction: str = 'no_correction', 
-            correction_eps: float = 1e-3,
             array_mode: str = 'numpy',
-            check_f_dims: bool = True,
             track_list: list = None,
             save_int: int = 1,
-            resampling: bool = False,
             update_thresh: float = 0.1,
             verbosity: int = 1) -> None:
         
@@ -101,14 +91,10 @@ class ParticleDynamic():
         self.update_diff = float('inf')
 
 
-        self.set_noise(noise)
-
-
         # termination parameters and checks
         self.energy_tol = energy_tol
         self.diff_tol = diff_tol
         self.max_eval = max_eval
-        self.max_time = max_time
         self.max_it = max_it
     
         self.checks = []
@@ -118,40 +104,17 @@ class ParticleDynamic():
             self.checks.append(self.check_update_diff)
         if max_eval is not None:
             self.checks.append(self.check_max_eval)
-        if max_time is not None:
-            self.checks.append(self.check_max_time)
         if max_it is not None:
             self.checks.append(self.check_max_it)
         
         self.all_check = np.zeros(self.M, dtype=bool)
         self.term_reason = {}
-        self.t = 0.
         self.it = 0
-
-        # additional parameters
-        self.dt = dt
-        self.alpha = alpha
-        self.sigma = sigma
-        self.lamda = lamda
-        
-        self.consensus = None # mean of the particles
-        
-        self.set_correction(correction)
-
-        self.init_batch_idx(batch_size=batch_size, 
-                            batch_partial=batch_partial, 
-                            batch_seed=batch_seed,
-                            batch_var=batch_var)
-
             
         self.track_list = track_list if track_list is not None else ['update_norm', 'energy']
         self.save_int = save_int
         self.init_history()
         
-
-                
-        self.resampling = resampling
-        self.num_resampling = np.zeros((self.M,), dtype=int)
         self.update_thresh = update_thresh
         self.verbosity = verbosity 
     
@@ -159,9 +122,6 @@ class ParticleDynamic():
     def pre_step(self,):
         # save old positions
         self.x_old = self.copy_particles(self.x)
-        
-        # set new batch indices
-        self.set_batch_idx()
         
     def inner_step(self,):
         pass
@@ -173,11 +133,7 @@ class ParticleDynamic():
         self.set_best_cur_particle()
         self.update_best_particle()
         self.track()
-
-        if self.resampling:
-            self.resample()
             
-        self.t += self.dt
         self.it+=1
         
     def step(self,) -> None:
@@ -204,12 +160,7 @@ class ParticleDynamic():
             sched.update()
 
             if (self.it % print_int == 0):
-                if self.verbosity > 0:
-                    print('Time: ' + "{:.3f}".format(self.t) + ', best energy: ' + str(self.f_min))
-                    print('Number of function evaluations: ' + str(self.num_f_eval))
-
-                if self.verbosity > 1:
-                    print('Current alpha: ' + str(self.alpha))
+                self.print_cur_state()
 
         if self.verbosity > 0:
             print('-'*20)
@@ -218,69 +169,17 @@ class ParticleDynamic():
             print('-'*20)
 
         return self.best_particle
+    
+    def print_cur_state(self,):
+        pass
 
     def copy_particles(self, x):
         return copy_particles(x, mode=self.array_mode)
 
-
-    def init_batch_idx(self, batch_size=None, batch_partial=True, 
-                       batch_seed=42, batch_var='resample'):
-        self.batch_partial = batch_partial
-        self.batch_var = batch_var
-        
-        # set batch size
-        if batch_size is None:
-            self.batch_size = self.N
-        else:
-            self.batch_size = min(batch_size, self.N)
-        
-    
-        if self.batch_size == self.N:
-            self.batched = False
-        else: # set indices for batching
-            self.batched = True
-            self.M_idx = np.repeat(np.arange(self.M)[:,None], self.batch_size, axis=1)
-            ind = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
-            self.batch_rng = Generator(MT19937(batch_seed))#np.random.default_rng(batch_seed)
-            self.indices = self.batch_rng.permuted(ind, axis=1)
-            
-            
-    def set_batch_idx(self,):
-        r"""Set batch indices
-
-        This method sets the batch indices for each iteration of the algorithm.
-        """
-        if self.batched:   
-            if self.indices.shape[1] < self.batch_size: # if indices are exhausted
-                indices = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
-                if self.batched:
-                    indices = self.batch_rng.permuted(indices, axis=1)
-                    
-                if self.batch_var == 'concat':
-                    self.indices = np.concatenate((self.indices, indices), axis=1)
-                else:
-                    self.indices = indices
-                #self.batch_size
-    
-            self.batch_idx = self.indices[:,:self.batch_size] # get batch indices
-            self.indices = self.indices[:, self.batch_size:] # remove batch indices from indices
-            
-            self.consensus_idx = (self.M_idx, self.batch_idx, Ellipsis)
-        else:
-            self.consensus_idx = Ellipsis
-        
-        if self.batch_partial:
-            self.particle_idx = self.consensus_idx
-        else:
-            self.particle_idx = Ellipsis
             
     def reset(self,):
         self.it = 0
         self.init_history()
-        
-
-    def check_max_time(self):
-        return self.t >= self.max_time
             
     def check_energy(self):
         return self.f_min < self.energy_tol
@@ -317,58 +216,49 @@ class ParticleDynamic():
             return False
         
         
+    track_names_known = ['x', 'update_norm', 'energy']
+    
     def init_history(self,):
         self.history = {}
-        max_save_it = int(np.ceil(self.max_it/self.save_int))
+        self.max_save_it = int(np.ceil(self.max_it/self.save_int))
         self.track_it = 0
         for key in self.track_list:
-            if key == 'x':
-                self.history[key] = np.zeros((max_save_it+1, self.M, self.N, self.d))
-                self.history[key][0, ...] = self.x
-            elif key == 'consensus':
-                self.history[key] = np.zeros((max_save_it, self.M, 1, self.d))
-            elif key == 'update_norm':
-                self.history[key] = np.zeros((max_save_it, self.M,))
-            elif key == 'energy':
-                self.history[key] = np.zeros((max_save_it, self.M,))
-            elif key == 'drift_mean':
-                self.history[key] = np.zeros((max_save_it, self.M,))
-            elif key == 'drift':
-                self.history[key] = []
-                self.history['particle_idx'] = []
+            if key not in self.track_names_known:
+                raise RuntimeError('Unknown tracking key ' + key + ' specified!' +
+                                   ' You can choose from the following keys '+ 
+                                   str(self.track_names_known))
             else:
-                raise ValueError('Unknown key ' + str(key) + ' for tracked values.')
-        
+                getattr(self, 'track_' + key + '_init')()
+            
     def track(self,):
-        if self.it % self.save_int == 0: 
-            if 'x' in self.track_list:
-                self.history['x'][self.track_it + 1, ...] = self.copy_particles(self.x)
-            if 'consensus' in self.track_list:
-                self.history['consensus'][self.track_it, ...] = self.copy_particles(self.consensus)
-            if 'update_norm' in self.track_list:
-                self.history['update_norm'][self.track_it, :] = self.update_diff
-            if 'energy' in self.track_list:
-                self.history['energy'][self.track_it, :] = self.best_cur_energy
-            if 'drift_mean' in self.track_list:
-                self.history['drift_mean'][self.track_it, :] = np.mean(np.abs(self.drift), axis=(-2,-1))
-            if 'drift' in self.track_list:
-                self.history['drift'].append(self.drift)
-                self.history['particle_idx'].append(self.particle_idx)
+        if self.it % self.save_int == 0:
+            for key in self.track_list:
+                getattr(self, 'track_' + key)()
                 
             self.track_it += 1
+            
+    def track_x_init(self,) -> None:
+        self.history['x'] = np.zeros((self.max_save_it + 1, self.M, self.N, self.d))
+        self.history['x'][0, ...] = self.x
+    
+    def track_x(self,) -> None:
+        self.history['x'][self.track_it + 1, ...] = self.copy_particles(self.x)
         
+        
+    def track_update_norm_init(self, ) -> None:
+        self.history['update_norm'] = np.zeros((self.max_save_it, self.M,))
+        
+    def track_update_norm(self, ) -> None:
+        self.history['update_norm'][self.track_it, :] = self.update_diff
+     
+    def track_energy_init(self,) -> None:
+        self.history['energy'] = np.zeros((self.max_save_it, self.M,))
+        
+    def track_energy(self,) -> None:
+        self.history['energy'][self.track_it, :] = self.best_cur_energy
     
-    
-    def resample(self,) -> None:
-        idx = np.where(self.update_diff < self.update_thresh)[0]
-        if len(idx)>0:
-            z = np.random.normal(0, 1., size=(len(idx), self.N, self.d))
-            self.x[idx, ...] += self.sigma * np.sqrt(self.dt) * z
-            self.num_resampling[idx] += 1
-            if self.verbosity > 0:
-                    print('Resampled in runs ' + str(idx))
 
-    def set_best_cur_particle(self,):
+    def set_best_cur_particle(self,) -> None:
         self.f_min = self.energy.min(axis=-1)
         self.f_min_idx = self.energy.argmin(axis=-1)
         self.best_cur_particle = self.x[np.arange(self.M), self.f_min_idx, :]
@@ -379,8 +269,107 @@ class ParticleDynamic():
         if len(idx) > 0:
             self.best_energy[idx] = self.best_cur_energy[idx]
             self.best_particle[idx, :] = self.best_cur_particle[idx, :]
+            
+            
+    
+    
+class CBXDynamic(ParticleDynamic):
+    def __init__(self, f,
+            noise: Union[None, Callable] = None,
+            batch_args: Union[None, dict] = None,
+            dt: float = 0.01, 
+            alpha: float = 1.0, 
+            sigma: float = 5.1,
+            lamda: float = 1.0,
+            max_time: Union[None, float] = None,
+            correction: str = 'no_correction', 
+            correction_eps: float = 1e-3,
+            resampling: bool = False,
+            update_thresh: float = 0.1,
+            **kwargs) -> None:
+        
+        super().__init__(f, **kwargs)
+        
+        # cbx parameters
+        self.dt = dt
+        self.t = 0.
+        self.alpha = alpha
+        self.sigma = sigma
+        self.lamda = lamda
+        
+        self.set_correction(correction)
+        self.set_noise(noise)
+        
+        self.init_batch_idx(batch_args)
+        
+        self.resampling = resampling
+        self.num_resampling = np.zeros((self.M,), dtype=int)
+        
+        self.consensus = None #consensus point
+        
+        
+        # add max time check
+        self.max_time = max_time
+        if max_time is not None:
+            self.checks.append(self.check_max_time)
+        
+    def init_batch_idx(self, batch_args) -> None:
+        batch_args = batch_args if not batch_args is None else {}
+        batch_size = batch_args.get('size', self.N)
+        batch_partial = batch_args.get('partial', True)
+        batch_seed = batch_args.get('seed', 42)
+        batch_var = batch_args.get('var', 'resample')
+    
+        self.batch_partial = batch_partial
+        self.batch_var = batch_var
+        
+        # set batch size
+        if batch_size is None:
+            self.batch_size = self.N
+        else:
+            self.batch_size = min(batch_size, self.N)
+        
+    
+        if self.batch_size == self.N:
+            self.batched = False
+        else: # set indices for batching
+            self.batched = True
+            self.M_idx = np.repeat(np.arange(self.M)[:,None], self.batch_size, axis=1)
+            ind = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
+            self.batch_rng = Generator(MT19937(batch_seed))#np.random.default_rng(batch_seed)
+            self.indices = self.batch_rng.permuted(ind, axis=1)
+            
+                
+    def set_batch_idx(self,):
+        r"""Set batch indices
 
-
+        This method sets the batch indices for each iteration of the algorithm.
+        """
+        if self.batched:   
+            if self.indices.shape[1] < self.batch_size: # if indices are exhausted
+                indices = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
+                if self.batched:
+                    indices = self.batch_rng.permuted(indices, axis=1)
+                    
+                if self.batch_var == 'concat':
+                    self.indices = np.concatenate((self.indices, indices), axis=1)
+                else:
+                    self.indices = indices
+                #self.batch_size
+    
+            self.batch_idx = self.indices[:,:self.batch_size] # get batch indices
+            self.indices = self.indices[:, self.batch_size:] # remove batch indices from indices
+            
+            self.consensus_idx = (self.M_idx, self.batch_idx, Ellipsis)
+        else:
+            self.consensus_idx = Ellipsis
+        
+        if self.batch_partial:
+            self.particle_idx = self.consensus_idx
+        else:
+            self.particle_idx = Ellipsis
+    
+    
     def set_correction(self, correction):
         if correction == 'no_correction':
             self.correction = self.no_correction
@@ -471,7 +460,79 @@ class ParticleDynamic():
         return (np.sqrt(1/self.lamda * (1 - self.alpha**2))) * noise
     
     def update_covariance(self,):
+        pass   
+        
+    track_names_known = ParticleDynamic.track_names_known + ['consensus', 'drift', 'drift_mean']
+    
+    def track_consensus_init(self,) -> None:
+        self.history['consensus'] = np.zeros((self.max_save_it, self.M, 1, self.d))
+        
+    def track_consensus(self,) -> None:
+        self.history['consensus'][self.track_it, ...] = self.copy_particles(self.consensus)
+        
+    def track_drift_mean_init(self,) -> None:
+        self.history['drift_mean'] = np.zeros((self.max_save_it, self.M,))
+        
+    def track_drift_mean(self,) -> None:
+        self.history['drift_mean'][self.track_it, :] = np.mean(np.abs(self.drift), axis=(-2,-1))
+        
+    def track_drift_init(self,) -> None:
+        self.history['drift'] = []
+        self.history['particle_idx'] = []
+        
+    def track_drift(self,) -> None:          
+        self.history['drift'].append(self.drift)
+        self.history['particle_idx'].append(self.particle_idx)
+        
+        
+    def resample(self,) -> None:
+        idx = np.where(self.update_diff < self.update_thresh)[0]
+        if len(idx)>0:
+            z = np.random.normal(0, 1., size=(len(idx), self.N, self.d))
+            self.x[idx, ...] += self.sigma * np.sqrt(self.dt) * z
+            self.num_resampling[idx] += 1
+            if self.verbosity > 0:
+                    print('Resampled in runs ' + str(idx))
+                    
+    def pre_step(self,):
+        # save old positions
+        self.x_old = self.copy_particles(self.x)
+        
+        # set new batch indices
+        self.set_batch_idx()
+        
+    def inner_step(self,):
         pass
+        
+    def post_step(self):
+        if hasattr(self, 'x_old'):
+            self.update_diff = np.linalg.norm(self.x - self.x_old, axis=(-2,-1))/self.N
+        
+        self.set_best_cur_particle()
+        self.update_best_particle()
+        self.track()
+
+        if self.resampling:
+            self.resample()
+            
+        self.t += self.dt
+        self.it+=1
+        
+    def reset(self,):
+        self.it = 0
+        self.init_history()
+        self.t = 0.
+        
+    def check_max_time(self):
+        return self.t >= self.max_time
+    
+    def print_cur_state(self,):
+        if self.verbosity > 0:
+            print('Time: ' + "{:.3f}".format(self.t) + ', best energy: ' + str(self.f_min))
+            print('Number of function evaluations: ' + str(self.num_f_eval))
+
+        if self.verbosity > 1:
+            print('Current alpha: ' + str(self.alpha))
         
         
     

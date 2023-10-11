@@ -4,7 +4,7 @@ dynamic
 This module implements algorithms for optimization and sampling for consensus based
 particles systems. All the dynamics inherit from the base class ``ParticleDynamic``.
 
-.. currentmodule:: cbx.dynamic
+.. currentmodule:: cbx.dynamics
 
 .. autoclass:: ParticleDynamic
    :members:

@@ -1,10 +1,10 @@
 import numpy as np
 from scipy.special import logsumexp
 
-from .pdyn import ParticleDynamic
+from .pdyn import CBXDynamic
 
 #%% CBO
-class CBO(ParticleDynamic):
+class CBO(CBXDynamic):
     r"""Consensus-based optimization (CBO) class
 
     This class implements the CBO algorithm as described in [1]_. The algorithm

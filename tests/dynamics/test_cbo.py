@@ -15,6 +15,12 @@ class Test_cbo(test_abstract_dynamic):
         dyn = dynamic(f, x=np.zeros((3,5,7)), energy_tol=1e-6, max_it=10)
         dyn.optimize()
         assert dyn.it == 1
+        
+    def test_term_crit_maxtime(self, dynamic, f):
+        '''Test termination criterion on max time'''
+        dyn = dynamic(f, d=5, max_time=0.1, dt=0.02)
+        dyn.optimize()
+        assert dyn.t == 0.1
 
     def test_term_crit_maxeval(self, dynamic, f):
         '''Test termination criterion on max function evaluations'''
@@ -42,7 +48,7 @@ class Test_cbo(test_abstract_dynamic):
     def test_mean_compute_batched(self, dynamic, f):
         '''Test if batched mean is correctly computed'''
         x = np.random.uniform(-1,1,(3,5,7))
-        dyn = dynamic(f, x=x, batch_size=2)
+        dyn = dynamic(f, x=x, batch_args={'size':2})
         dyn.step()
         mean = np.zeros((3,1,7))
         ind = dyn.consensus_idx[1]
@@ -76,7 +82,7 @@ class Test_cbo(test_abstract_dynamic):
         def noise():
             return delta
         with pytest.warns():
-            dyn = dynamic(f, x=x, noise=noise, batch_size=2)
+            dyn = dynamic(f, x=x, noise=noise, batch_args={'size':2, 'partial':False})
         dyn.step()
         x_new = x - dyn.lamda * dyn.dt * (x - dyn.consensus) + dyn.sigma * delta
         assert np.allclose(dyn.x, x_new)
@@ -85,7 +91,7 @@ class Test_cbo(test_abstract_dynamic):
         '''Test if partial batched step is correctly performed'''
         x = np.random.uniform(-1,1,(3,5,7))
 
-        dyn = dynamic(f, x=x, batch_size=2, batch_partial=True)
+        dyn = dynamic(f, x=x, batch_args={'size':2, 'partial':True})
         dyn.step()
         ind = dyn.particle_idx[1]
         for j in range(x.shape[0]):

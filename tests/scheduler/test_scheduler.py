@@ -1,6 +1,6 @@
 import numpy as np
 import cbx
-from cbx.utils.scheduler import multiply, scheduler, effective_number
+from cbx.scheduler import multiply, scheduler, effective_number
 
 def test_multiply_update():
     '''Test if multiply scheduler updates params correctly'''

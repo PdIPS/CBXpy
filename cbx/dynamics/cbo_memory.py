@@ -2,10 +2,10 @@ import numpy as np
 from typing import Union
 from scipy.special import logsumexp
 
-from .pdyn import ParticleDynamic
+from .pdyn import CBXDynamic
 
 #%% CBO_Memory
-class CBOMemory(ParticleDynamic):
+class CBOMemory(CBXDynamic):
     r"""Consensus-based optimization with memory effects (CBOMemory) class
 
     This class implements the CBO algorithm with memory effects as described in [1,2]_. The algorithm

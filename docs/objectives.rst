@@ -14,7 +14,6 @@ Classes
    :recursive:
    :template: classtemplate.rst
 
-   objectives.objective
    objectives.Ackley
    objectives.Ackley_multimodal
    objectives.Bukin6
@@ -31,6 +30,4 @@ Classes
    objectives.Rosenbrock
    objectives.snowflake
    objectives.three_hump_camel
-   
-   
    

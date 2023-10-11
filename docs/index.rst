@@ -24,7 +24,6 @@ The most important modules are documented below.
    :caption: Contents
 
    dynamic
-   noise
    objectives
    scheduler
    utils

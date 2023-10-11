@@ -1,5 +1,5 @@
 """
-batched_objectives
+objectives
 ==========
 
 This module implements obejective functions to test the performance of consesus 
@@ -26,7 +26,7 @@ class three_hump_camel(cbx_objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.batched_objectives import three_hump_camel
+    >>> from cbx.objectives import three_hump_camel
     >>> x = np.array([[1,2], [3,4], [5,6.]])
     >>> obj = three_hump_camel()
     >>> obj(x)
@@ -40,7 +40,7 @@ class three_hump_camel(cbx_objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.batched_objectives import three_hump_camel
+        from cbx.objectives import three_hump_camel
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max =  2.
@@ -68,6 +68,7 @@ class three_hump_camel(cbx_objective):
     """
 
     def __init__(self):
+        super().__init__()
         self.minima = np.array([[0,0]])
 
     def apply(self, x):
@@ -92,7 +93,7 @@ class McCormick(cbx_objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.batched_objectives import McCormick
+    >>> from cbx.objectives import McCormick
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = McCormick()
     >>> f(x)
@@ -106,7 +107,7 @@ class McCormick(cbx_objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.batched_objectives import McCormick
+        from cbx.objectives import McCormick
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max = 3.
@@ -160,7 +161,7 @@ class Rosenbrock(cbx_objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.batched_objectives import Rosenbrock
+    >>> from cbx.objectives import Rosenbrock
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Rosenbrock()
     >>> f(x)
@@ -174,7 +175,7 @@ class Rosenbrock(cbx_objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.batched_objectives import Rosenbrock
+        from cbx.objectives import Rosenbrock
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max = 2.
@@ -203,6 +204,7 @@ class Rosenbrock(cbx_objective):
     """
 
     def __init__(self, a=1., b=100.):
+        super().__init__()
         self.a = a
         self.b = b
 
@@ -239,7 +241,7 @@ class Himmelblau(cbx_objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.batched_objectives import Himmelblau
+    >>> from cbx.objectives import Himmelblau
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Himmelblau()
     >>> f(x)
@@ -253,7 +255,7 @@ class Himmelblau(cbx_objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.batched_objectives import Himmelblau
+        from cbx.objectives import Himmelblau
         fig = plt.figure(figsize=(15,5))
         x_min = -5.
         x_max = 5.
@@ -319,7 +321,7 @@ class Rastrigin(cbx_objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.batched_objectives import Rastrigin
+    >>> from cbx.objectives import Rastrigin
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Rastrigin()
     >>> f(x)
@@ -333,7 +335,7 @@ class Rastrigin(cbx_objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.batched_objectives import Rastrigin
+        from cbx.objectives import Rastrigin
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max =  2.
@@ -391,7 +393,7 @@ class Rastrigin_multimodal(cbx_objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.batched_objectives import Rastrigin_multimodal
+    >>> from cbx.objectives import Rastrigin_multimodal
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> alpha = [2., 3.]
     >>> z = np.array([[2,3], [4,5]])
@@ -446,7 +448,7 @@ class Ackley(cbx_objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.batched_objectives import Ackley
+    >>> from cbx.objectives import Ackley
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Ackley()
     >>> f(x)
@@ -460,7 +462,7 @@ class Ackley(cbx_objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.batched_objectives import Ackley
+        from cbx.objectives import Ackley
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max =  2.
@@ -522,7 +524,7 @@ class Ackley_multimodal(cbx_objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.batched_objectives import Ackley_multimodal
+    >>> from cbx.objectives import Ackley_multimodal
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> alpha = [2., 3.]
     >>> z = np.array([[2,3], [4,5]])
@@ -663,7 +665,7 @@ class Bukin6(cbx_objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.batched_objectives import Bukin6
+    >>> from cbx.objectives import Bukin6
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Bukin6()
     >>> f(x)
@@ -677,7 +679,7 @@ class Bukin6(cbx_objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.batched_objectives import Bukin6
+        from cbx.objectives import Bukin6
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max =  2.
@@ -742,7 +744,7 @@ class cross_in_tray(cbx_objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.batched_objectives import cross_in_tray
+    >>> from cbx.objectives import cross_in_tray
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = cross_in_tray()
     >>> f(x)
@@ -756,7 +758,7 @@ class cross_in_tray(cbx_objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.batched_objectives import cross_in_tray
+        from cbx.objectives import cross_in_tray
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max =  2.
@@ -818,7 +820,7 @@ class Easom(cbx_objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.batched_objectives import Easom
+    >>> from cbx.objectives import Easom
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Easom()
     >>> f(x)
@@ -832,7 +834,7 @@ class Easom(cbx_objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.batched_objectives import Easom
+        from cbx.objectives import Easom
         fig = plt.figure(figsize=(15,5))
         x_min = 0
         x_max =  2. * np.pi
@@ -896,7 +898,7 @@ class drop_wave(cbx_objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.batched_objectives import drop_wave
+    >>> from cbx.objectives import drop_wave
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = drop_wave()
     >>> f(x)
@@ -910,7 +912,7 @@ class drop_wave(cbx_objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.batched_objectives import drop_wave
+        from cbx.objectives import drop_wave
         fig = plt.figure(figsize=(15,5))
         x_min = -2.
         x_max =  2.
@@ -975,7 +977,7 @@ class Holder_table(cbx_objective):
     Examples
     --------
     >>> import numpy as np
-    >>> from cbx.batched_objectives import Holder_table
+    >>> from cbx.objectives import Holder_table
     >>> x = np.array([[1,2], [3,4], [5,6]])
     >>> f = Holder_table()
     >>> f(x)
@@ -989,7 +991,7 @@ class Holder_table(cbx_objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.batched_objectives import Holder_table
+        from cbx.objectives import Holder_table
         fig = plt.figure(figsize=(15,5))
         x_min = -10.
         x_max =  10.
@@ -1065,7 +1067,7 @@ class snowflake(cbx_objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.batched_objectives import snowflake
+        from cbx.objectives import snowflake
         fig = plt.figure(figsize=(15,5))
         x_min = -2.5
         x_max =  2.5
@@ -1153,7 +1155,7 @@ class eggholder(cbx_objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.batched_objectives import eggholder
+        from cbx.objectives import eggholder
         fig = plt.figure(figsize=(15,5))
         x_min = -600
         x_max =  600
@@ -1221,7 +1223,7 @@ class Michalewicz(cbx_objective):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         import numpy as np
-        from cbx.batched_objectives import Michalewicz
+        from cbx.objectives import Michalewicz
         fig = plt.figure(figsize=(15,5))
         x_min = 0.
         x_max =  4.

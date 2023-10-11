@@ -1,7 +1,7 @@
 scheduler
 ==========
 
-This module implements the :math:`\beta`-schedulers employed in consensus schemes.
+This module implements schedulers for consensus schemes.
 
 Classes
 -------
@@ -13,7 +13,4 @@ Classes
    :nosignatures:
    :recursive:
    :template: classtemplate.rst
-
-   scheduler.scheduler_base
-   scheduler.exponential
 

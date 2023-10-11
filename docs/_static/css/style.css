@@ -1,11 +1,11 @@
 
 .wy-side-nav-search {
-    background-color: #4883b4;
+    background-color: #FAA900;
 }
 
 .wy-nav-side {
-    background: #d9e8f5;
-    color: #4883b4;
+    background: #faab0048;
+    color: #000000;
 }
 
 .wy-menu-vertical a {
@@ -14,7 +14,7 @@
     display: block;
     position: relative;
     font-size: 90%;
-    color: #4883b4;
+    color: #000000;
 }
 
 .wy-table-responsive table {
@@ -25,12 +25,12 @@
 
 .wy-table-responsive table tbody td .pre {
     background: #ffffff;
-    color: #4883b4;
+    color: #000000;
     font-size: 87.5%;
 }
 
 .wy-table-responsive table tbody .row-odd {
-    background-color: #d9e8f5;
+    background-color: #faab0048;
 }
 
 .wy-table-responsive table thead tr {
@@ -44,7 +44,7 @@
 }
 
 .wy-table-responsive table tbody td {
-    color: #4883b4;
+    color: #000000;
     white-space: normal;
     padding: 0.9375rem;
     font-size: 1rem;
@@ -53,7 +53,7 @@
 
 .wy-table-responsive table tbody td .pre {
     background: #ffffff;
-    color: #4883b4;
+    color: #000000;
     font-size: 100%;
 }
 .wy-table-responsive table tbody td code {
@@ -62,7 +62,7 @@
 
 
 code.literal {
-    color: #4883b4 !important;
+    color: #000000 !important;
     background-color: #fbfbfb !important;
 }
 

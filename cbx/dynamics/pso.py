@@ -2,10 +2,10 @@ import numpy as np
 from typing import Union
 from scipy.special import logsumexp
 
-from .pdyn import ParticleDynamic
+from .pdyn import CBXDynamic
 
 #%% CBO_Memory
-class PSO(ParticleDynamic):
+class PSO(CBXDynamic):
     r"""Particle Swarm Optimization class
 
     This class implements the PSO algorithm as described in [1,2]_. The algorithm
