@@ -314,7 +314,7 @@ class CBXDynamic(ParticleDynamic):
             self.checks.append(self.check_max_time)
         
     def init_batch_idx(self, batch_args) -> None:
-        batch_args = batch_args if not batch_args is None else {}
+        batch_args = batch_args if batch_args is not None else {}
         batch_size = batch_args.get('size', self.N)
         batch_partial = batch_args.get('partial', True)
         batch_seed = batch_args.get('seed', 42)
