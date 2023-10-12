@@ -72,6 +72,23 @@ html_logo = "cbx.png"
 html_theme_options = {
     'logo_only': True,
     'display_version': False,
+    'favicons': [
+      {
+         "rel": "icon",
+         "sizes": "16x16",
+         "href": "https://secure.example.com/favicon/favicon-16x16.png",
+      },
+      {
+         "rel": "icon",
+         "sizes": "32x32",
+         "href": "favicon-32x32.png",
+      },
+      {
+         "rel": "apple-touch-icon",
+         "sizes": "180x180",
+         "href": "apple-touch-icon-180x180.png"
+      },
+   ]
 }
 
 def setup(app):
