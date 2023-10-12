@@ -49,7 +49,7 @@ The following example shows how to minimize a function using CBXPy
 
 
 Documentation
-----------
+-------------
 
 .. toctree::
    :maxdepth: 2

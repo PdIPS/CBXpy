@@ -61,34 +61,17 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 #
 #html_theme = 'sphinx_rtd_theme'
 html_theme = "pydata_sphinx_theme"
-#html_favicon = 'polar.ico'
+html_favicon = '_static/cbx-logo.ico'
 #html_theme = 'alabaster'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
-html_logo = "cbx.png"
+html_logo = "_static/cbx-logo.png"
 html_theme_options = {
-    'logo_only': True,
-    'display_version': False,
-    'favicons': [
-      {
-         "rel": "icon",
-         "sizes": "16x16",
-         "href": "https://secure.example.com/favicon/favicon-16x16.png",
-      },
-      {
-         "rel": "icon",
-         "sizes": "32x32",
-         "href": "favicon-32x32.png",
-      },
-      {
-         "rel": "apple-touch-icon",
-         "sizes": "180x180",
-         "href": "apple-touch-icon-180x180.png"
-      },
-   ]
+    #'logo_only': True,
+    #'display_version': False
 }
 
 def setup(app):
