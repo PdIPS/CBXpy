@@ -13,7 +13,7 @@
    x = dyn.optimize()
 ```
 
-A Documentation is available at [https://pdips.github.io/CBXpy/](https://pdips.github.io/CBXpy)
+A Documentation is available at [https://pdips.github.io/CBXpy](https://pdips.github.io/CBXpy)
 
 
 # Installation
