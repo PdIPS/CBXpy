@@ -129,7 +129,14 @@ class CBOMemory(CBXDynamic):
         None
 
         """
-        weights = - self.alpha * energy#[e_ind]
+        weights = - self.alpha * energy
         coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
         return (x_batch * coeffs).sum(axis=-2, keepdims=True)
+    
+    def update_best_cur_particle(self,) -> None:
+        self.f_min = self.energy.min(axis=-1)
+        self.f_min_idx = self.energy.argmin(axis=-1)
+        
+        self.best_cur_particle = self.x[np.arange(self.M), self.f_min_idx, :]
+        self.best_cur_energy = self.energy[np.arange(self.M), self.f_min_idx]
         

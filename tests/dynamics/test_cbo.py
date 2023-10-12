@@ -112,3 +112,16 @@ class Test_cbo(test_abstract_dynamic):
         dyn = dynamic(g, x=x, max_it=2, array_mode='torch')
         dyn.optimize()
         assert dyn.x.shape == (6,5,7)
+        
+    def test_update_best_cur_particle(self, f, dynamic):
+        x = np.zeros((5,3,2))
+        x[0, :,:] = np.array([[0.,0.], [2.,1.], [4.,5.]])
+        x[1, :,:] = np.array([[8.,7.], [0.,1.], [2.,1.]])
+        x[2, :,:] = np.array([[2.,5.], [0.,0.5], [2.,1.]])
+        x[3, :,:] = np.array([[5.3,0.], [2.,1.], [0.,0.3]])
+        x[4, :,:] = np.array([[0.,3.], [2.,1.], [0.,1.]])
+        dyn = dynamic(f, x=x)
+        dyn.step()
+        best_cur_particle = np.array([[0.,0.], [0.,1.], [0.,0.5], [0.,0.3], [0.,1.]])
+        
+        assert np.allclose(dyn.best_cur_particle, best_cur_particle)

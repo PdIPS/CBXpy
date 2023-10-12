@@ -130,7 +130,7 @@ class ParticleDynamic():
         if hasattr(self, 'x_old'):
             self.update_diff = np.linalg.norm(self.x - self.x_old, axis=(-2,-1))/self.N
         
-        self.set_best_cur_particle()
+        self.update_best_cur_particle()
         self.update_best_particle()
         self.track()
             
@@ -165,7 +165,7 @@ class ParticleDynamic():
         if self.verbosity > 0:
             print('-'*20)
             print('Finished solver.')
-            print('Best energy: ' + str(self.f_min))
+            print('Best energy: ' + str(self.best_energy))
             print('-'*20)
 
         return self.best_particle
@@ -258,17 +258,19 @@ class ParticleDynamic():
         self.history['energy'][self.track_it, :] = self.best_cur_energy
     
 
-    def set_best_cur_particle(self,) -> None:
+    def update_best_cur_particle(self,) -> None:
         self.f_min = self.energy.min(axis=-1)
         self.f_min_idx = self.energy.argmin(axis=-1)
-        self.best_cur_particle = self.x[np.arange(self.M), self.f_min_idx, :]
+        
+        if hasattr(self, 'x_old'):
+            self.best_cur_particle = self.x_old[np.arange(self.M), self.f_min_idx, :]
         self.best_cur_energy = self.energy[np.arange(self.M), self.f_min_idx]
     
     def update_best_particle(self,):
         idx = np.where(self.best_energy > self.best_cur_energy)[0]
         if len(idx) > 0:
             self.best_energy[idx] = self.best_cur_energy[idx]
-            self.best_particle[idx, :] = self.best_cur_particle[idx, :]
+            self.best_particle[idx, :] = self.copy_particles(self.best_cur_particle[idx, :])
             
             
     
@@ -508,7 +510,7 @@ class CBXDynamic(ParticleDynamic):
         if hasattr(self, 'x_old'):
             self.update_diff = np.linalg.norm(self.x - self.x_old, axis=(-2,-1))/self.N
         
-        self.set_best_cur_particle()
+        self.update_best_cur_particle()
         self.update_best_particle()
         self.track()
 

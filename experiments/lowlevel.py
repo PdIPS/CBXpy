@@ -3,7 +3,7 @@ import cbx as cbx
 from cbx.dynamics import CBO
 from cbx.objectives import Rastrigin
 from cbx.utils.objective_handling import cbx_objective_fh
-from cbx.utils.scheduler import scheduler, multiply
+from cbx.scheduler import scheduler, multiply
 from cbx.plotting import plot_evolution
 import matplotlib.pyplot as plt
 
@@ -13,8 +13,9 @@ conf = {'alpha': 30.0,
         'dt': 0.01,
         'sigma': 8.1,#8,#5.1,#8.0,
         'lamda': 1.0,
-        'batch_size':900,
-        'batch_partial': False,
+        'batch_args':{
+        'batch_size':200,
+        'batch_partial': False},
         'd': 20,
         'max_it': 1000,
         'N': 1000,
