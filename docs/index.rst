@@ -36,14 +36,15 @@ The package can be installed via ``pip``
 Simple Usage Example
 --------------------
 
-The following example shows how to minimize a function using the CBO scheme
+The following example shows how to minimize a function using CBXPy
 
-.. code-block:: python
+::
+
    from cbx.dynamics import CBO
 
-   f = lambda x: x.sum(axis=-1)
-   dyn = CBO(f, d=7)
-   dyn.solve()
+   f = lambda x: x[0]**2 + x[1]**2
+   dyn = CBO(f, d=2)
+   x = dyn.optimize()
 
 
 
@@ -54,29 +55,15 @@ Documentation
    :maxdepth: 2
 
    userguide/index
+   api/index
 
 
-Usage
------
+References
+----------
 
-The most important modules are documented below.
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Contents
-
-   dynamic
-   objectives
-   scheduler
-   utils
-
-
-.. button-link:: userguide
-    :color: primary
-    :outline:
-
-
-
+.. [1] Pinnau, R., Totzeck, C., Tse, O., & Martin, S. (2017). A consensus-based model for global optimization and its mean-field limit. Mathematical Models and Methods in Applied Sciences, 27(01), 183-204.
+.. [2] ??
+.. [3] ??
 
 Indices and tables
 ==================

@@ -32,12 +32,14 @@ def plot_evolution(dyn, num_run = 0, dims = None,
     dims = dims if dims is not None else [0,1]
     fig, ax = plt.subplots(1,)
     _ = contour_2D(dyn.f, ax=ax, **cf_args)
-    
+    plot_c = False
+    plot_d = False
     if 'x' not in dyn.history:
         raise RuntimeError('The dynamic has no particle history!')
     if 'consensus' in dyn.history:
         c = dyn.history['consensus']
         plot_c = True
+        
     if 'drift' in dyn.history:
         d = dyn.history['drift']
         pidx = dyn.history['particle_idx']

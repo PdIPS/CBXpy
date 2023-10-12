@@ -1,6 +1,6 @@
 import warnings
 #%%
-from ..scheduler import scheduler
+from ..scheduler import scheduler, multiply
 from ..utils.particle_init import init_particles
 from ..utils.numpy_torch_comp import copy_particles
 from ..utils.objective_handling import _promote_objective, cbx_objective
@@ -41,6 +41,7 @@ class ParticleDynamic():
             diff_tol: Union[float, None] = None,
             max_eval: Union[int, None] = None,
             max_it: Union[int, None] = 1000,
+            max_x_thresh: Union[float, None] = 1e5,
             array_mode: str = 'numpy',
             track_list: list = None,
             save_int: int = 1,
@@ -96,6 +97,7 @@ class ParticleDynamic():
         self.diff_tol = diff_tol
         self.max_eval = max_eval
         self.max_it = max_it
+        self.max_x_thresh = max_x_thresh
     
         self.checks = []
         if energy_tol is not None:
@@ -133,17 +135,25 @@ class ParticleDynamic():
         self.update_best_cur_particle()
         self.update_best_particle()
         self.track()
+        self.process_particles()
             
         self.it+=1
+        
+    def process_particles(self,):
+        np.nan_to_num(self.x, copy=False, nan=self.max_x_thresh)
+        self.x = np.clip(self.x, None, self.max_x_thresh)
         
     def step(self,) -> None:
         self.pre_step()
         self.inner_step()
         self.post_step()
+        
+    def default_sched(self,):
+        return scheduler(self, [])
 
     def optimize(self,
                  print_int: Union[int, None] = None,
-                 sched = None):
+                 sched = 'default'):
         
         print_int = print_int if print_int is not None else self.save_int
         
@@ -154,25 +164,33 @@ class ParticleDynamic():
 
         if sched is None:
             sched = scheduler(self, [])
+        elif sched == 'default':
+            sched = self.default_sched()
+        else:
+            if not isinstance(sched, scheduler):
+                raise RuntimeError('Unknonw scheduler specified!')
 
         while not self.terminate(verbosity=self.verbosity):
             self.step()
             sched.update()
-
             if (self.it % print_int == 0):
                 self.print_cur_state()
 
-        if self.verbosity > 0:
-            print('-'*20)
-            print('Finished solver.')
-            print('Best energy: ' + str(self.best_energy))
-            print('-'*20)
+        self.print_post_opt()
+
 
         return self.best_particle
     
     def print_cur_state(self,):
         pass
-
+    
+    def print_post_opt(self):
+        if self.verbosity > 0:
+            print('-'*20)
+            print('Finished solver.')
+            print('Best energy: ' + str(self.best_energy))
+            print('-'*20)
+            
     def copy_particles(self, x):
         return copy_particles(x, mode=self.array_mode)
 
@@ -370,6 +388,9 @@ class CBXDynamic(ParticleDynamic):
             self.particle_idx = self.consensus_idx
         else:
             self.particle_idx = Ellipsis
+            
+    def default_sched(self,):
+        return scheduler(self, [multiply(name='alpha', factor=1.05)])
     
     
     def set_correction(self, correction):
@@ -530,7 +551,7 @@ class CBXDynamic(ParticleDynamic):
     
     def print_cur_state(self,):
         if self.verbosity > 0:
-            print('Time: ' + "{:.3f}".format(self.t) + ', best energy: ' + str(self.f_min))
+            print('Time: ' + "{:.3f}".format(self.t) + ', best current energy: ' + str(self.f_min))
             print('Number of function evaluations: ' + str(self.num_f_eval))
 
         if self.verbosity > 1:
