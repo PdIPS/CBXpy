@@ -104,6 +104,7 @@ celerybeat.pid
 # pngs
 *.png
 !docs/_static/cbx-logo.png
+!docs/_static/cbx-logo.ico
 
 # SageMath parsed files
 *.sage.py
