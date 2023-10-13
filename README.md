@@ -1,22 +1,29 @@
 
 ![cbx](https://github.com/PdIPS/CBXpy/assets/44805883/65e7f1b2-e858-4b8d-af37-8eeaea15214c)
 
-# What is CBXPy?
+A python package for consensus-based particle dynamics, focusing on **optimization** and **sampling**. 
 
-```CBXPy``` is a python package for consensus-based particle dynamics, focusing on **optimization** and **sampling**. Minimizing a function using CBXPy can be done as follows
+# How to use CBXPy?
+
+Minimizing a function using CBXPy can be done as follows
 
 ```python
-   from cbx.dynamics import CBO
+   from cbx.dynamics import CBO       # import the CBO class
 
-   f = lambda x: x[0]**2 + x[1]**2
-   dyn = CBO(f, d=2)
-   x = dyn.optimize()
+   f = lambda x: x[0]**2 + x[1]**2     # define the function to minimize
+   x = CBO(f, d=2).optimize()          # run the optimization
 ```
 
-A Documentation is available at [https://pdips.github.io/CBXpy](https://pdips.github.io/CBXpy)
+A documentation together with more examples and usage instructions is available at [https://pdips.github.io/CBXpy](https://pdips.github.io/CBXpy).
 
 
 # Installation
+
+Currently ```CBXPy``` can only be installed from PyPI with pip
+
+```bash
+   pip install cbx
+```
 
 
 
@@ -31,7 +38,7 @@ $$
 the scheme was introduced as CBO (Consensus Based Optimization). Given an ensemble of points $x = (x_1, \ldots, x_N)$, the update reads
 
 $$
-x_i \gets x_i - \lambda\ dt\ (x_i - c(x)) + \sigma\ \sqrt{dt} |x_i - c(x)| \xi_i
+x_i \gets x_i - \lambda\ dt\ (x_i - c(x)) + \sigma\ \sqrt{dt} |x_i - c(x)|\ \xi_i
 $$
 
 where $\xi_i$ are i.i.d. standard normal random variables. The core element is the consensus point
@@ -45,6 +52,22 @@ $$
 with a parameter $\alpha>0$. The scheme can be extended to sampling problems  known as CBS, clustering problems and opinion dynamics, which motivates the acronym 
 **CBX**, indicating the flexibility of the scheme.
 
+## Functionality
+
+Among others CBXPy currently implments
+
+* CBO (Consensus Based Optimization) [[1]](#CBO),
+* CBS (Consensus Based Sampling) [[2]](#CBS),
+* CBO with memory [[3]](#CBOMemory),
+* Batching schemes [[4]](#Batching).
 
 
-# Usage examples
+## References
+
+<a name="CBO">[1]</a> A consensus-based model for global optimization and its mean-field limit, Pinnau, R., Totzeck, C., Tse, O. and Martin, S., Mathematical Models and Methods in Applied Sciences 2017
+
+<a name="CBS">[2]</a> Consensus-based sampling, Carrillo, J.A., Hoffmann, F., Stuart, A.M., and Vaes, U, Studies in Applied Mathematics 2022
+
+<a name="CBOMemory">[3]</a> Leveraging Memory Effects and Gradient Information in Consensus-Based Optimization: On Global Convergence in Mean-Field Law, Riedl, K., 2022
+
+<a name="Batching">[4]</a> A consensus-based global optimization method for high dimensional machine learning problems, Carrillo, J.A., Jin, S., Li, L. and Zhu, Y., ESAIM: Control, Optimisation and Calculus of Variations 2021

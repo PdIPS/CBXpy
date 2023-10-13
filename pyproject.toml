@@ -1,8 +1,12 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name="cbx"
-version="0.1.0"
+version="0.1.1"
 authors = [
-    {name = "Tim Roith", email = "tim.roith@fau.de"},
+    {name = "Tim Roith", email = "tim.roith@desy.de"},
 ]
 description="CBXpy"
 dependencies = [  
@@ -11,7 +15,7 @@ dependencies = [
     'scikit-learn', 
     'matplotlib'
     ]
-readme = "README.rst"
+readme = "README.md"
 requires-python = ">3.5.2"
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -19,14 +23,14 @@ classifiers = [
     "Operating System :: OS Independent"
     ]
 
-[tool.setuptools.packages]
-find = {}  # Scan the project directory with the default parameters
-
 [project.optional-dependencies] # Optional dependencies
 test = [
     'pytest',
     'torch'
     ]
+
+[tool.setuptools]
+packages = ['cbx', 'cbx.dynamics', 'cbx.utils']
 
 
 [tool.ruff]
