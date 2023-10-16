@@ -9,6 +9,7 @@ from ..utils.objective_handling import _promote_objective, cbx_objective
 from typing import Callable, Union
 import numpy as np
 from numpy.random import Generator, MT19937
+from scipy.special import logsumexp
 
 
 class ParticleDynamic():
@@ -424,7 +425,7 @@ class CBXDynamic(ParticleDynamic):
             self.noise = self.isotropic_noise
         elif noise == 'anisotropic':
             self.noise = self.anisotropic_noise
-        elif noise == 'sampling':
+        elif noise in ['sampling','covariance']:
             self.noise = self.covariance_noise
             warnings.warn('Currently not bug-free!', stacklevel=2)
         else:
@@ -474,13 +475,11 @@ class CBXDynamic(ParticleDynamic):
         
     def covariance_noise(self,):
         self.update_covariance()
-        z = np.random.normal(0, 1, size=self.x.shape) # num, d
-        noise = np.zeros(self.x.shape)
+        z = np.random.normal(0, 1, size = self.drift.shape) # num, d
+        noise = self.C_sqrt@z
         
-        # the following needs to be optimized
-        for j in range(self.x.shape[0]):
-            noise[j,:] = self.C_sqrt[j,::]@(z[j,:])
-        return (np.sqrt(1/self.lamda * (1 - self.alpha**2))) * noise
+        factor = np.sqrt(1/self.lamda * (1 - np.exp(-self.dt)**2))
+        return factor * noise
     
     def update_covariance(self,):
         pass   
@@ -556,6 +555,31 @@ class CBXDynamic(ParticleDynamic):
 
         if self.verbosity > 1:
             print('Current alpha: ' + str(self.alpha))
+            
+    def compute_consensus(self, x_batch) -> None:
+        r"""Updates the weighted mean of the particles.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        """
+        # evaluation of objective function on batch
+        energy = self.f(x_batch) # update energy
+        self.num_f_eval += np.ones(self.M,dtype=int) * x_batch.shape[-2] # update number of function evaluations
+        
+        weights = - self.alpha * energy
+        coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
+        
+        problem_idx = np.where(np.abs(coeffs.sum(axis=-2)-1) > 0.1)[0]
+        if len(problem_idx) > 0:
+            raise RuntimeError('Problematic consensus computation!')
+        
+        return (x_batch * coeffs).sum(axis=-2, keepdims=True), energy
         
         
     

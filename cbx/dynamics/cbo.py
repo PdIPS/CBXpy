@@ -1,6 +1,3 @@
-import numpy as np
-from scipy.special import logsumexp
-
 from .pdyn import CBXDynamic
 
 #%% CBO
@@ -64,29 +61,3 @@ class CBO(CBXDynamic):
             self.x[self.particle_idx] -
             self.correction(self.lamda * self.dt * self.drift) +
             self.s)
-        
-        
-    def compute_consensus(self, x_batch) -> None:
-        r"""Updates the weighted mean of the particles.
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        None
-
-        """
-        # evaluation of objective function on batch
-        energy = self.f(x_batch) # update energy
-        self.num_f_eval += np.ones(self.M,dtype=int) * x_batch.shape[-2] # update number of function evaluations
-        
-        weights = - self.alpha * energy
-        coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
-        
-        problem_idx = np.where(np.abs(coeffs.sum(axis=-2)-1) > 0.1)[0]
-        if len(problem_idx) > 0:
-            raise RuntimeError('Problematic consensus computation!')
-        
-        return (x_batch * coeffs).sum(axis=-2, keepdims=True), energy
