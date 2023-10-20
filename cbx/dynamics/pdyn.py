@@ -475,11 +475,14 @@ class CBXDynamic(ParticleDynamic):
         
     def covariance_noise(self,):
         self.update_covariance()
-        z = np.random.normal(0, 1, size = self.drift.shape) # num, d
-        noise = self.C_sqrt@z
+        z = np.random.normal(0, 1, size = self.drift.shape) 
+        noise = self.apply_cov_sqrt(z)
         
         factor = np.sqrt(1/self.lamda * (1 - np.exp(-self.dt)**2))
         return factor * noise
+    
+    def apply_cov_sqrt(self, z):
+        return (self.C_sqrt@z.transpose(0,2,1)).transpose(0,2,1)
     
     def update_covariance(self,):
         pass   

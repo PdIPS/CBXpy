@@ -1,4 +1,4 @@
-from cbx.dynamics.pdyn import ParticleDynamic
+from cbx.dynamics.pdyn import ParticleDynamic, CBXDynamic
 import pytest
 import numpy as np
 from test_abstraction import test_abstract_dynamic
@@ -66,6 +66,17 @@ class Test_pdyn(test_abstract_dynamic):
         dyn = dynamic(g, x=x, max_it=2, array_mode='torch')
         dyn.optimize()
         assert dyn.x.shape == (6,5,7)
+        
+class Test_cbx(test_abstract_dynamic):
+    @pytest.fixture
+    def dynamic(self):
+        return CBXDynamic
+    
+    def test_covariance_noise(self, f, dynamic):
+        dyn = dynamic(f, d=5, max_it=7)
+        A = np.random.uniform(size=(5,5))
+        
+        dyn.C_sqrt = A.copy()
 
     
 
