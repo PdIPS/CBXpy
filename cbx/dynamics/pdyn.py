@@ -484,8 +484,25 @@ class CBXDynamic(ParticleDynamic):
     def apply_cov_sqrt(self, z):
         return (self.C_sqrt@z.transpose(0,2,1)).transpose(0,2,1)
     
-    def update_covariance(self,):
-        pass   
+    def update_covariance(self,) -> None:
+        r"""Update the covariance matrix :math:`\mathsf{C}(x_i)` of the noise model
+    
+        Parameters
+
+    
+        Returns
+        -------
+        None.
+    
+        """                       
+        weights = - self.alpha * self.energy
+        coeffs = np.exp(weights - logsumexp(weights))
+      
+        D = self.drift[...,None] * self.drift[...,None,:]
+        D = np.sum(D * coeffs[..., None, None], axis = -3)
+        self.C_sqrt = np.linalg.cholesky(D)
+        
+        
         
     track_names_known = ParticleDynamic.track_names_known + ['consensus', 'drift', 'drift_mean']
     

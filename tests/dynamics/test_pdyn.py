@@ -90,6 +90,26 @@ class Test_cbx(test_abstract_dynamic):
         gg = dyn.apply_cov_sqrt(z)
         assert np.allclose(g, gg)
         
+    def test_update_cov(self, f, dynamic):
+        M=7
+        d=4
+        N=12
+        dyn = dynamic(f, M=M, d=d, N=N)
+        dyn.step()
+        dyn.update_covariance()
+        
+        Cov = np.zeros((M,d,d))
+        for m in range(M):
+            C = np.zeros((d,d))
+            for n in range(N):
+                d = dyn.x[m,n,:] - dyn.consensus
+                C += np.outer(d,d) * np.exp(-dyn.alpha * f(dyn.x[m,n,:]))
+                
+            Cov[m,...] = C
+            
+            
+        
+        
         
         
 
