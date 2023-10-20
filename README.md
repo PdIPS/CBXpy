@@ -1,6 +1,8 @@
 
 ![cbx](https://github.com/PdIPS/CBXpy/assets/44805883/65e7f1b2-e858-4b8d-af37-8eeaea15214c)
 
+[![codecov](https://codecov.io/gh/PdIPS/CBXpy/graph/badge.svg?token=TU3LO8SLFP)](https://codecov.io/gh/PdIPS/CBXpy)
+
 A python package for consensus-based particle dynamics, focusing on **optimization** and **sampling**. 
 
 # How to use CBXPy?
