@@ -72,11 +72,26 @@ class Test_cbx(test_abstract_dynamic):
     def dynamic(self):
         return CBXDynamic
     
-    def test_covariance_noise(self, f, dynamic):
-        dyn = dynamic(f, d=5, max_it=7)
-        A = np.random.uniform(size=(5,5))
-        
+    def test_apply_cov_mat(self, f, dynamic):
+        M=7
+        d=4
+        N=12
+        dyn = dynamic(f, M=M, d=d, N=N)
+        A = np.random.uniform(size=(M,d,d))
         dyn.C_sqrt = A.copy()
+        
+        z = np.random.uniform(low=-1.,high=1., size=(M,N,d))
+        
+        g = np.zeros_like(z)
+        for m in range(M):
+            for n in range(N):
+                g[m,n,:] = A[m,...]@z[m,n,:]
+                
+        gg = dyn.apply_cov_sqrt(z)
+        assert np.allclose(g, gg)
+        
+        
+        
 
     
 
