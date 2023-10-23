@@ -291,7 +291,12 @@ class ParticleDynamic():
             self.best_energy[idx] = self.best_cur_energy[idx]
             self.best_particle[idx, :] = self.copy_particles(self.best_cur_particle[idx, :])
             
+
             
+def compute_mat_sqrt(A):
+    B, V = np.linalg.eigh(A)
+    B = np.maximum(B,0.)
+    return V@(np.sqrt(B)[...,None]*V.transpose(0,2,1))
     
     
 class CBXDynamic(ParticleDynamic):
@@ -470,19 +475,18 @@ class CBXDynamic(ParticleDynamic):
 
         """
 
-        z = np.sqrt(self.dt) * np.random.normal(0, 1, size=self.drift.shape)
+        z = np.sqrt(self.dt) * np.random.normal(0, 1, size=(self.drift.shape))
         return z * np.linalg.norm(self.drift, axis=-1,keepdims=True)
         
     def covariance_noise(self,):
-        self.update_covariance()
         z = np.random.normal(0, 1, size = self.drift.shape) 
         noise = self.apply_cov_sqrt(z)
         
-        factor = np.sqrt(1/self.lamda * (1 - np.exp(-self.dt)**2))
+        factor = np.sqrt((1/self.lamda) * (1 - np.exp(-self.dt)**2))
         return factor * noise
     
     def apply_cov_sqrt(self, z):
-        return (self.C_sqrt@z.transpose(0,2,1)).transpose(0,2,1)
+        return (self.Cov_sqrt@z.transpose(0,2,1)).transpose(0,2,1)
     
     def update_covariance(self,) -> None:
         r"""Update the covariance matrix :math:`\mathsf{C}(x_i)` of the noise model
@@ -496,12 +500,11 @@ class CBXDynamic(ParticleDynamic):
     
         """                       
         weights = - self.alpha * self.energy
-        coeffs = np.exp(weights - logsumexp(weights))
+        coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))
       
         D = self.drift[...,None] * self.drift[...,None,:]
         D = np.sum(D * coeffs[..., None, None], axis = -3)
-        self.C_sqrt = np.linalg.cholesky(D)
-        
+        self.Cov_sqrt = compute_mat_sqrt(D)
         
         
     track_names_known = ParticleDynamic.track_names_known + ['consensus', 'drift', 'drift_mean']

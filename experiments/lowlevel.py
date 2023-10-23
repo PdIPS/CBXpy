@@ -4,7 +4,7 @@ from cbx.dynamics import CBO
 from cbx.objectives import Rastrigin
 from cbx.utils.objective_handling import cbx_objective_fh
 from cbx.scheduler import scheduler, multiply
-from cbx.plotting import plot_evolution
+from cbx.plotting import plot_dynamic
 import matplotlib.pyplot as plt
 
 np.random.seed(420)
@@ -58,4 +58,8 @@ while not dyn.terminate():
     
 #%%
 plt.close('all')
-plot_evolution(dyn, wait=0.05, freq=1, dims=[0,19], cf_args={'x_min':-3, 'x_max':3})
+plotter = plot_dynamic(dyn, dims=[0,19], 
+                       contour_args={'x_min':-3, 'x_max':3},
+                       plot_consensus=True,
+                       plot_drift=True)
+plotter.run_plots(wait=0.05, freq=1)
