@@ -4,3 +4,6 @@
 .. currentmodule:: cbx.objectives
 
 .. autoclass:: Holder_table
+   :members:
+   :show-inheritance:
+   :special-members: __call__

@@ -1,23 +1,16 @@
-dynamic
-==========
+dynamics
+========
 
 This module implements algorithms for optimization and sampling for consensus based
-particles systems. All the dynamics inherit from the base class ``ParticleDynamic``.
+particles systems as proposed in [1]_. 
+
+The base class ``ParticleDynamic`` implements functionality that is common 
+to particle based iterative methods. The class ``CBXDynmaic`` inherits from
+``ParticleDynamic`` and implements functionality that is specific to consensus 
+based schemes. The following dynamics are implemented:
 
 .. currentmodule:: cbx.dynamics
 
-.. autoclass:: ParticleDynamic
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-
-
-Standard Consensus Based Schemes
---------------------------------
-
-The following classes implement standard consensus based schemes [1]_.
 
 .. autosummary::
    :toctree: generated
@@ -25,7 +18,12 @@ The following classes implement standard consensus based schemes [1]_.
    :recursive:
    :template: classtemplate.rst
 
+   ParticleDynamic
+   CBXDynamic
    CBO
+   CBOMemory
+   CBS
+   PSO
 
 
 

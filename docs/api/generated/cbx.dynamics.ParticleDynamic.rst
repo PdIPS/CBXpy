@@ -1,9 +1,9 @@
-﻿cbx.dynamics.CBO
-================
+﻿cbx.dynamics.ParticleDynamic
+============================
 
 .. currentmodule:: cbx.dynamics
 
-.. autoclass:: CBO
+.. autoclass:: ParticleDynamic
    :members:
    :show-inheritance:
    :special-members: __call__

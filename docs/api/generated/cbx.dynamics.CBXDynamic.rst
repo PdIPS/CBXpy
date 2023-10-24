@@ -1,9 +1,9 @@
-﻿cbx.dynamics.CBO
-================
+﻿cbx.dynamics.CBXDynamic
+=======================
 
 .. currentmodule:: cbx.dynamics
 
-.. autoclass:: CBO
+.. autoclass:: CBXDynamic
    :members:
    :show-inheritance:
    :special-members: __call__
