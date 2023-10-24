@@ -71,8 +71,26 @@ html_favicon = '_static/cbx-logo.ico'
 html_static_path = ['_static']
 html_logo = "_static/cbx-logo.png"
 html_theme_options = {
-    #'logo_only': True,
-    #'display_version': False
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/PdIPS/CBXpy",
+            "icon": "fab fa-github-square",
+            "type": "fontawesome",
+        },
+    ],
+   "favicons": [
+      {
+         "rel": "icon",
+         "sizes": "16x16",
+         "href": "cbx-logo.png",
+      },
+      {
+         "rel": "icon",
+         "sizes": "32x32",
+         "href": "cbx-logo.png",
+      },
+   ]
 }
 
 def setup(app):
