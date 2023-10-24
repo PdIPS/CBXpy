@@ -992,7 +992,7 @@ class CBXDynamic(ParticleDynamic):
         return (self.Cov_sqrt@z.transpose(0,2,1)).transpose(0,2,1)
     
     def update_covariance(self,) -> None:
-        r"""Update the covariance matrix :math:`\text{Cov}(x_i)` of the noise model
+        r"""Update the covariance matrix :math:`\text{Cov}(x)` of the noise model
     
         Parameters
 

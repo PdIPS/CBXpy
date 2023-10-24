@@ -411,11 +411,11 @@ class Rastrigin_multimodal(cbx_objective):
     def __init__(self, alpha = None, z = None):
         super().__init__()
         self.alpha = alpha if alpha else [1.]
-        self.z = z if z else np.zeros((len(alpha), 1))
+        self.z = z if z else np.zeros((len(self.alpha), 1))
 
         self.V = Rastrigin()
         self.minima = self.z
-        self.num_terms = len(alpha)
+        self.num_terms = len(self.alpha)
         
     def apply(self, x):
         y = np.ones(x.shape[0:-1]   )
@@ -542,11 +542,10 @@ class Ackley_multimodal(cbx_objective):
     def __init__(self, alpha = None, z = None):
         super().__init__()
         self.alpha = alpha if alpha else [1.]
-        self.z = z if z else np.zeros((len(alpha), 1))
+        self.z = z if z else np.zeros((len(self.alpha), 1))
         self.V = Ackley()
-        self.alpha = alpha
         self.minima = self.z
-        self.num_terms = len(alpha)
+        self.num_terms = len(self.alpha)
         
     def apply(self, x):
         y = np.ones(x.shape[0:-1]   )
@@ -555,8 +554,8 @@ class Ackley_multimodal(cbx_objective):
         return y
         
 
-def test2d(x):
-    return np.cos(x.T[0])+np.sin(x.T[1])
+# def test2d(x):
+#     return np.cos(x.T[0])+np.sin(x.T[1])
 
 
 class accelerated_sinus(cbx_objective):
@@ -565,6 +564,7 @@ class accelerated_sinus(cbx_objective):
         self.a = a
 
     def apply(self, x):
+        x = np.linalg.norm(x, axis=-1)
         return np.sin((self.a * x)/(1+x*x)).squeeze() + 1
 
 
