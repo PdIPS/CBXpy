@@ -1,5 +1,4 @@
-
-![cbx](https://github.com/PdIPS/CBXpy/assets/44805883/65e7f1b2-e858-4b8d-af37-8eeaea15214c)
+![cbx](https://github.com/PdIPS/CBXpy/assets/44805883/a5b96135-1039-4303-9cb1-32a1b1393fe3)
 
 ![tests](https://github.com/PdIPS/CBXpy/actions/workflows/Tests.yml/badge.svg) 
 [![codecov](https://codecov.io/gh/PdIPS/CBXpy/graph/badge.svg?token=TU3LO8SLFP)](https://codecov.io/gh/PdIPS/CBXpy) 
