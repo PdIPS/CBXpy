@@ -259,7 +259,7 @@ class ParticleDynamic:
         """
         Process the particles.
 
-        This function performs some operations on the particles. 
+        This function performs some operations on the particles, after the inner step. 
 
         Parameters:
             None

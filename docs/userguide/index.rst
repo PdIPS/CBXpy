@@ -3,6 +3,7 @@ User Guide
 
 
 
+
 Objectives
 ----------
 
@@ -10,4 +11,6 @@ Objectives
    :maxdepth: 1
    :caption: Contents
 
+   dynamics
    objectives
+   numpyvstorch

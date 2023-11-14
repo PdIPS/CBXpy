@@ -14,13 +14,13 @@ the scheme was introduced as CBO (Consensus Based Optimization) in [1]_. Given a
 
 .. math::
 
-   x_i \gets x_i - \lambda\, dt\, (x_i - c(x)) + \sigma\, \sqrt{dt} |x_i - c(x)| \xi_i
+   x^i \gets x^i - \lambda\, dt\, (x_i - c_\alpha(x)) + \sigma\, \sqrt{dt} |x^i - c_\alpha(x)| \xi^i
 
 where :math:`\xi_i` are i.i.d. standard normal random variables. The core element is the consensus point
 
 .. math::
 
-   c(x) = \frac{\sum_{i=1}^N x_i\, \exp(-\alpha\, f(x_i))}{\sum_{i=1}^N \exp(-\alpha\, f(x_i))}.
+   c_\alpha(x) = \frac{\sum_{i=1}^N x^i\, \exp(-\alpha\, f(x^i))}{\sum_{i=1}^N \exp(-\alpha\, f(x^i))}.
 
 with a parameter :math:`\alpha>0`. The scheme can be extended to sampling problems [2]_ known as CBS, clustering problems and opinion dynamics [3]_, which motivates the acronym 
 **CBX**, indicating the flexibility of the scheme.
