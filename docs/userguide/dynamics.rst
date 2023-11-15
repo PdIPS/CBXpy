@@ -198,5 +198,5 @@ Internally this sets the method :func:`noise <cbx.dynamics.CBXDynamic.noise>` of
 Correction steps
 ----------------
 
-In the original CBO paper it is proposed to perform a correction step on the drift in each iteration. From a techical point of view the mechanics here are very similar to how th noise is implemented.
+In the original CBO paper it is proposed to perform a correction step on the drift in each iteration. From a techical point of view the mechanics here are very similar to how the noise is implemented. 
 
