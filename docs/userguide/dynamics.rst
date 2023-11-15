@@ -3,6 +3,7 @@ Dynamics
 
 One of the core components in the CBX package are dynamics which are used to represent different variants of CBO algorithms. Each dynamic inherits from the base class :func:`CBXDynamic <cbx.dynamics.CBXDynamic>` which implements some basic functionality, that is common to all dynamics. This base class itself inherits from :class:`ParticleDynamic <cbx.dynamics.ParticleDynamic>` which implements functionality that is specific to particle based algorithms. The design choice here, was to divide between principles that are common to iterative particle based algorithms and principles that are specific to consensus based algorithms.
 
+
 Modelling the ensemble
 -------------------------
 
@@ -110,21 +111,92 @@ The step method
 
 At the heart of every iterative method is the actual update that is performed. Each dynamic encodes this update in the method :meth:`inner_step <cbx.dynamics.CBXDynamic.step>`. For example, the standard CBO class :func:`CBO <cbx.dynamics.CBO>` implements the following update:
 
-```python
-def step(self):
-    self.inner_step()
-    self.update()
-```
+.. code-block:: python
+
+    def inner_step(self,) -> None:
+        # update, consensus point, drift and energy
+        self.consensus, energy = self.compute_consensus(self.x[self.consensus_idx])
+        self.drift = self.x[self.particle_idx] - self.consensus
+        self.energy[self.consensus_idx] = energy
+        
+        # compute noise
+        self.s = self.sigma * self.noise()
+
+        # update particle positions
+        self.x[self.particle_idx] = (
+            self.x[self.particle_idx] -
+            self.correction(self.lamda * self.dt * self.drift) +
+            self.s)
+
+In the simplest case, where we use isotropic noise and no correction, this basically implements the update
+
+.. math::
+
+   x^i \gets x^i - \lambda\, dt\, (x_i - c_\alpha(x)) + \sigma\, \sqrt{dt} |x^i - c_\alpha(x)| \xi^i
 
 
+with an additional correction step on the drift. If you want to implement a custom update, you need to overwrite this method in an inherited class. Additionally, there might be certain procedures that should happen before or after each iteration. These can be implemented in the method :meth:`pre_step <cbx.dynamics.CBXDynamic.step>` and :meth:`post_step <cbx.dynamics.CBXDynamic.step>`. For example the base dynamic class :class:`CBO <cbx.dynamics.CBXDynmaic>`, saves the position of the old ensemble before each iteration:
+
+.. code-block:: python
+
+    def pre_step(self,) -> None:
+        self.x_old = self.copy_particles(self.x)
+
+After each inner step, the base class updates the best particles (both of the current ensemble and the best of the whole iteration), performs the tracking step (see :ref:`tracking`), performs an optional post processing step (e.g., clip the particles within a valid range) and most importantly, increments the iteration counter: 
+
+.. code-block:: python
+
+    def post_step(self) -> None:
+        if hasattr(self, 'x_old'):
+            self.update_diff = np.linalg.norm(self.x - self.x_old, axis=(-2,-1))/self.N
+        
+        self.update_best_cur_particle()
+        self.update_best_particle()
+        self.track()
+        self.process_particles()
+            
+        self.it+=1
+
+The main step method, which actually used in the iteration is the defined as
+
+.. code-block:: python
+    def step(self):
+        self.pre_step()
+        self.inner_step()
+        self.post_step()
 
 
-In the following we explain the different building blocks the method :meth:`step <cbx.dynamics.CBXDynamic.step>`:, which captures the update of the ensemble. It consists of three parts, the pre-, inner- and post-step and usually is then defined as
+Noise methods and how to customize them
+---------------------------------------
 
->>> class SomeDynamic(ParticleDynamic):
->>>     ...
->>>     def step(self):
->>>         self.pre_step()
->>>         self.inner_step()
->>>         self.post_step()
+In the update step of consensus based methods, diffusion is modeled by the addition of noise, which is scaled by a factor dependent on the iteration. Here, it is very convenient to assume that we can compute the noise, given full information about the dynamic. Therefore, we choose to implement it as method of the dynamic class. The base class :func:`CBO <cbx.dynamics.CBXDynamic>` implements the following noise methods:
+
+* anistropic noise (see :func:`anistropic_noise <cbx.dynamics.CBXDynamic.anistropic_noise>`),
+* isotropic noise (see :func:`isotropic_noise <cbx.dynamics.CBXDynamic.isotropic_noise>`),
+* covariance noise (see :func:`covariance_noise <cbx.dynamics.CBXDynamic.covariance_noise>`).
+
+You can specify the noise as a keyword argument of the class :class:`ParticleDynamic <cbx.dynamics.ParticleDynamic>`:
+
+    >>> from cbx.dynamics import CBXDynamic
+    >>> dyn = CBXDynamic(lambda x:x, d=1, noise='isotropic')
+
+Internally this sets the method :func:`noise <cbx.dynamics.CBXDynamic.noise>` of the dynamic class. If you want to implement a custom noise method, the best practice would be to subclass the CBO dynamic class and overwrite the method :meth:`noise <cbx.dynamics.CBXDynamic.noise>`:
+
+    >>> from cbx.dynamics import CBXDynamic
+    >>> class MyCBO(CBXDynamic):
+    >>>     def noise(self, x):
+    >>>         print('This is my custom noise')
+    >>>         return np.zeros_like(x)
+    >>> dyn = MyCBO(lambda x:x, d=1)
+    >>> dyn.noise(dyn.x)
+    This is my custom noise
+
+.. note::
+    It is technically possible to define a callable ``custom_noise`` and pass it as an argument by calling ``CBXDynamic(..., noise=custom_noise)``. However, this is not recommended, since this callable is not bound to the instance. Also note, that the function :func:`noise <cbx.dynamics.CBXDynamic.noise>` does not take any arguments (other than ``self``). All information about the dynamic (e.g. the drift) is taken from the dynamic class.
+
+
+Correction steps
+----------------
+
+In the original CBO paper it is proposed to perform a correction step on the drift in each iteration. From a techical point of view the mechanics here are very similar to how th noise is implemented.
 

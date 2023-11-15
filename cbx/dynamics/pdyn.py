@@ -825,7 +825,9 @@ class CBXDynamic(ParticleDynamic):
         Returns:
             None
         """
-        if correction == 'no_correction':
+        if correction is None:
+            pass
+        elif correction == 'no_correction':
             self.correction = self.no_correction
         elif correction == 'heavi_side':
             self.correction = self.heavi_side
@@ -846,6 +848,7 @@ class CBXDynamic(ParticleDynamic):
         """
         return x
 
+    correction = no_correction
     def heavi_side_correction(self, x:ArrayLike) -> ArrayLike:
         """
         Calculate the Heaviside correction for the given input.
@@ -897,40 +900,19 @@ class CBXDynamic(ParticleDynamic):
             If 'noise' is set to a custom value, a warning will be raised to indicate that it is not the recommended way to choose a custom noise model.
         """
         # set noise model
-        if noise == 'isotropic' or noise is None:
+        if noise is None: # no noise specified
+            pass
+        elif noise == 'isotropic' or noise is None:
             self.noise = self.isotropic_noise
         elif noise == 'anisotropic':
             self.noise = self.anisotropic_noise
         elif noise in ['sampling','covariance']:
             self.noise = self.covariance_noise
         else:
-            warnings.warn('Custom noise specified. This is not the recommended\
+            warnings.warn('Custom noise specified. This is not the recommended way\
                           for choosing a custom noise model.', stacklevel=2)
             self.noise = noise
-
-    def anisotropic_noise(self,) -> ArrayLike:
-        r"""
-        This function implements the anisotropic noise model. From the drift :math:`d = x - c(x)`,
-        the noise vector is computed as
-
-        .. math::
-
-            n_{m,n} = \sqrt{dt}\cdot d_{m,n} \cdot \xi.
-
-        Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
-
-        Returns:
-            numpy.ndarray: The generated noise.
-
-        Note
-        ----
-        The plain drift is used for the noise. Therefore, the noise vector is scaled with a different factor in each dimension, 
-        which motivates the name **anisotropic**.
-        """
-        
-        z = np.random.normal(0, 1, size=self.drift.shape) * self.drift
-        return np.sqrt(self.dt) * z
-        
+    
     def isotropic_noise(self,) -> ArrayLike:
         r"""
 
@@ -957,6 +939,31 @@ class CBXDynamic(ParticleDynamic):
         z = np.sqrt(self.dt) * np.random.normal(0, 1, size=(self.drift.shape))
         return z * np.linalg.norm(self.drift, axis=-1,keepdims=True)
         
+    noise = isotropic_noise # if noise is not set or specified default to isotropic noise
+    def anisotropic_noise(self,) -> ArrayLike:
+        r"""
+        This function implements the anisotropic noise model. From the drift :math:`d = x - c(x)`,
+        the noise vector is computed as
+
+        .. math::
+
+            n_{m,n} = \sqrt{dt}\cdot d_{m,n} \cdot \xi.
+
+        Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
+
+        Returns:
+            numpy.ndarray: The generated noise.
+
+        Note
+        ----
+        The plain drift is used for the noise. Therefore, the noise vector is scaled with a different factor in each dimension, 
+        which motivates the name **anisotropic**.
+        """
+        
+        z = np.random.normal(0, 1, size=self.drift.shape) * self.drift
+        return np.sqrt(self.dt) * z
+        
+
     def covariance_noise(self,) -> ArrayLike:
         r"""
 
