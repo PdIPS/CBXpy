@@ -108,7 +108,18 @@ Here, we observe that the dynamic directly uses the specified objective function
 The step method
 ----------------
 
-At the heart of every iterative method is the actual update that is performed. In the following we explain the different building blocks the method :meth:`step <cbx.dynamics.CBXDynamic.step>`:, which captures the update of the ensemble. It consists of three parts, the pre-, inner- and post-step and usually is then defined as
+At the heart of every iterative method is the actual update that is performed. Each dynamic encodes this update in the method :meth:`inner_step <cbx.dynamics.CBXDynamic.step>`. For example, the standard CBO class :func:`CBO <cbx.dynamics.CBO>` implements the following update:
+
+```python
+def step(self):
+    self.inner_step()
+    self.update()
+```
+
+
+
+
+In the following we explain the different building blocks the method :meth:`step <cbx.dynamics.CBXDynamic.step>`:, which captures the update of the ensemble. It consists of three parts, the pre-, inner- and post-step and usually is then defined as
 
 >>> class SomeDynamic(ParticleDynamic):
 >>>     ...
@@ -116,3 +127,4 @@ At the heart of every iterative method is the actual update that is performed. I
 >>>         self.pre_step()
 >>>         self.inner_step()
 >>>         self.post_step()
+
