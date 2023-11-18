@@ -171,20 +171,20 @@ Noise methods and how to customize them
 
 In the update step of consensus based methods, diffusion is modeled by the addition of noise, which is scaled by a factor dependent on the iteration. Here, it is very convenient to assume that we can compute the noise, given full information about the dynamic. Therefore, we choose to implement it as method of the dynamic class. The base class :func:`CBO <cbx.dynamics.CBXDynamic>` implements the following noise methods:
 
-* anistropic noise (see :func:`anistropic_noise <cbx.dynamics.CBXDynamic.anistropic_noise>`),
-* isotropic noise (see :func:`isotropic_noise <cbx.dynamics.CBXDynamic.isotropic_noise>`),
-* covariance noise (see :func:`covariance_noise <cbx.dynamics.CBXDynamic.covariance_noise>`).
+* ``noise = 'anistropic'``: anistropic noise (see :func:`anistropic_noise <cbx.dynamics.CBXDynamic.anistropic_noise>`),
+* ``noise = 'isotropic'``: isotropic noise (see :func:`isotropic_noise <cbx.dynamics.CBXDynamic.isotropic_noise>`),
+* ``noise = 'covariance'``: covariance noise (see :func:`covariance_noise <cbx.dynamics.CBXDynamic.covariance_noise>`).
 
 You can specify the noise as a keyword argument of the class :class:`ParticleDynamic <cbx.dynamics.ParticleDynamic>`:
 
     >>> from cbx.dynamics import CBXDynamic
     >>> dyn = CBXDynamic(lambda x:x, d=1, noise='isotropic')
 
-Internally this sets the method :func:`noise <cbx.dynamics.CBXDynamic.noise>` of the dynamic class. If you want to implement a custom noise method, the best practice would be to subclass the CBO dynamic class and overwrite the method :meth:`noise <cbx.dynamics.CBXDynamic.noise>`:
+Internally this sets the method :func:`noise <cbx.dynamics.CBXDynamic.noise>` of the dynamic class. If you want to implement a custom noise method, you can subclass the CBO dynamic class and overwrite the method :meth:`noise <cbx.dynamics.CBXDynamic.noise>`:
 
     >>> from cbx.dynamics import CBXDynamic
     >>> class MyCBO(CBXDynamic):
-    >>>     def noise(self, x):
+    >>>     def noise(self,):
     >>>         print('This is my custom noise')
     >>>         return np.zeros_like(x)
     >>> dyn = MyCBO(lambda x:x, d=1)
@@ -192,11 +192,56 @@ Internally this sets the method :func:`noise <cbx.dynamics.CBXDynamic.noise>` of
     This is my custom noise
 
 .. note::
-    It is technically possible to define a callable ``custom_noise`` and pass it as an argument by calling ``CBXDynamic(..., noise=custom_noise)``. However, this is not recommended, since this callable is not bound to the instance. Also note, that the function :func:`noise <cbx.dynamics.CBXDynamic.noise>` does not take any arguments (other than ``self``). All information about the dynamic (e.g. the drift) is taken from the dynamic class.
+    The noise method does not take any arguments (other than ``self``). All information about the dynamic (e.g. the drift) is taken from the dynamic class.
+
+If you would rather define a class such that users can specify your custom noise as keyword argument you need to edit the attribute ``noise_dict`` as follows:
+
+    >>> from cbx.dynamics import CBXDynamic
+    >>> class MyCBO(CBXDynamic):
+    >>>     def custom_noise(self,):
+    >>>         print('This is my custom noise')
+    >>>         return np.zeros_like(x)
+    >>>     noise_dict = {**CBXDynamic.noise_dict, 'custom': 'custom_noise'}
+    >>> dyn = MyCBO(lambda x:x, d=1, noise='custom')
+    >>> dyn.noise(dyn.x)
+    This is my custom noise
+
+
+.. note::
+    It is technically possible to define a callable ``custom_noise`` and pass it as an argument by calling ``CBXDynamic(..., noise=custom_noise)``. However, this is not recommended, since this callable is not bound to the instance.
 
 
 Correction steps
 ----------------
 
-In the original CBO paper it is proposed to perform a correction step on the drift in each iteration. From a techical point of view the mechanics here are very similar to how the noise is implemented. 
+In the original CBO paper it is proposed to perform a correction step on the drift in each iteration. From a techical point of view the mechanics here are very similar to how the noise is implemented. The following methods are implemented in the base class :func:`CBO <cbx.dynamics.CBXDynamic>`:
 
+* ``correction = 'none'``: no correction (see :func:`no_correction <cbx.dynamics.CBXDynamic.no_correction>`),
+* ``correction = 'heavi_side'``: Heaviside correction (see :func:`heavi_side_correction <cbx.dynamics.CBXDynamic.heavi_side_correction>`),
+* ``correction = 'heavi_side_reg'``: Heaviside correction with regularization (see :func:`heavi_side_correction_reg <cbx.dynamics.CBXDynamic.heavi_side_correction_reg>`).
+
+
+Internally this sets the method :func:`noise <cbx.dynamics.CBXDynamic.correction>` of the dynamic class. If you want to implement a custom correction method, you can subclass the CBO dynamic class and overwrite the method :meth:`noise <cbx.dynamics.CBXDynamic.correction>` just as in the noise case:
+
+    >>> from cbx.dynamics import CBXDynamic
+    >>> class MyCBO(CBXDynamic):
+    >>>     def correction(self, x):
+    >>>         print('This is my custom correction')
+    >>>         return np.zeros_like(x)
+    >>> dyn = MyCBO(lambda x:x, d=1)
+    >>> dyn.correction(dyn.x)
+    This is my custom correction
+
+If you would rather define a class such that users can specify your custom correction as keyword argument you need to edit the attribute ``correction_dict`` as follows:
+
+    >>> from cbx.dynamics import CBXDynamic
+    >>> class MyCBO(CBXDynamic):
+    >>>     def custom_correction(self, x):
+    >>>         print('This is my custom correction')
+    >>>         return np.zeros_like(x)
+    >>>     correction_dict = {**CBXDynamic.correction_dict, 'custom': 'custom_correction'}
+    >>> dyn = MyCBO(lambda x:x, d=1, correction='custom')
+    >>> dyn.correction(dyn.x)
+    This is my custom correction
+
+    

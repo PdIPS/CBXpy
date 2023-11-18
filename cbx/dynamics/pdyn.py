@@ -151,7 +151,7 @@ class ParticleDynamic:
         self.energy = float('inf') * np.ones((self.M, self.N)) # energy of the particles
         self.best_energy = float('inf') * np.ones((self.M,))
         self.best_particle = np.zeros((self.M,self.d))
-        self.update_diff = float('inf')
+        self.update_diff = float('inf') * np.ones((self.M,))
 
 
         # termination parameters and checks
@@ -162,17 +162,7 @@ class ParticleDynamic:
         self.max_x_thresh = max_x_thresh
     
         self.checks = []
-        if energy_tol is not None:
-            self.checks.append(self.check_energy)
-        if diff_tol is not None:
-            self.checks.append(self.check_update_diff)
-        if max_eval is not None:
-            self.checks.append(self.check_max_eval)
-        if max_it is not None:
-            self.checks.append(self.check_max_it)
-        
-        self.all_check = np.zeros(self.M, dtype=bool)
-        self.term_reason = {}
+        self.init_checks()
         self.it = 0
             
         self.track_list = track_list if track_list is not None else ['update_norm', 'energy']
@@ -196,6 +186,7 @@ class ParticleDynamic:
             if self.f(x).shape != (self.M,self.N):
                 raise ValueError("The given objective function does not return the correct shape!")
             self.num_f_eval += self.N * np.ones((self.M,), dtype=int) # number of function evaluations
+    
     def pre_step(self,):
         """
         The pre-step function. This function is used in meth:`step` before the inner step is performed.
@@ -268,7 +259,7 @@ class ParticleDynamic:
             None
         """
         np.nan_to_num(self.x, copy=False, nan=self.max_x_thresh)
-        self.x = np.clip(self.x, None, self.max_x_thresh)
+        self.x = np.clip(self.x, -self.max_x_thresh, self.max_x_thresh)
         
     def step(self,) -> None:
         """
@@ -403,7 +394,31 @@ class ParticleDynamic:
         """
         self.it = 0
         self.init_history()
-            
+        
+    def init_checks(self,):
+        """
+        Initialize the checks for the optimization process.
+
+        Parameters:
+            self (object): The object instance.
+
+        Returns:
+            None
+        """
+
+        if self.energy_tol is not None:
+            self.checks.append(self.check_energy)
+        if self.diff_tol is not None:
+            self.checks.append(self.check_update_diff)
+        if self.max_eval is not None:
+            self.checks.append(self.check_max_eval)
+        if self.max_it is not None:
+            self.checks.append(self.check_max_it)
+        
+        self.all_check = np.zeros(self.M, dtype=bool)
+        self.term_reason = {}
+        
+        
     def check_energy(self):
         """
         Check if the energy is below a certain tolerance.
@@ -470,29 +485,6 @@ class ParticleDynamic:
             return True
         else:
             return False
-        
-    track_names_known = ['x', 'update_norm', 'energy'] # known tracking keys
-    
-    def init_history(self,):
-        """
-        Initialize the history dictionary and initialize the specified tracking keys.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
-        self.history = {}
-        self.max_save_it = int(np.ceil(self.max_it/self.save_int))
-        self.track_it = 0
-        for key in self.track_list:
-            if key not in self.track_names_known:
-                raise RuntimeError('Unknown tracking key ' + key + ' specified!' +
-                                   ' You can choose from the following keys '+ 
-                                   str(self.track_names_known))
-            else:
-                getattr(self, 'track_' + key + '_init')()
             
     def track(self,):
         """
@@ -506,7 +498,7 @@ class ParticleDynamic:
         """
         if self.it % self.save_int == 0:
             for key in self.track_list:
-                getattr(self, 'track_' + key)()
+                getattr(self, self.track_dict[key][1])()
                 
             self.track_it += 1
             
@@ -578,6 +570,31 @@ class ParticleDynamic:
         """
         self.history['energy'][self.track_it, :] = self.best_cur_energy
     
+    # known tracking functions and their initialization
+    track_dict = {'x': ('track_x_init', 'track_x'), 
+                  'update_norm': ('track_update_norm_init', 'track_update_norm'),
+                  'energy': ('track_energy_init', 'track_energy')}
+    
+    def init_history(self,):
+        """
+        Initialize the history dictionary and initialize the specified tracking keys.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
+        self.history = {}
+        self.max_save_it = int(np.ceil(self.max_it/self.save_int))
+        self.track_it = 0
+        for key in self.track_list:
+            if key not in self.track_dict.keys():
+                raise RuntimeError('Unknown tracking key ' + key + ' specified!' +
+                                   ' You can choose from the following keys '+ 
+                                   str(self.track_dict.keys()))
+            else:
+                getattr(self, self.track_dict[key][0])()
 
     def update_best_cur_particle(self,) -> None:
         """
@@ -672,7 +689,7 @@ class CBXDynamic(ParticleDynamic):
             sigma: float = 5.1,
             lamda: float = 1.0,
             max_time: Union[None, float] = None,
-            correction: str = 'no_correction', 
+            correction: Union[str, None] = None, 
             correction_eps: float = 1e-3,
             resampling: bool = False,
             update_thresh: float = 0.1,
@@ -810,6 +827,7 @@ class CBXDynamic(ParticleDynamic):
         return scheduler(self, [multiply(name='alpha', factor=1.05)])
     
     
+    correction_dict = {'none':'no_correction', 'heavi_side': 'heavi_side_correction', 'heavi_side_reg': 'heavi_side_reg_correction'}
     def set_correction(self, correction):
         """
         Set the correction method for the object.
@@ -827,15 +845,11 @@ class CBXDynamic(ParticleDynamic):
         """
         if correction is None:
             pass
-        elif correction == 'no_correction':
-            self.correction = self.no_correction
-        elif correction == 'heavi_side':
-            self.correction = self.heavi_side
-        elif correction == 'heavi_side_reg':
-            self.correction = self.heavi_side_reg
+        elif correction in self.correction_dict:
+            self.correction = getattr(self, self.correction_dict[correction])
         else:
             self.correction = correction
-    
+
     def no_correction(self, x:Any) -> Any:
         """
         The function if no correction is specified. Is equla to the identity.
@@ -881,6 +895,7 @@ class CBXDynamic(ParticleDynamic):
 
         return x * (0.5 + 0.5 * np.tanh(z/self.correction_eps))
     
+    noise_dict = {'isotropic': 'isotropic_noise', 'anisotropic': 'anisotropic_noise', 'sampling': 'covariance_noise', 'covariance': 'covariance_noise'}
     def set_noise(self, noise) -> None:
         """
         Set the noise model for the object.
@@ -902,12 +917,8 @@ class CBXDynamic(ParticleDynamic):
         # set noise model
         if noise is None: # no noise specified
             pass
-        elif noise == 'isotropic' or noise is None:
-            self.noise = self.isotropic_noise
-        elif noise == 'anisotropic':
-            self.noise = self.anisotropic_noise
-        elif noise in ['sampling','covariance']:
-            self.noise = self.covariance_noise
+        elif noise in self.noise_dict:
+            self.noise = getattr(self, self.noise_dict[noise])
         else:
             warnings.warn('Custom noise specified. This is not the recommended way\
                           for choosing a custom noise model.', stacklevel=2)
@@ -940,6 +951,7 @@ class CBXDynamic(ParticleDynamic):
         return z * np.linalg.norm(self.drift, axis=-1,keepdims=True)
         
     noise = isotropic_noise # if noise is not set or specified default to isotropic noise
+    
     def anisotropic_noise(self,) -> ArrayLike:
         r"""
         This function implements the anisotropic noise model. From the drift :math:`d = x - c(x)`,
@@ -1015,9 +1027,6 @@ class CBXDynamic(ParticleDynamic):
         D = self.drift[...,None] * self.drift[...,None,:]
         D = np.sum(D * coeffs[..., None, None], axis = -3)
         self.Cov_sqrt = compute_mat_sqrt(D)
-        
-        
-    track_names_known = ParticleDynamic.track_names_known + ['consensus', 'drift', 'drift_mean']
     
     def track_consensus_init(self,) -> None:
         self.history['consensus'] = np.zeros((self.max_save_it, self.M, 1, self.d))
@@ -1039,7 +1048,12 @@ class CBXDynamic(ParticleDynamic):
         self.history['drift'].append(self.drift)
         self.history['particle_idx'].append(self.particle_idx)
         
-        
+    track_dict = {**ParticleDynamic.track_dict,
+                  'consensus': ('track_consensus_init', 'track_consensus'),
+                  'drift_mean': ('track_drift_mean_init', 'track_drift_mean'),
+                  'drift': ('track_drift_init', 'track_drift')}
+
+
     def resample(self,) -> None:
         idx = np.where(self.update_diff < self.update_thresh)[0]
         if len(idx)>0:
