@@ -287,14 +287,14 @@ class ParticleDynamic:
         
     def default_sched(self,):
         """
-        A function that returns a scheduler object with an empty list as the parameter.
+        Returns the default scheduler for a dynamic.
 
         Parameters:
             None
         Returns:
             scheduler: The scheduler object.
         """
-        return scheduler(self, [])
+        return scheduler([])
 
     def optimize(self,
                  print_int: Union[int, None] = None,
@@ -321,7 +321,7 @@ class ParticleDynamic:
             print('.'*20)
 
         if sched is None:
-            sched = scheduler(self, [])
+            sched = scheduler([])
         elif sched == 'default':
             sched = self.default_sched()
         else:
@@ -330,13 +330,11 @@ class ParticleDynamic:
 
         while not self.terminate():
             self.step()
-            sched.update()
+            sched.update(self)
             if (self.it % print_int == 0):
                 self.print_cur_state()
 
         self.print_post_opt()
-
-
         return self.best_particle
     
     def print_cur_state(self,):
@@ -846,7 +844,7 @@ class CBXDynamic(ParticleDynamic):
                 The scheduler object.
         """
 
-        return scheduler(self, [multiply(name='alpha', factor=1.05)])
+        return scheduler([multiply(name='alpha', factor=1.05)])
     
     
     correction_dict = {'none':'no_correction', 'heavi_side': 'heavi_side_correction', 'heavi_side_reg': 'heavi_side_reg_correction'}

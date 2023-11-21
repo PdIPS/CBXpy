@@ -6,7 +6,8 @@ This module implements schedulers for consensus schemes.
 Classes
 -------
 
-.. currentmodule:: cbx
+.. currentmodule:: cbx.scheduler
+
 
 .. autosummary::
    :toctree: generated
@@ -14,3 +15,7 @@ Classes
    :recursive:
    :template: classtemplate.rst
 
+   param_update
+   scheduler
+   multiply
+   effective_number

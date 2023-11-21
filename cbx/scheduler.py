@@ -2,75 +2,106 @@ r"""
 Scheduler
 ==========
 
-This module implements the :math:`\alpha`-schedulers employed in the conensuse schemes.
+This module implements the  schedulers employed in conensus based schemes.
 
 """
 
 import numpy as np
 from scipy.special import logsumexp
-from abc import ABC, abstractmethod
 import warnings
 
-class scheduler(object):
-    r"""scheduler class
-    
-    This class implements the base scheduler class. It is used to implement the :math:`\alpha`-schedulers
-    employed in the consensus schemes.
-    
-    Parameters
-    ----------
-    opt : object
-        The optimizer for which the :math:`\alpha`-parameter should be updated
-
-    alpha : float, optional
-        The initial value of the :math:`\alpha`-parameter. The default is 1.0.
-
-    alpha_max : float, optional
-        The maximum value of the :math:`\alpha`-parameter. The default is 100000.0.
-
-    """
-
-    def __init__(self, dyn, var_params):
-        self.dyn = dyn
-        self.var_params = var_params
-
-    def update(self):
-        for var_param in self.var_params:
-            var_param.update(self.dyn)
-
-
-class param_update(ABC):
-    r"""Abstract class for parameter updates
+class param_update():
+    r"""Base class for parameter updates
 
     This class implements the base class for parameter updates.
+
+    Parameters
+    ----------
+    name : str
+        The name of the parameter that should be updated. The default is 'alpha'.
+    maximum : float
+        The maximum value of the parameter. The default is 1e5.
     """
-    def __init__(self, name ='alpha', maximum = 1e5):
+    def __init__(self, 
+                 name: str ='alpha', 
+                 maximum: float = 1e5):
         self.name = name
         self.maximum = maximum
 
-    @abstractmethod
-    def update(self, dyn):
+    def update(self, dyn) -> None:
+        """
+        Updates the object with the given `dyn` parameter.
+
+        Parameters
+        ----------
+        dyn
+            The dynamic of which the parameter should be updated.
+
+        Returns
+        -------
+        None
+        """
         pass
 
     def ensure_max(self, dyn):
-        r"""Ensure that the :math:`\alpha`-parameter does not exceed its maximum value."""
+        r"""Ensures that the parameter does not exceed its maximum value."""
         setattr(dyn, self.name, min(self.maximum, getattr(dyn, self.name)))
 
+
+class scheduler():
+    r"""scheduler class
+    
+    This class allows to update multiple parmeters with one update call.
+
+    Parameters
+    ----------
+    var_params : list
+        A list of parameter updates, that implement an ``update`` function.    
+
+    """
+
+    def __init__(self, var_params):
+        self.var_params = var_params
+
+    def update(self, dyn) -> None:
+        """
+        Updates the dynamic variables in the object.
+
+        Parameters
+        ----------
+            dyn: The dynamic variables to update.
+
+        Returns
+        -------
+            None
+        """
+        for var_param in self.var_params:
+            var_param.update(dyn)
+
 class multiply(param_update):
-    def __init__(self, name = 'alpha',
-                 maximum = 1e5, factor = 1.0):
-        super(multiply, self).__init__(name=name, maximum=maximum)
+    def __init__(self, 
+                 factor = 1.0,
+                 **kwargs):
+        """
+        This scheduler updates the parameter as specified by ``'name'``, by multiplying it by a given ``'factor'``.
+
+        Parameters
+        ----------
+        factor : float
+            The factor by which the parameter should be multiplied.
+
+        """
+        super(multiply, self).__init__(**kwargs)
         self.factor = factor
     
-    def update(self, dyn):
-        r"""Update the :math:`\alpha`-parameter in opt according to the exponential scheduler."""
+    def update(self, dyn) -> None:
+        r"""Update the parameter as specified by ``'name'``, by multiplying it by a given ``'factor'``."""
         old_val = getattr(dyn, self.name)
         new_val = min(self.factor * old_val, self.maximum)
         setattr(dyn, self.name, new_val)
         self.ensure_max(dyn)
     
     
-
 
 # class for alpha_eff scheduler
 class effective_number(param_update):
@@ -99,8 +130,6 @@ class effective_number(param_update):
     
     Parameters
     ----------
-    opt : object
-        The optimizer for which the :math:`\alpha`-parameter should be updated
     eta : float, optional
         The parameter :math:`\eta` of the scheduler. The default is 1.0.
     alpha_max : float, optional

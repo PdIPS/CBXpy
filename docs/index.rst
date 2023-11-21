@@ -22,7 +22,7 @@ where :math:`\xi_i` are i.i.d. standard normal random variables. The core elemen
 
    c_\alpha(x) = \frac{\sum_{i=1}^N x^i\, \exp(-\alpha\, f(x^i))}{\sum_{i=1}^N \exp(-\alpha\, f(x^i))}.
 
-with a parameter :math:`\alpha>0`. The scheme can be extended to sampling problems [2]_ known as CBS, clustering problems and opinion dynamics [3]_, which motivates the acronym 
+with a parameter :math:`\alpha>0`. The scheme can be extended to sampling problems known as CBS, clustering problems and opinion dynamics, which motivates the acronym 
 **CBX**, indicating the flexibility of the scheme.
 
 Installation
@@ -51,8 +51,10 @@ The following example shows how to minimize a function using CBXPy
 Documentation
 -------------
 
+The functionality of the package is documented in the user guide. For a specifics about the implementation, we refer to the API.
+
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    userguide/index
    api/index
@@ -62,8 +64,6 @@ References
 ----------
 
 .. [1] Pinnau, R., Totzeck, C., Tse, O., & Martin, S. (2017). A consensus-based model for global optimization and its mean-field limit. Mathematical Models and Methods in Applied Sciences, 27(01), 183-204.
-.. [2] ??
-.. [3] ??
 
 Indices and tables
 ==================

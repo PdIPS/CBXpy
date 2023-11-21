@@ -60,7 +60,7 @@ class CBS(CBXDynamic):
         self.it+=1
         
     def default_sched(self,):
-        return scheduler(self, [])
+        return scheduler([])
         
     def process_particles(self,):
         pass

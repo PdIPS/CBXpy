@@ -426,7 +426,7 @@ The subclass :class:`CBXDynamic cbx.dynamics.CBXDynamic` additionally allows to 
 
 * ``'consensus'``: Specifies, that the consensus points should be tracked. They are saved in ``dyn.history['consensus']`` which is a ``(max_it, M, d)`` array.
 
-* ``'drift'``: Specifies, that the drift vectors should be tracked. They are saved in ``dyn.history['drift']`` which is a ``(max_it, M, N, d)`` array.
+* ``'drift'``: Specifies, that the drift vectors should be tracked. They are saved in ``dyn.history['drift']``. Since the dimensionality of the drift is not clear a priori, this is stored as a list, where in each step the new drift is appended.
 
 * ``'drift_mean'``: Specifies that the mean of the drift vectors should be tracked. It is saved in ``dyn.history['drift_mean']`` which is a ``(max_it, M, d)`` array.
 
@@ -511,8 +511,8 @@ The first entry, allows for convenient broadcasting in the run dimension, this a
 The second entry stores the indices of the particles that belong to the current batch. This array has the same shape as the previous one and randomly selects indices in the range ``0`` to ``N-1``, independently across each run. In the best the indices are unique within a single sub-run.
 
 
-
-
+Performance evaluation
+----------------------
 
 
 References

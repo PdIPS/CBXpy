@@ -1,7 +1,7 @@
-objectives
-==========
+Test Objectives
+===============
 
-This module implements different object function which can be used to test the performance of the optimization algorithms.
+The following objective functions can be used to test optimization algorithms.
 
 Classes
 -------

@@ -4,7 +4,7 @@ from cbx.dynamics import CBO
 from cbx.objectives import Rastrigin
 from cbx.utils.objective_handling import cbx_objective_fh
 from cbx.scheduler import scheduler, multiply
-from cbx.plotting import plot_dynamic
+from cbx.plotting import plot_dynamic, plot_dynamic_history
 import matplotlib.pyplot as plt
 
 np.random.seed(420)
@@ -39,27 +39,31 @@ x = cbx.utils.init_particles(shape=(conf['M'], conf['N'], conf['d']), x_min=-3.,
 #%% Define the CBO algorithm
 dyn = CBO(f, x=x, noise='anisotropic', f_dim='3D', 
           **conf)
-sched = scheduler(dyn, [multiply(name='alpha', factor=1.1, maximum=1e15),
-                        #multiply(name='sigma', factor=1.005, maximum=6.)
-                        ])
+sched = scheduler([multiply(name='alpha', factor=1.1, maximum=1e15),
+                   #multiply(name='sigma', factor=1.005, maximum=6.)
+                   ])
 #%% Run the CBO algorithm
-t = 0
-it = 0
+plt.close('all')
+plotter = plot_dynamic(dyn, 
+                       objective_args={'x_min':-3, 'x_max':3},
+                       plot_consensus=True,
+                       plot_drift=True)
+plotter.init_plot()
 while not dyn.terminate():
     dyn.step()
-    sched.update()
+    sched.update(dyn)
     
-    if it%10 == 0:
+    if dyn.it%10 == 0:
         print(dyn.f_min)
         print('Alpha: ' + str(dyn.alpha))
         print('Sigma: ' + str(dyn.sigma))
-        
-    it+=1
+        plotter.update(wait=0.5)
     
 #%%
 plt.close('all')
-plotter = plot_dynamic(dyn, dims=[0,19], 
-                       contour_args={'x_min':-3, 'x_max':3},
-                       plot_consensus=True,
-                       plot_drift=True)
+plotter = plot_dynamic_history(
+            dyn, dims=[0,19], 
+            objective_args={'x_min':-3, 'x_max':3},
+            plot_consensus=True,
+            plot_drift=True)
 plotter.run_plots(wait=0.05, freq=1)
