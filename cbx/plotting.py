@@ -33,6 +33,34 @@ def contour_2D(f, ax = None, num_pts = 50,
 
 
 class plot_dynamic:
+    r"""plot_dynamic
+
+    Plots particles, consensus, and drift of the specified dynamic.
+
+    Parameters
+    ----------
+    dyn
+        The dynamic object to plot.
+    num_run: int
+        The index of the run to plot. Defaults to 0.
+    dims
+        The dimensions to plot. Defaults to [0,1].
+    ax
+        The axis to plot on. If None is specified, a new axis is created.
+    plot_consensus: bool
+        Whether to plot the consensus points. Defaults to False.
+    plot_drift: bool
+        Whether to plot the drift. Defaults to False.
+    eval_energy_1d: bool
+        Whether to evaluate the energy of the dynamic in 1D. Defaults to True.
+    objective_args
+        Additional arguments to pass to contour_2D, which creates a contour plot of ``dyn.f``.
+    particle_args
+        Additional arguments to pass to ax.scatter, which plots the particles.
+    cosensus_args
+        Additional arguments to pass to ax.scatter, which plots the consensus points.
+
+    """
     def __init__(self,
                  dyn,
                  num_run = 0, dims = None,
@@ -43,33 +71,6 @@ class plot_dynamic:
                  objective_args = None,
                  particle_args = None,
                  cosensus_args = None):
-        """
-        Plots particles, consensus, and drift of the specified dynamic.
-
-        Parameters
-        ----------
-        dyn
-            The dynamic object to plot.
-        num_run: int
-            The index of the run to plot. Defaults to 0.
-        dims
-            The dimensions to plot. Defaults to [0,1].
-        ax
-            The axis to plot on. If None is specified, a new axis is created.
-        plot_consensus: bool
-            Whether to plot the consensus points. Defaults to False.
-        plot_drift: bool
-            Whether to plot the drift. Defaults to False.
-        eval_energy_1d: bool
-            Whether to evaluate the energy of the dynamic in 1D. Defaults to True.
-        objective_args
-            Additional arguments to pass to contour_2D, which creates a contour plot of ``dyn.f``.
-        particle_args
-            Additional arguments to pass to ax.scatter, which plots the particles.
-        cosensus_args
-            Additional arguments to pass to ax.scatter, which plots the consensus points.
-
-        """
         
         self.dyn = dyn
         self.d = dyn.d
@@ -122,11 +123,29 @@ class plot_dynamic:
             self.init_drift(self.dyn.x, dr, pidx)
 
     def plot_objective(self):
+        """
+        Plots the objective function.
+
+        """
+        
         if self.d == 1:
             _ = plot_1D(self.dyn.f, ax=self.ax, **self.objective_args)
         else:
              _ = contour_2D(self.dyn.f, ax=self.ax, **self.objective_args)
     def init_x(self, x):
+        """
+        Initializes the particle plot.
+
+        Parameters
+        ----------
+        x
+            The particles to plot.
+
+        Returns
+        -------
+        None
+        """
+
         if self.d == 1:
             if self.eval_energy_1d:
                 y = self.dyn.f(x[self.num_run, :, self.dims[0]][None,:,None])[...,None]
@@ -141,6 +160,19 @@ class plot_dynamic:
         **self.particle_args)
         
     def init_consensus(self, c):
+        """
+        Initializes the consensus plot.
+
+        Parameters
+        ----------
+        c
+            The consensus points to plot.
+        
+        Returns
+        -------
+        None
+        """
+
         if self.d == 1:
             y = np.zeros_like(c[self.num_run, :, self.dims[0]])
         else:
@@ -152,6 +184,23 @@ class plot_dynamic:
             **self.cosensus_args)
         
     def init_drift(self, x, dr, pidx):
+        """
+        Initializes the drift plot.
+        
+        Parameters
+        ----------
+        x
+            The particles to plot.
+        dr
+            The drift to plot.
+        pidx
+            The indices of the particles to plot.
+            
+        Returns
+        -------
+        None
+        """
+        
         if self.d == 1:
             warnings.warn('Drift plot not supported for 1D data.', stacklevel=2)
             self.plot_drift = False
@@ -165,6 +214,19 @@ class plot_dynamic:
                 width=0.001,color='orange')
         
     def update(self, wait=0.1):
+        """
+        Updates the plot.
+
+        Parameters
+        ----------
+        wait
+            The time to wait between frames. Defaults to 0.1.
+        
+        Returns
+        -------
+        None
+        """
+
         self.plot_particles(self.dyn.x_old)
         if self.plot_consensus:
             self.plot_c(self.dyn.consensus)
@@ -174,6 +236,18 @@ class plot_dynamic:
         plt.pause(wait)
         
     def plot_particles(self, x):
+        """
+        Plots particles.
+        
+        Parameters
+        ----------
+        x
+            The particles to plot.
+        
+        Returns
+        -------
+        None
+        """
         if self.d == 1:
             if self.eval_energy_1d:
                 y = self.dyn.f(x[self.num_run, :, self.dims[0]][None,:,None])[0,...]
@@ -186,6 +260,19 @@ class plot_dynamic:
         self.scx.set_offsets(z)
         
     def plot_c(self, c):
+        """
+        Plots consensus.
+
+        Parameters
+        ----------
+        c
+            The consensus to plot.
+
+        Returns
+        -------
+        None
+        """
+
         if self.plot_consensus and c is not None:
             if self.d == 1:
                 z = np.stack([c[self.num_run, ...][:, 0],
@@ -196,6 +283,23 @@ class plot_dynamic:
             self.scc.set_offsets(z)
         
     def plot_d(self, x, dr, pidx):
+        """
+        Plots drift.
+
+        Parameters
+        ----------
+        x
+            The particles to plot.
+        dr
+            The drift to plot.
+        pidx
+            The indices of the particles to plot.
+        
+        Returns
+        -------
+        None
+        """
+        
         if pidx is None:
             pidx = Ellipsis
 
@@ -210,6 +314,25 @@ class plot_dynamic:
             
 
 class plot_dynamic_history(plot_dynamic):
+    """plot_dynamic_history
+    
+    Visualize a dynamic from its history.
+
+    Parameters
+    ----------
+    dyn (object): The dynamic object.
+    **kwargs: Additional keyword arguments. See `plot_dynamic` for details.
+
+    Raises
+    ------
+        RuntimeError: If the dynamic object has no particle history.
+
+    Warnings
+    --------
+        If plot_consensus is True and the dynamic object does not save the consensus points.
+        If plot_drift is True and the dynamic object does not save the drift.
+    """
+
     def __init__(self, dyn, **kwargs):
         super().__init__(dyn, **kwargs)
 
@@ -239,6 +362,11 @@ class plot_dynamic_history(plot_dynamic):
 
     
     def init_plot(self,):
+        """
+        Initializes the plot for visualizing the dynamic.
+
+        """
+
         self.plot_objective()
         self.init_x(self.x[0,...])
         if self.plot_consensus:
@@ -248,6 +376,18 @@ class plot_dynamic_history(plot_dynamic):
             self.init_drift(self.x[0,...], self.dr[0], self.pidx[0])
 
     def plot_at_ind(self, i):
+        """
+        Plots the dynamic at iteration i.
+
+        Parameters
+        ----------
+        i (int): The iteration to plot.
+
+        Returns
+        -------
+        None
+        """
+
         self.plot_particles(self.x[i,...])
 
         if self.plot_consensus:
@@ -256,6 +396,18 @@ class plot_dynamic_history(plot_dynamic):
             self.plot_d(self.x[i,...], self.dr[i], self.pidx[i])
 
     def decorate_at_ind(self,i):
+        """
+        Decorates the plot at iteration i.
+
+        Parameters
+        ----------
+        i (int): The iteration at which to decorate.
+
+        Returns
+        -------
+        None
+
+        """
         self.ax.set_title('Iteration: ' + str(i))
 
     def run_plots(self, freq=5, wait=0.1):

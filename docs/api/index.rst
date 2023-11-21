@@ -7,4 +7,5 @@ API Reference
 
    dynamic
    scheduler
+   plotting
    utils
