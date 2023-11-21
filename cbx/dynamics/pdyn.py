@@ -80,6 +80,9 @@ class ParticleDynamic:
         The maximum number of iterations. The default is 1000.
     max_x_thresh : float, optional
         The maximum value of the absolute value of the position. The default is 1e5.
+    term_on_all : bool, optional
+        If ``True``, the iteration terminates only when all runs meet a termination criterion. If ``False``, 
+        the iteration terminates when any run meets a termination criterion. The default is ``True``.
     array_mode : str, optional
         The mode of the array. The default is 'numpy'.
     track_list : list, optional
@@ -108,6 +111,7 @@ class ParticleDynamic:
             max_eval: Union[int, None] = None,
             max_it: Union[int, None] = 1000,
             max_x_thresh: Union[float, None] = 1e5,
+            term_on_all: bool = True,
             array_mode: str = 'numpy',
             track_list: list = None,
             save_int: int = 1,
@@ -160,6 +164,7 @@ class ParticleDynamic:
         self.max_eval = max_eval
         self.max_it = max_it
         self.max_x_thresh = max_x_thresh
+        self.term_on_all = term_on_all
     
         self.checks = []
         self.init_checks()
@@ -323,7 +328,7 @@ class ParticleDynamic:
             if not isinstance(sched, scheduler):
                 raise RuntimeError('Unknonw scheduler specified!')
 
-        while not self.terminate(verbosity=self.verbosity):
+        while not self.terminate():
             self.step()
             sched.update()
             if (self.it % print_int == 0):
@@ -455,7 +460,7 @@ class ParticleDynamic:
         """
         return self.it >= self.max_it
     
-    def terminate(self, verbosity = 0):
+    def terminate(self, ):
         """
         Terminate the process and return a boolean value indicating if for each run the termination criterion was met.
 
@@ -476,15 +481,30 @@ class ParticleDynamic:
                 self.term_reason[j] = np.where(loc_check[j,:])[0]
         self.all_check = all_check
 
-        if np.all(self.all_check):
-            for j in range(self.M):
-                if verbosity > 0:
-                    print('Run ' + str(j) + ' returning on checks: ')
-                    for k in self.term_reason[j]:
-                        print(self.checks[k].__name__)
-            return True
+        return self.all_check_to_bool()
+
+        
+    def all_check_to_bool(self,):
+        term = False
+        if self.term_on_all:
+            if np.all(self.all_check):
+                for j in range(self.M):
+                    if self.verbosity > 0:
+                        print('Run ' + str(j) + ' returning on checks: ')
+                        for k in self.term_reason[j]:
+                            print(self.checks[k].__name__)
+                term = True
         else:
-            return False
+            if np.any(self.all_check):
+                for j in range(self.M):
+                    if self.verbosity > 0 and self.all_check[j]:
+                        print('Run ' + str(j) + ' returning on checks: ')
+                        for k in self.term_reason[j]:
+                            print(self.checks[k].__name__)
+                term = True
+
+        return term
+            
             
     def track(self,):
         """
@@ -611,6 +631,8 @@ class ParticleDynamic:
         
         if hasattr(self, 'x_old'):
             self.best_cur_particle = self.x_old[np.arange(self.M), self.f_min_idx, :]
+        else:
+            self.best_cur_particle = self.x[np.arange(self.M), self.f_min_idx, :]
         self.best_cur_energy = self.energy[np.arange(self.M), self.f_min_idx]
     
     def update_best_particle(self,):
@@ -1091,6 +1113,9 @@ class CBXDynamic(ParticleDynamic):
         self.it = 0
         self.init_history()
         self.t = 0.
+
+    def eval_energy(self,):
+        self.energy = self.f(self.x)
         
     def check_max_time(self):
         return self.t >= self.max_time
