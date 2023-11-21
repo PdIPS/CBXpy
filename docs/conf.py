@@ -83,12 +83,12 @@ html_theme_options = {
       {
          "rel": "icon",
          "sizes": "16x16",
-         "href": "cbx_py32x32.png",
+         "href": "cbx_py32x32.ico",
       },
       {
          "rel": "icon",
          "sizes": "32x32",
-         "href": "cbx_py32x32.png",
+         "href": "cbx_py32x32.ico",
       },
    ]
 }
