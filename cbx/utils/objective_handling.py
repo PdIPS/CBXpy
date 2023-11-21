@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Callable, Any
+#from typing import Callable, Any
 
 def _promote_objective(f, f_dim):
     if not callable(f):
