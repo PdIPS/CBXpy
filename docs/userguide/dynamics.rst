@@ -1,7 +1,7 @@
 Dynamics
 ========
 
-One of the core components in the CBX package are dynamics which are used to represent different variants of CBO algorithms. Each dynamic inherits from the base class :class:`CBXDynamic <cbx.dynamics.CBXDynamic>` which implements some basic functionality, that is common to all dynamics. This base class itself inherits from :class:`ParticleDynamic <cbx.dynamics.ParticleDynamic>` which implements functionality that is specific to particle based algorithms. The design choice here, was to divide between principles that are common to iterative particle based algorithms and principles that are specific to consensus based algorithms.
+One of the core components in the CBX package are dynamics which are used to represent different variants of consensus based algorithms. Each dynamic inherits from the base class :class:`CBXDynamic <cbx.dynamics.CBXDynamic>` which implements some basic functionality, that is common to all dynamics. This base class itself inherits from :class:`ParticleDynamic <cbx.dynamics.ParticleDynamic>` which implements functionality that is specific to particle based algorithms. The design choice here, was to divide between principles that are common to iterative particle based algorithms and principles that are specific to consensus based algorithms.
 
 Optimization with dynamics
 --------------------------
