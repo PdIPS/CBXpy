@@ -12,16 +12,6 @@ def _promote_objective(f, f_dim):
         return cbx_objective_f1D(f)
     else:
         raise ValueError("f_dim must be '1D', '2D' or '3D'.")
-    
-
-def _apply_unimplemented(self, *input: Any) -> None:
-    r"""
-
-    .. note::
-        This is copied from PyTorch. The code can be found here
-        https://github.com/pytorch/pytorch/blob/main/torch/nn/modules/module.py#L362
-    """
-    raise NotImplementedError(f"Objective [{type(self).__name__}] is missing the required \"apply\" function")
 
 
 class cbx_objective:
@@ -42,11 +32,12 @@ class cbx_objective:
         -------
         The output of the objective function.
         """
-        
+
         self.num_eval += np.prod(np.atleast_2d(x).shape[:-1], dtype = int)
         return self.apply(x)
-        
-    apply: Callable[..., Any] = _apply_unimplemented
+
+    def apply(self, x): 
+        NotImplementedError(f"Objective [{type(self).__name__}] is missing the required \"apply\" function")
         
     def reset(self,):
         self.num_eval = 0
