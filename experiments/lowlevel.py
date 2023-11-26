@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 np.random.seed(420)
 #%%
-conf = {'alpha': 30.0,
+conf = {'alpha': 40.0,
         'dt': 0.01,
         'sigma': 8.1,#8,#5.1,#8.0,
         'lamda': 1.0,
@@ -17,10 +17,14 @@ conf = {'alpha': 30.0,
         'batch_size':200,
         'batch_partial': False},
         'd': 20,
-        'max_it': 1000,
+        'term_args':{'max_it': 1000},
         'N': 1000,
-        'M': 2,
-        'track_list': ['update_norm', 'energy','x', 'consensus', 'drift'],
+        'M': 3,
+        'track_args': {'names':
+                       ['update_norm', 
+                        'energy','x', 
+                        'consensus', 
+                        'drift']},
         'resampling': False,
         'update_thresh': 0.002}
 
@@ -62,7 +66,7 @@ while not dyn.terminate():
 #%%
 plt.close('all')
 plotter = plot_dynamic_history(
-            dyn, dims=[0,19], 
+            dyn, dims=[0,1], 
             objective_args={'x_min':-3, 'x_max':3},
             plot_consensus=True,
             plot_drift=True)

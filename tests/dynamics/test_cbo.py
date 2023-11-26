@@ -12,19 +12,19 @@ class Test_cbo(test_abstract_dynamic):
     
     def test_term_crit_energy(self, dynamic, f):
         '''Test termination criterion on energy'''
-        dyn = dynamic(f, x=np.zeros((3,5,7)), energy_tol=1e-6, max_it=10)
+        dyn = dynamic(f, x=np.zeros((3,5,7)), term_args={'energy_tol':1e-6, 'max_it':10})
         dyn.optimize()
         assert dyn.it == 1
         
     def test_term_crit_maxtime(self, dynamic, f):
         '''Test termination criterion on max time'''
-        dyn = dynamic(f, d=5, max_time=0.1, dt=0.02)
+        dyn = dynamic(f, d=5, term_args={'max_time':0.1}, dt=0.02)
         dyn.optimize()
         assert dyn.t == 0.1
 
     def test_term_crit_maxeval(self, dynamic, f):
         '''Test termination criterion on max function evaluations'''
-        dyn = dynamic(f, d=5, M=4, N=3, max_eval=6, max_it=10)
+        dyn = dynamic(f, d=5, M=4, N=3, term_args={'max_eval':6, 'max_it':10})
         dyn.optimize()
         assert np.all(dyn.num_f_eval == np.array([6,6,6,6]))
 
@@ -67,10 +67,10 @@ class Test_cbo(test_abstract_dynamic):
         '''Test if step is correctly performed'''
         x = np.random.uniform(-1,1,(3,5,7))
         delta = np.random.uniform(-1,1,(3,5,7))
-        def noise():
+        def noise(dyn):
             return delta
-        with pytest.warns():
-            dyn = dynamic(f, x=x, noise=noise)
+
+        dyn = dynamic(f, x=x, noise=noise)
         dyn.step()
         x_new = x - dyn.lamda * dyn.dt * (x - dyn.consensus) + dyn.sigma * delta
         assert np.allclose(dyn.x, x_new)
@@ -79,10 +79,10 @@ class Test_cbo(test_abstract_dynamic):
         '''Test if batched step is correctly performed'''
         x = np.random.uniform(-1,1,(3,5,7))
         delta = np.random.uniform(-1,1,(3,5,7))
-        def noise():
+        def noise(dyn):
             return delta
-        with pytest.warns():
-            dyn = dynamic(f, x=x, noise=noise, batch_args={'size':2, 'partial':False})
+
+        dyn = dynamic(f, x=x, noise=noise, batch_args={'size':2, 'partial':False})
         dyn.step()
         x_new = x - dyn.lamda * dyn.dt * (x - dyn.consensus) + dyn.sigma * delta
         assert np.allclose(dyn.x, x_new)
@@ -109,7 +109,7 @@ class Test_cbo(test_abstract_dynamic):
         def g(x):
             return torch.sum(x, dim=-1)
         
-        dyn = dynamic(g, x=x, max_it=2, array_mode='torch')
+        dyn = dynamic(g, x=x, term_args={'max_it':2}, array_mode='torch')
         dyn.optimize()
         assert dyn.x.shape == (6,5,7)
         

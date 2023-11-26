@@ -25,7 +25,6 @@ class CBS(CBXDynamic):
         
         if noise not in ['covariance', 'sampling']:
             raise warnings.warn('For CBS usually covariance or sampling noise is used!', stacklevel=2)
-        self.noise = self.covariance_noise
         
         
     def inner_step(self,):
@@ -52,12 +51,6 @@ class CBS(CBXDynamic):
             while not self.terminate(verbosity=self.verbosity):
                 self.step()
                 sched.update()
-        
-    def post_step(self):
-        self.track()
-        self.process_particles()
-            
-        self.it+=1
         
     def default_sched(self,):
         return scheduler([])

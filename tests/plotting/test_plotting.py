@@ -31,31 +31,31 @@ class Test_plot_dynamic_history(test_plot_dynamic):
         return plot_dynamic_history
     
     def test_max_it(self, f, plot):
-        dyn = cbx.dynamics.CBO(f, d=2, track_list=['x'], max_it=1)
+        dyn = cbx.dynamics.CBO(f, d=2, track_args={'names':['x']}, term_args={'max_it':1})
         dyn.step()
         plotter = plot(dyn)
         assert plotter.max_it == 1
 
     def test_plot_at_ind_x(self, f, plot):
-        dyn = cbx.dynamics.CBO(f, d=2, track_list=['x'])
+        dyn = cbx.dynamics.CBO(f, d=2, track_args={'names':['x']})
         dyn.step()
         plotter = plot(dyn)
         plotter.plot_at_ind(0)
 
     def test_plot_at_ind_c(self, f, plot):
-        dyn = cbx.dynamics.CBO(f, d=2, track_list=['x', 'consensus'])
+        dyn = cbx.dynamics.CBO(f, d=2, track_args={'names':['x', 'consensus']})
         dyn.step()
         plotter = plot(dyn, plot_consensus=True)
         plotter.plot_at_ind(0)
 
     def test_plot_at_ind_d(self, f, plot):
-        dyn = cbx.dynamics.CBO(f, d=2, track_list=['x', 'drift'])
+        dyn = cbx.dynamics.CBO(f, d=2, track_args={'names':['x', 'drift']})
         dyn.step()
         plotter = plot(dyn, plot_drift=True)
         plotter.plot_at_ind(0)
 
     def test_run_plots(self, f, plot):
-        dyn = cbx.dynamics.CBO(f, d=2, track_list=['x'], max_it=1)
+        dyn = cbx.dynamics.CBO(f, d=2, track_args={'names':['x']}, term_args={'max_it':1})
         dyn.step()
         plotter = plot(dyn)
         plotter.run_plots()

@@ -1,12 +1,15 @@
-import warnings
 #%%
+from ..noise import get_noise
+from ..correction import get_correction
 from ..scheduler import scheduler, multiply
+from ..utils.termination import Termination, check_energy, check_max_it, check_diff_tol, check_max_eval, check_max_time
+from ..utils.history import track_x, track_energy, track_update_norm, track_consensus, track_drift, track_drift_mean
 from ..utils.particle_init import init_particles
 from ..utils.numpy_torch_comp import copy_particles
 from ..utils.objective_handling import _promote_objective, cbx_objective
 
 #%%
-from typing import Callable, Union, Any
+from typing import Callable, Union
 from numpy.typing import ArrayLike
 import numpy as np
 from numpy.random import Generator, MT19937
@@ -70,19 +73,33 @@ class ParticleDynamic:
         The number of particles in each run. The default is 20.
     d : int or None, optional
         The dimension of the system. The default is None.
-    energy_tol : float, optional
-        The energy tolerance. The default is None.
-    diff_tol : float, optional
-        The difference tolerance. The default is None.
-    max_eval : int, optional
-        The maximum number of evaluations. The default is None.
-    max_it : int, optional
-        The maximum number of iterations. The default is 1000.
+    term_args : dict 
+        The arguments for the termination criterion. The following keys are possible:
+        * 'energy_tol' : float
+            The energy tolerance
+        * 'diff_tol' : float
+            The difference tolerance
+        * 'max_eval' : int
+            The maximum number of evaluations.
+        * 'max_it' : int
+            The maximum number of iterations. The default is 1000.
+        * 'max_time' : float
+            The maximum time.
+        * term_on_all : bool
+            If ``True``, the iteration terminates only when all runs meet a termination criterion. If ``False``, 
+            the iteration terminates when any run meets a termination criterion. The default is ``True``.
+        * 'extra_checks' : list
+            A list of extra checks that should be performed.
+    track_args : dict
+        The arguments for the tracking certain objects in the history. The following keys are possible:
+        * 'names' : list
+            The names of the objects that should be tracked.
+        * 'save_int' : int
+            The frequency of the saving of the data. The default is 1.
+        * 'extra_tracks' : list
+            A list of extra tracks that should be performed.
     max_x_thresh : float, optional
-        The maximum value of the absolute value of the position. The default is 1e5.
-    term_on_all : bool, optional
-        If ``True``, the iteration terminates only when all runs meet a termination criterion. If ``False``, 
-        the iteration terminates when any run meets a termination criterion. The default is ``True``.
+        The maximum value of the absolute value of the position. The default is 1e5
     array_mode : str, optional
         The mode of the array. The default is 'numpy'.
     track_list : list, optional
@@ -106,18 +123,35 @@ class ParticleDynamic:
             x: Union[None, np.ndarray] = None,
             x_min: float = -1., x_max: float = 1.,
             M: int = 1, N: int = 20, d: int = None,
-            energy_tol: Union[float, None] = None, 
-            diff_tol: Union[float, None] = None,
-            max_eval: Union[int, None] = None,
-            max_it: Union[int, None] = 1000,
-            max_x_thresh: Union[float, None] = 1e5,
-            term_on_all: bool = True,
+            term_args: Union[None, dict] = None,
+            track_args: list = None,
+            max_x_thresh: float = 1e5,
             array_mode: str = 'numpy',
-            track_list: list = None,
-            save_int: int = 1,
-            verbosity: int = 1) -> None:
+            verbosity: int = 1,
+            **kwargs) -> None:
         
-        # init particles        
+        self.verbosity = verbosity
+        
+        # init particles
+        self.array_mode = array_mode      
+        self.init_x(x, M, N, d, x_min, x_max)
+        
+        # set and promote objective function
+        self.init_f(f, f_dim, check_f_dims)
+
+        self.energy = float('inf') * np.ones((self.M, self.N)) # energy of the particles
+        self.best_energy = float('inf') * np.ones((self.M,))
+        self.best_particle = np.zeros((self.M,self.d))
+        self.update_diff = float('inf') * np.ones((self.M,))
+        self.max_x_thresh = max_x_thresh
+
+
+        # termination parameters and checks
+        self.init_term(term_args)
+        self.it = 0
+        self.init_history(track_args)
+
+    def init_x(self, x, M, N, d, x_min, x_max):
         if x is None:
             if d is None:
                 raise RuntimeError('If the inital partical system is not given, the dimension d must be specified!')
@@ -130,52 +164,25 @@ class ParticleDynamic:
                 x = x[None, None, :]
             elif len(x.shape) == 2:
                 x = x[None, :]
-
+        
         self.M = x.shape[-3]
         self.N = x.shape[-2]
         self.d = x.shape[-1]
-
-        # torch compatibility for copying particles
-        self.array_mode = array_mode
         self.x = self.copy_particles(x)
-        
-        # set and promote objective function
+
+    def init_f(self, f, f_dim, check_f_dims):
         if not isinstance(f, cbx_objective):
-            if f_dim != '3D' and array_mode == 'pytorch':
+            if f_dim != '3D' and self.array_mode == 'pytorch':
                 raise RuntimeError('Pytorch array_mode only supported for 3D objective functions.')
             self.f = _promote_objective(f, f_dim)
         else:
             self.f = f
-        
-        
+
+                
         self.num_f_eval = 0 * np.ones((self.M,), dtype=int) # number of function evaluations  
         self.f_min = float('inf') * np.ones((self.M,)) # minimum function value
         self.check_f_dims(check=check_f_dims) # check the dimension of the objective function
 
-        self.energy = float('inf') * np.ones((self.M, self.N)) # energy of the particles
-        self.best_energy = float('inf') * np.ones((self.M,))
-        self.best_particle = np.zeros((self.M,self.d))
-        self.update_diff = float('inf') * np.ones((self.M,))
-
-
-        # termination parameters and checks
-        self.energy_tol = energy_tol
-        self.diff_tol = diff_tol
-        self.max_eval = max_eval
-        self.max_it = max_it
-        self.max_x_thresh = max_x_thresh
-        self.term_on_all = term_on_all
-    
-        self.checks = []
-        self.init_checks()
-        self.it = 0
-            
-        self.track_list = track_list if track_list is not None else ['update_norm', 'energy']
-        self.save_int = save_int
-        self.init_history()
-        
-        self.verbosity = verbosity 
-    
     def check_f_dims(self, check=True) -> None:
         """
         Check the dimensions of the objective function output.
@@ -397,113 +404,85 @@ class ParticleDynamic:
         """
         self.it = 0
         self.init_history()
-        
-    def init_checks(self,):
-        """
-        Initialize the checks for the optimization process.
 
-        Parameters:
-            self (object): The object instance.
+    known_term_checks = {
+        'max_it': check_max_it, 
+        'energy_tol': check_energy, 
+        'diff_tol': check_diff_tol, 
+        'max_eval': check_max_eval
+    }
 
-        Returns:
-            None
+    def init_term(self, term_args: dict):
         """
+        Initialize the termination criteria of the object.
 
-        if self.energy_tol is not None:
-            self.checks.append(self.check_energy)
-        if self.diff_tol is not None:
-            self.checks.append(self.check_update_diff)
-        if self.max_eval is not None:
-            self.checks.append(self.check_max_eval)
-        if self.max_it is not None:
-            self.checks.append(self.check_max_it)
-        
-        self.all_check = np.zeros(self.M, dtype=bool)
-        self.term_reason = {}
-        
-        
-    def check_energy(self):
-        """
-        Check if the energy is below a certain tolerance.
+        This function sets the value of the object's 'it' attribute to 0 and calls the 'init_history()' method to re-initialize the history of the object.
 
-        Returns:
-            bool: True if the energy is below the tolerance, False otherwise.
-        """
-        return self.f_min < self.energy_tol
-    
-    def check_update_diff(self):
-        """
-        Checks if the update difference is less than the difference tolerance.
+        Parameters
+        ----------
+            checks : list
 
-        Returns:
-            bool: True if the update difference is less than the difference tolerance, False otherwise.
         """
-        return self.update_diff < self.diff_tol
-    
-    def check_max_eval(self):
-        """
-        Check if the number of function evaluations is greater than or equal to the maximum number of evaluations.
+        checks = []
+        term_args = term_args if term_args else {'max_it': 1000,}
 
-        Returns:
-            bool: True if the number of function evaluations is greater than or equal to the maximum number of evaluations, False otherwise.
-        """
-        return self.num_f_eval >= self.max_eval
-    
-    def check_max_it(self):
-        """
-        Checks if the current value of `self.it` is greater than or equal to the value of `self.max_it`.
+        self.term_on_all = term_args.get('term_on_all', True)
 
-        Returns:
-            bool: True if `self.it` is greater than or equal to `self.max_it`, False otherwise.
-        """
-        return self.it >= self.max_it
-    
-    def terminate(self, ):
+        for key in term_args:
+            if key in self.known_term_checks:
+                setattr(self, key, term_args[key])
+                checks.append(self.known_term_checks[key])
+            elif key == 'extra_checks':
+                checks += term_args[key]
+
+        self.termination = Termination(checks, M=self.M, term_on_all=self.term_on_all, verbosity=self.verbosity)
+
+    def terminate(self,):
         """
         Terminate the process and return a boolean value indicating if for each run the termination criterion was met.
 
         Parameters:
-            verbosity (int): The level of verbosity for printing information. Default is 0.
+            None
 
         Returns:
             bool: True if all checks passed, False otherwise.
         """
-        loc_check = np.zeros((self.M,len(self.checks)), dtype=bool)
-        for i,check in enumerate(self.checks):
-            loc_check[:,i] = check()
-            
-        all_check = np.sum(loc_check, axis=1)
-            
-        for j in range(self.M):
-            if all_check[j] and not self.all_check[j]:
-                self.term_reason[j] = np.where(loc_check[j,:])[0]
-        self.all_check = all_check
+        return self.termination.terminate(self)
+    
+    known_tracks = {
+        'update_norm': track_update_norm,
+        'energy': track_energy,
+        'x': track_x
+    }
+    def init_history(self, track_args: dict):
+        """
+        Initialize the history dictionary and initialize the specified tracking keys.
 
-        return self.all_check_to_bool()
+        Parameters:
+            None
 
-        
-    def all_check_to_bool(self,):
-        term = False
-        if self.term_on_all:
-            if np.all(self.all_check):
-                for j in range(self.M):
-                    if self.verbosity > 0:
-                        print('Run ' + str(j) + ' returning on checks: ')
-                        for k in self.term_reason[j]:
-                            print(self.checks[k].__name__)
-                term = True
-        else:
-            if np.any(self.all_check):
-                for j in range(self.M):
-                    if self.verbosity > 0 and self.all_check[j]:
-                        print('Run ' + str(j) + ' returning on checks: ')
-                        for k in self.term_reason[j]:
-                            print(self.checks[k].__name__)
-                term = True
+        Returns:
+            None
+        """
+        track_args = track_args if track_args else {}  
+        track_names = track_args.get('names', ['update_norm', 'energy'])
+        self.save_int = track_args.get('save_int', 1)
+        self.history = {}
+        self.tracks = []
+        self.track_it = 0
+        for key in track_names:
+            if key in self.known_tracks.keys():
+                self.tracks.append(self.known_tracks[key])
+            elif key == 'extra_tracks':
+                self.tracks += track_args[key]
+            else:
+                raise RuntimeError('Unknown tracking key ' + key + ' specified!' +
+                        ' You can choose from the following keys '+ 
+                        str(self.track_dict.keys()))
+            
+        for track in self.tracks:
+            track.init_history(self)
 
-        return term
-            
-            
     def track(self,):
         """
         Track the progress of the object.
@@ -515,104 +494,9 @@ class ParticleDynamic:
             None
         """
         if self.it % self.save_int == 0:
-            for key in self.track_list:
-                getattr(self, self.track_dict[key][1])()
-                
+            for track in self.tracks:
+                track.update(self)
             self.track_it += 1
-            
-    def track_x_init(self,) -> None:
-        """
-        Initializes the tracking of variable 'x' in the history dictionary.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
-        self.history['x'] = np.zeros((self.max_save_it + 1, self.M, self.N, self.d))
-        self.history['x'][0, ...] = self.x
-    
-    def track_x(self,) -> None:
-        """
-        Update the history of the 'x' variable by copying the current particles to the next time step.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
-        self.history['x'][self.track_it + 1, ...] = self.copy_particles(self.x)
-        
-        
-    def track_update_norm_init(self, ) -> None:
-        """
-        Initializes the 'update_norm' entry in the 'history' dictionary.
-
-        Returns:
-            None
-        """
-        self.history['update_norm'] = np.zeros((self.max_save_it, self.M,))
-        
-    def track_update_norm(self, ) -> None:
-        """
-        Updates the 'update_norm' entry in the 'history' dictionary with the 'update_diff' value.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
-        self.history['update_norm'][self.track_it, :] = self.update_diff
-     
-    def track_energy_init(self,) -> None:
-        """
-        Initializes the energy tracking for the dynamic.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
-        self.history['energy'] = np.zeros((self.max_save_it, self.M,))
-        
-    def track_energy(self,) -> None:
-        """
-        Updates the 'energy' history array with the current best energy value.
-
-        Returns:
-            None: This function does not return anything.
-        """
-        self.history['energy'][self.track_it, :] = self.best_cur_energy
-    
-    # known tracking functions and their initialization
-    track_dict = {'x': ('track_x_init', 'track_x'), 
-                  'update_norm': ('track_update_norm_init', 'track_update_norm'),
-                  'energy': ('track_energy_init', 'track_energy')}
-    
-    def init_history(self,):
-        """
-        Initialize the history dictionary and initialize the specified tracking keys.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
-        self.history = {}
-        self.max_save_it = int(np.ceil(self.max_it/self.save_int))
-        self.track_it = 0
-        for key in self.track_list:
-            if key not in self.track_dict.keys():
-                raise RuntimeError('Unknown tracking key ' + key + ' specified!' +
-                                   ' You can choose from the following keys '+ 
-                                   str(self.track_dict.keys()))
-            else:
-                getattr(self, self.track_dict[key][0])()
 
     def update_best_cur_particle(self,) -> None:
         """
@@ -673,10 +557,9 @@ class CBXDynamic(ParticleDynamic):
     Parameters:
         f: Callable
             The function to optimize.
-        noise: str, Callable, or None, optional
-            The noise function. A string can be one of 'isotropic', 'anisotropic', or 'sampling'. It is technically possible 
-            to use a Callable instead of a string, but this is not recommended. A custom noise model should be implemented 
-            by subclassing this class and adding it as a instance method. Default: None.
+        noise: str or Callable, optional
+            A string can be one of 'isotropic', 'anisotropic', or 'sampling'. It is also possible 
+            to use a Callable instead of a string. This Callable needs to accept a single argument, which is the dynamic object. Default: 'isotropic'.
         batch_args: dict, optional
             The batch arguments. Default: None.
         dt: float, optional
@@ -689,8 +572,8 @@ class CBXDynamic(ParticleDynamic):
             The lamda parameter :math:`\lambda` of the dynamic. Default: 1.0.
         max_time: float, optional
             The maximum time to run the dynamic. Default: None.
-        correction: str, optional
-            The correction method. Default: 'no_correction'. One of 'no_correction', 'heavi_side', 'heavi_side_reg'.
+        correction: str or Callable, optional
+            The correction method. Default: 'no_correction'. One of 'no_correction', 'heavi_side', 'heavi_side_reg' or a Callable.
         correction_eps: float, optional
             The parameter :math:`\epsilon` for the regularized correction. Default: 1e-3.
         resampling: bool, optional
@@ -702,14 +585,13 @@ class CBXDynamic(ParticleDynamic):
         None
     """
     def __init__(self, f,
-            noise: Union[None, str, Callable] = None,
+            noise: Union[str, Callable] = 'isotropic',
             batch_args: Union[None, dict] = None,
             dt: float = 0.01, 
             alpha: float = 1.0, 
             sigma: float = 5.1,
             lamda: float = 1.0,
-            max_time: Union[None, float] = None,
-            correction: Union[str, None] = None, 
+            correction: Union[str, None] = 'no_correction', 
             correction_eps: float = 1e-3,
             resampling: bool = False,
             update_thresh: float = 0.1,
@@ -737,10 +619,12 @@ class CBXDynamic(ParticleDynamic):
         self.consensus = None #consensus point
         
         
-        # add max time check
-        self.max_time = max_time
-        if max_time is not None:
-            self.checks.append(self.check_max_time)
+    known_term_checks = {'max_time': check_max_time, **ParticleDynamic.known_term_checks}
+    known_tracks = {
+        'consensus': track_consensus,
+        'drift_mean': track_drift_mean,
+        'drift': track_drift,
+        **ParticleDynamic.known_tracks,}
         
     def init_batch_idx(self, batch_args) -> None:
         """
@@ -846,189 +730,79 @@ class CBXDynamic(ParticleDynamic):
 
         return scheduler([multiply(name='alpha', factor=1.05)])
     
-    
-    correction_dict = {'none':'no_correction', 'heavi_side': 'heavi_side_correction', 'heavi_side_reg': 'heavi_side_reg_correction'}
     def set_correction(self, correction):
         """
         Set the correction method for the object.
         
-        Parameters:
-            correction: str.
-                The correction method to be set. Must be one of 
-                
-                * 'no_correction', 
-                * 'heavi_side', 
-                * 'heavi_side_reg'.
+        Parameters
+        ----------
+            correction: (str or Callable): The type of correction to be set. Can be one of the following:
+                - 'no_correction': No correction, correction is the identity.
+                - 'heavi_side': Calculate the Heaviside correction.
+                - 'heavi_side_reg': Calculate the regularized Heaviside correction, with parameter eps.
         
         Returns:
             None
         """
-        if correction is None:
-            pass
-        elif correction in self.correction_dict:
-            self.correction = getattr(self, self.correction_dict[correction])
+        if isinstance(correction, str):
+            self.correction_callable = get_correction(correction, eps=self.correction_eps)
+        elif callable(correction):
+            self.correction_callable = correction
         else:
-            self.correction = correction
-
-    def no_correction(self, x:Any) -> Any:
+            raise ValueError('Invalid correction model! Choose from "no_correction", "heavi_side", or "heavi_side_reg" or a callable.')
+        
+    def correction(self, x: ArrayLike) -> ArrayLike:
         """
-        The function if no correction is specified. Is equla to the identity.
+        Calculate the correction for the given input.
 
-        Parameters:
-            x: The input value.
+        Parameters
+        ----------
+            x (ndarray): The input array.
 
-        Returns:
-            The input value without any correction.
+        Returns
+        -------
+            ndarray
+                The correction value.
         """
-        return x
+        return self.correction_callable(self, x)
 
-    correction = no_correction
-    def heavi_side_correction(self, x:ArrayLike) -> ArrayLike:
-        """
-        Calculate the Heaviside correction for the given input.
-
-        Parameters:
-            x : ndarray
-                The input array.
-
-        Returns:
-            ndarray: The result of the Heaviside correction.
-        """
-        z = self.energy - self.f(self.consensus)
-        self.num_f_eval += self.consensus.shape[0] # update number of function evaluations
-
-        return x * np.where(z > 0, 1,0)[...,None]
-
-    def heavi_side_reg_correction(self, x:ArrayLike) -> ArrayLike:
-        """
-        Calculate the Heaviside regularized correction.
-
-        Parameters:
-            x : ndarray
-                The input array.
-
-        Returns:
-            ndarray: The Heaviside regularized correction value.
-        """
-        z = self.energy - self.f(self.consensus)
-        self.num_f_eval += self.consensus.shape[0] # update number of function evaluations
-
-        return x * (0.5 + 0.5 * np.tanh(z/self.correction_eps))
-    
-    noise_dict = {'isotropic': 'isotropic_noise', 'anisotropic': 'anisotropic_noise', 'sampling': 'covariance_noise', 'covariance': 'covariance_noise'}
     def set_noise(self, noise) -> None:
         """
         Set the noise model for the object.
 
-        Parameters:
-            noise (str or Callable or None): The type of noise model to be set. Can be one of the following:
+        Parameters
+        ----------
+            noise (str or Callable): The type of noise model to be set. Can be one of the following:
                 - 'isotropic' or None: Set the isotropic noise model.
                 - 'anisotropic': Set the anisotropic noise model.
                 - 'sampling': Set the sampling noise model.
                 - 'covariance': Set the covariance noise model.
                 - else: use the given input as a callable.
 
-        Returns:
+        Returns
+        -------
             None
-
-        Warnings:
-            If 'noise' is set to a custom value, a warning will be raised to indicate that it is not the recommended way to choose a custom noise model.
         """
         # set noise model
-        if noise is None: # no noise specified
-            pass
-        elif noise in self.noise_dict:
-            self.noise = getattr(self, self.noise_dict[noise])
+        if isinstance(noise, str):
+            self.noise_callable = get_noise(noise)
+        elif callable(noise):
+            self.noise_callable = noise
         else:
-            warnings.warn('Custom noise specified. This is not the recommended way\
-                          for choosing a custom noise model.', stacklevel=2)
-            self.noise = noise
-    
-    def isotropic_noise(self,) -> ArrayLike:
-        r"""
+            raise ValueError('Invalid noise model! Choose from "isotropic", "anisotropic", "sampling", "covariance", or a callable.')
 
-        This function implements the isotropic noise model. From the drift :math:`d = x - c(x)`,
-        the noise vector is computed as
-
-        .. math::
-
-            n_{m,n} = \sqrt{dt}\cdot \|d_{m,n}\|_2\cdot \xi.
-
-
-        Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
-        
-        Parameters
-        ----------
-        None
-        
-        Note
-        ----
-        Only the norm of the drift is used for the noise. Therefore, the noise vector is scaled with the same factor in each dimension, 
-        which motivates the name **isotropic**. 
+    def noise(self, ) -> ArrayLike:
         """
+        Calculate the noise vector. Here, we use the callable ``noise_callable``, which takes the dynamic as an input via ``self``.
 
-        z = np.sqrt(self.dt) * np.random.normal(0, 1, size=(self.drift.shape))
-        return z * np.linalg.norm(self.drift, axis=-1,keepdims=True)
-        
-    noise = isotropic_noise # if noise is not set or specified default to isotropic noise
-    
-    def anisotropic_noise(self,) -> ArrayLike:
-        r"""
-        This function implements the anisotropic noise model. From the drift :math:`d = x - c(x)`,
-        the noise vector is computed as
 
-        .. math::
-
-            n_{m,n} = \sqrt{dt}\cdot d_{m,n} \cdot \xi.
-
-        Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
+        Parameters:
+            None
 
         Returns:
-            numpy.ndarray: The generated noise.
-
-        Note
-        ----
-        The plain drift is used for the noise. Therefore, the noise vector is scaled with a different factor in each dimension, 
-        which motivates the name **anisotropic**.
+            ndarray: The noise vector.
         """
-        
-        z = np.random.normal(0, 1, size=self.drift.shape) * self.drift
-        return np.sqrt(self.dt) * z
-        
-
-    def covariance_noise(self,) -> ArrayLike:
-        r"""
-
-        This function implements the covariance noise model. Given the covariance matrix :math:`\text{Cov}(x)\in\mathbb{R}^{M\times d\times d}` of the ensemble,
-        the noise vector is computed as
-
-        .. math::
-
-            n_{m,n} = \sqrt{(1/\lambda)\cdot (1-\exp(-dt))^2} \cdot \sqrt{\text{Cov}(x)}\xi.
-
-        Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
-
-        Returns:
-            ArrayLike: The covariance noise.
-        """
-        
-        z = np.random.normal(0, 1, size = self.drift.shape) 
-        noise = self.apply_cov_sqrt(z)
-        
-        factor = np.sqrt((1/self.lamda) * (1 - np.exp(-self.dt)**2))
-        return factor * noise
-    
-    def apply_cov_sqrt(self, z:ArrayLike) -> ArrayLike:
-        """
-        Applies the square root of the covariance matrix to the input tensor.
-
-        Args:
-            z (ArrayLike): The input tensor of shape (batch_size, num_features, seq_length).
-
-        Returns:
-            ArrayLike: The output of the matrix-vector product.
-        """
-        return (self.Cov_sqrt@z.transpose(0,2,1)).transpose(0,2,1)
+        return self.noise_callable(self)
     
     def update_covariance(self,) -> None:
         r"""Update the covariance matrix :math:`\text{Cov}(x)` of the noise model
@@ -1047,31 +821,6 @@ class CBXDynamic(ParticleDynamic):
         D = self.drift[...,None] * self.drift[...,None,:]
         D = np.sum(D * coeffs[..., None, None], axis = -3)
         self.Cov_sqrt = compute_mat_sqrt(D)
-    
-    def track_consensus_init(self,) -> None:
-        self.history['consensus'] = np.zeros((self.max_save_it, self.M, 1, self.d))
-        
-    def track_consensus(self,) -> None:
-        self.history['consensus'][self.track_it, ...] = self.copy_particles(self.consensus)
-        
-    def track_drift_mean_init(self,) -> None:
-        self.history['drift_mean'] = np.zeros((self.max_save_it, self.M,))
-        
-    def track_drift_mean(self,) -> None:
-        self.history['drift_mean'][self.track_it, :] = np.mean(np.abs(self.drift), axis=(-2,-1))
-        
-    def track_drift_init(self,) -> None:
-        self.history['drift'] = []
-        self.history['particle_idx'] = []
-        
-    def track_drift(self,) -> None:          
-        self.history['drift'].append(self.drift)
-        self.history['particle_idx'].append(self.particle_idx)
-        
-    track_dict = {**ParticleDynamic.track_dict,
-                  'consensus': ('track_consensus_init', 'track_consensus'),
-                  'drift_mean': ('track_drift_mean_init', 'track_drift_mean'),
-                  'drift': ('track_drift_init', 'track_drift')}
 
 
     def resample(self,) -> None:
@@ -1099,6 +848,7 @@ class CBXDynamic(ParticleDynamic):
         
         self.update_best_cur_particle()
         self.update_best_particle()
+        self.process_particles()
         self.track()
 
         if self.resampling:
@@ -1114,9 +864,6 @@ class CBXDynamic(ParticleDynamic):
 
     def eval_energy(self,):
         self.energy = self.f(self.x)
-        
-    def check_max_time(self):
-        return self.t >= self.max_time
     
     def print_cur_state(self,):
         if self.verbosity > 0:
