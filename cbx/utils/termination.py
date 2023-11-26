@@ -1,6 +1,22 @@
 import numpy as np
 
 class Termination:
+    """
+    Class for handling termination of the optimization process.
+
+    Parameters
+    ----------
+    checks : list
+        A list of termination checks.
+    M : int
+        The number of runs.
+    term_on_all : bool
+        Whether to terminate only if all runs terminate.
+    verbosity : int
+        The level of verbosity for printing information. Default is 0.
+
+    """
+    
     def __init__(self, checks: list, 
                  M: int = 1, 
                  term_on_all: bool = True, 

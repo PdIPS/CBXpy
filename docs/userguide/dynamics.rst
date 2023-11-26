@@ -1,20 +1,20 @@
 Dynamics
 ========
 
-One of the core components in the CBX package are dynamics which are used to represent different variants of consensus based algorithms. Each dynamic inherits from the base class :class:`CBXDynamic <cbx.dynamics.CBXDynamic>` which implements some basic functionality, that is common to all dynamics. This base class itself inherits from :class:`ParticleDynamic <cbx.dynamics.ParticleDynamic>` which implements functionality that is specific to particle based algorithms. The design choice here, was to divide between principles that are common to iterative particle based algorithms and principles that are specific to consensus based algorithms.
+One of the core components in the CBX package is dynamics, which is used to represent different variants of consensus-based algorithms. Each dynamic inherits from the base class :class:`CBXDynamic <cbx.dynamics.CBXDynamic>`, which implements some basic functionality common to all dynamics. This base class itself inherits from :class:`ParticleDynamic <cbx.dynamics.ParticleDynamic>`, which implements functionality specific to particle-based algorithms. The design choice here was to divide between principles common to iterative particle-based algorithms and principles specific to consensus-based algorithms.
 
 Optimization with dynamics
 --------------------------
 
-In the simplest case, where you choose a certain dynamic and just want to optimize a function you can use the function :func:`optimize <cbx.dynamics.CBXDynamic.optimize>`:
+In the simplest case, when selecting a specific dynamic and aiming to optimize a function, you can utilize the function :func:`optimize <cbx.dynamics.CBXDynamic.optimize>`:
 
     >>> from cbx.dynamics import CBXDynamic
     >>> dyn = CBXDynamic(lambda x:x**2, d=1)
     >>> dyn.optimize()
 
-This will run the optimization until a certain termination criterion is met. In some cases you might want to control parameters, via a scheduler, therefore the function takes the keyword argument ``sched``, see also :ref:`sched`.
+This function executes the optimization process until a specified termination criterion is met. In scenarios where parameter control via a scheduler is necessary, the function includes the keyword argument sched—for more details, refer to :ref:`sched`.
 
-Each dynamic, implements a ``step`` method that describes the update in each iteration, see :ref:`step`. When you want to run a dynamic on a low-level, controlling directly, what happens in each iteration you can simply define a custom for-loop:
+Each dynamic implements a step method that delineates the update in each iteration (see :ref:`step`). If you wish to run a dynamic at a lower level, directly managing each iteration's operations, you can define a custom for-loop:
 
     >>> from cbx.dynamics import CBXDynamic
     >>> dyn = CBXDynamic(lambda x:x**2, d=1)
@@ -25,14 +25,14 @@ Each dynamic, implements a ``step`` method that describes the update in each ite
 Modelling the ensemble
 ----------------------
 
-All particle based methods work with an ensemble of points :math:`x = (x^1, \ldots, x^N)\in \mathcal{X}^N`. Here, we choose to model the ensemble as an array, e.g., we assume that :math:`\mathcal{X} = \mathbb{R}^d` and therefore, we can represent as an :math:`N\times d` array. In most cases we assume that the array is given as a ``numpy`` array. However, often it straightforward to instead use ``torch`` tensors. See also :ref:`npvstorch`.
+All particle-based methods operate on an ensemble of points :math:`x = (x^1, \ldots, x^N) \in \mathcal{X}^N`. Here, we opt to model the ensemble as an array, assuming :math:`\mathcal{X} = \mathbb{R}^d`, hence representing it as an :math:`N \times d` array. In most cases, we assume this array is provided as a ``numpy`` array. However, it's often straightforward to use torch tensors instead, see also :ref:`npvstorch`.
 
-In many cases one wants to perform more than one run of a certain particle based scheme. In this case, a straightforward approach is to create :math:`M\in \mathbb{N}` instances of a dynamic and run them. This could also be parallelized on the external level. However, in many cases, e.g., if all parameters stay fixed across runs, it can be efficient to directly represent the different runs on the array level. We therefore model an ensemble as an
+For multiple runs of a particle-based scheme, creating :math:`M \in \mathbb{N}` instances of a dynamic and running them is a typical approach. This process could also be parallelized at an external level. However, in scenarios where, for instance, all parameters remain fixed across runs, it can be efficient to represent the different runs directly on the array level. We therefore model an ensemble as an
 
 .. math::
     M\times N\times d
 
-array, which allows us to employ parallelization on the array level. The value of :math:`M` defaults to 1, however it is important to always keep in mind that an ensemble has three dimensions. In the following we will use the term *sub-run* to refer to a separate run within the above interpretation, or just *run* if the context is clear.
+array, which allows us to employ parallelization on the array level. The value of :math:`M` defaults to 1, however it is important to always keep in mind that an ensemble has three dimensions. Here, we introduce the term sub-run to denote a distinct run within the aforementioned interpretation, or simply run when the context is evident.
 
 .. note::
     One might ask what the difference between a dynamic with the array structure ``(M,N,d)`` and a dynamic with the structure ``(1,M*N,d)`` is. The difference becomes visible, whenever particles interact across their ensemble. E.g., in the first case, when the consensus is computed, we compute it separately for each :math:`m\in\{1,\ldots,M\}` sub-runs,
@@ -202,102 +202,92 @@ The main step method, which actually used in the iteration is the defined as
 Noise methods and how to customize them
 ---------------------------------------
 
-In the update step of consensus based methods, diffusion is modeled by the addition of noise, which is scaled by a factor dependent on the iteration. Here, it is very convenient to assume that we can compute the noise, given full information about the dynamic. Therefore, we choose to implement it as method of the dynamic class. The base class :func:`CBO <cbx.dynamics.CBXDynamic>` implements the following noise methods:
+In the update step of consensus based methods, diffusion is modeled by the addition of noise, which is scaled by a factor dependent on the iteration. Here, it is very convenient to assume that we can compute the noise, given full information about the dynamic. Therefore, the callable that implements the specific noise, needs to accept the dynamic as an argument. This function is then saved in the attribute :attr:`noise_callable <cbx.dynamics.CBXDynamic.noise_callable>`. The function that is called during the iteration :func:`noise <cbx.dynamics.CBXDynamic.noise>` which is defined as follows:
 
-* ``noise = 'anistropic'``: anistropic noise (see :func:`anistropic_noise <cbx.dynamics.CBXDynamic.anistropic_noise>`),
-* ``noise = 'isotropic'``: isotropic noise (see :func:`isotropic_noise <cbx.dynamics.CBXDynamic.isotropic_noise>`),
-* ``noise = 'covariance'``: covariance noise (see :func:`covariance_noise <cbx.dynamics.CBXDynamic.covariance_noise>`).
+.. code-block:: python
+
+    def noise(self):
+        return self.noise_callable(self)
+
+You can specify the noise as keyword argument of the class :class:`CBXDynamic <cbx.dynamics.CBXDynamic>`. This can be a string from the following list:
+
+* ``noise = 'anistropic'``: anistropic noise (see :class:`anistropic_noise <cbx.noise.anistropic_noise>`),
+* ``noise = 'isotropic'``: isotropic noise (see :class:`isotropic_noise <cbx.noise.isotropic_noise>`),
+* ``noise = 'covariance'``: covariance noise (see :class:`covariance_noise <cbx.noise.covariance_noise>`).
 
 You can specify the noise as a keyword argument of the class :class:`ParticleDynamic <cbx.dynamics.ParticleDynamic>`:
 
     >>> from cbx.dynamics import CBXDynamic
     >>> dyn = CBXDynamic(lambda x:x, d=1, noise='isotropic')
 
-Internally this sets the method :func:`noise <cbx.dynamics.CBXDynamic.noise>` of the dynamic class. If you want to implement a custom noise method, you can subclass the CBO dynamic class and overwrite the method :meth:`noise <cbx.dynamics.CBXDynamic.noise>`:
+Alternatively, you can define a custom callable and specify it to be used as the ``noise_callable``:
 
     >>> from cbx.dynamics import CBXDynamic
-    >>> class MyCBO(CBXDynamic):
-    >>>     def noise(self,):
-    >>>         print('This is my custom noise')
-    >>>         return np.zeros_like(x)
-    >>> dyn = MyCBO(lambda x:x, d=1)
-    >>> dyn.noise(dyn.x)
+    >>> def my_noise(dyn):
+    >>>     print('This is my custom noise')
+    >>> dyn = CBXDynamic(lambda x:x, d=1, noise=my_noise)
+    >>> dyn.noise()
+    >>> print(dyn.noise_callable is my_noise)
     This is my custom noise
+    True
 
-.. note::
-    The noise method does not take any arguments (other than ``self``). All information about the dynamic (e.g. the drift) is taken from the dynamic class.
-
-If you would rather define a class such that users can specify your custom noise as keyword argument you need to edit the attribute ``noise_dict`` as follows:
-
-    >>> from cbx.dynamics import CBXDynamic
-    >>> class MyCBO(CBXDynamic):
-    >>>     def custom_noise(self,):
-    >>>         print('This is my custom noise')
-    >>>         return np.zeros_like(x)
-    >>>     noise_dict = {**CBXDynamic.noise_dict, 'custom': 'custom_noise'}
-    >>> dyn = MyCBO(lambda x:x, d=1, noise='custom')
-    >>> dyn.noise(dyn.x)
-    This is my custom noise
 
 
 .. note::
-    It is technically possible to define a callable ``custom_noise`` and pass it as an argument by calling ``CBXDynamic(..., noise=custom_noise)``. However, this is not recommended, since this callable is not bound to the instance.
+    The function :func:`noise <cbx.dynamics.CBXDynamic.noise>` does not take any arguments, other than ``self``.
 
 
 Correction steps
 ----------------
 
-In the original CBO paper it is proposed to perform a correction step on the drift in each iteration. From a technical point of view the mechanics here are very similar to how the noise is implemented. The following methods are implemented in the base class :func:`CBO <cbx.dynamics.CBXDynamic>`:
+In the original CBO paper it is proposed to perform a correction step on the drift in each iteration. From a technical point of view the mechanics here are very similar to how the noise is implemented. The following methods can be specified as keyword argument of the class :class:`CBXDynamic <cbx.dynamics.CBXDynamic>`:
 
-* ``correction = 'none'``: no correction (see :func:`no_correction <cbx.dynamics.CBXDynamic.no_correction>`),
-* ``correction = 'heavi_side'``: Heaviside correction (see :func:`heavi_side_correction <cbx.dynamics.CBXDynamic.heavi_side_correction>`),
-* ``correction = 'heavi_side_reg'``: Heaviside correction with regularization (see :func:`heavi_side_correction_reg <cbx.dynamics.CBXDynamic.heavi_side_correction_reg>`).
+* ``correction = 'none'``: no correction (see :class:`no_correction <cbx.correction.no_correction>`),
+* ``correction = 'heavi_side'``: Heaviside correction (see :func:`heavi_side_correction <cbx.correction.heavi_side_correction>`),
+* ``correction = 'heavi_side_reg'``: Heaviside correction with regularization (see :func:`heavi_side_correction_reg <cbx.correction.heavi_side_correction_reg>`).
 
+As in the case for the noise, this first sets the function :func:`corecction_callable <cbx.dynamics.CBXDynamic.correction_callable>` of the dynamic class. The actual correction is then defined as follows:
 
-Internally this sets the method :func:`noise <cbx.dynamics.CBXDynamic.correction>` of the dynamic class. If you want to implement a custom correction method, you can subclass the CBO dynamic class and overwrite the method :meth:`noise <cbx.dynamics.CBXDynamic.correction>` just as in the noise case:
+.. code-block:: python
+
+    def correction(self, x):
+        return self.correction_callable(self, x)
+
+.. note::
+
+    The function :func:`correction <cbx.dynamics.CBXDynamic.correction>` additionally takes ``x`` as an argument.
+
+You can also use a custom callable and specify it to be used as the ``correction_callable``:
 
     >>> from cbx.dynamics import CBXDynamic
-    >>> class MyCBO(CBXDynamic):
-    >>>     def correction(self, x):
-    >>>         print('This is my custom correction')
-    >>>         return np.zeros_like(x)
-    >>> dyn = MyCBO(lambda x:x, d=1)
+    >>> def my_correction(dyn, x):
+    >>>     print('This is my custom correction')
+    >>> dyn = CBXDynamic(lambda x:x, d=1, correction=my_correction)
     >>> dyn.correction(dyn.x)
+    >>> print(dyn.correction_callable is my_correction)
     This is my custom correction
-
-If you would rather define a class such that users can specify your custom correction as keyword argument you need to edit the attribute ``correction_dict`` as follows:
-
-    >>> from cbx.dynamics import CBXDynamic
-    >>> class MyCBO(CBXDynamic):
-    >>>     def custom_correction(self, x):
-    >>>         print('This is my custom correction')
-    >>>         return np.zeros_like(x)
-    >>>     correction_dict = {**CBXDynamic.correction_dict, 'custom': 'custom_correction'}
-    >>> dyn = MyCBO(lambda x:x, d=1, correction='custom')
-    >>> dyn.correction(dyn.x)
-    This is my custom correction
-
 
 Termination criteria
 --------------------
 
-You can specify different termination criteria for your CBO algorithm, by passing a keyword argument to the CBO class. The function :func:`terminate <cbx.dynamics.CBXDynamic.terminate>` checks all the termination criteria. Since one dynamic contains multiple runs, the checks are performed per run, whenever there might be differences across each run. The list ``dyn.all_check`` saves a Boolean value for each run, that specifies if the run is terminated.
+You can specify different termination criteria for your CBO algorithm, by passing the dictionary ``term_args`` to the class :class:`CBXDynamic <cbx.dynamics.CBXDynamic>`. The function :func:`terminate <cbx.dynamics.CBXDynamic.terminate>` checks all the termination criteria. Since one dynamic contains multiple runs, the checks are performed per run, whenever there might be differences across each run. The list ``dyn.all_check`` saves a Boolean value for each run, that specifies if the run is terminated.
 
 .. note::
     We check whether to terminate the run. Therefore, ``False`` means a certain check is not meant and the run should continue. ``True`` means the check is meant and the run should be stopped.
 
-However, the function :func:`terminate <cbx.dynamics.CBXDynamic.terminate>` only returns a single Boolean value, which used to decide whether the whole dynamic should be terminated. This is due the fact, that all these sub-runs are executed by the same same step method, by one single dynamic, which needs a single termination check. If this does not fit your application, you can instead use :math:`M` different instances of a dynamic each with the number of sub-runs set to ``1``. You can decide whether to terminate, as soon as one of the sub-runs terminates, or only if all sub-runs terminate, with the keyword ``term_on_all``. 
+However, the function :func:`terminate <cbx.dynamics.CBXDynamic.terminate>` only returns a single Boolean value, which used to decide whether the whole dynamic should be terminated. This is due the fact, that all these sub-runs are executed by the same same step method, by one single dynamic, which needs a single termination check. If this does not fit your application, you can instead use :math:`M` different instances of a dynamic each with the number of sub-runs set to ``1``. You can decide whether to terminate, as soon as one of the sub-runs terminates, or only if all sub-runs terminate, with the keyword ``term_on_all``, i.e., ``term_args = {..., 'term_on_all':True}`. 
 
 .. note::
     If we set the option ``term_on_all=False`` (this is also the default option) the particles of sub-runs which already met a termination criterion, will be further updated. It is technically possible, to not update the particles of a sub-run after it terminated, using the values from ``dyn.all_check``, and defining a custom indexing. However, this is not implemented in the dynamics that are provided by the library. If this is a problem for your use-case, you can either specify a custom indexing or use different instances of single-sub-run dynamics.
 
+Internally, an instance of the class :class:`Terminate <cbx.utils.termination.Terminate>` is created, which handles all the checks.
 
 In the following we detail the possible criteria and explain the values that are used:
 
-``max_it``
-^^^^^^^^^^
+``term_args = {..., 'max_it': <int>}``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Specifies the maximum number of iteration. This is checked in the method :func:`check_max_it <cbx.dynamics.CBXDynamic.check_max_it>`. The value ``dyn.it`` is the same across all runs ``M```:
+Specifies the maximum number of iteration. This is checked with the method :func:`check_max_it <cbx.utils.termination.check_max_it>`. The value ``dyn.it`` is the same across all runs ``M```:
 
     >>> from cbx.dynamics import CBXDynamic
     >>> dyn = CBXDynamic(lambda x:x, d=1, M=5)
@@ -308,19 +298,20 @@ Specifies the maximum number of iteration. This is checked in the method :func:`
 Therefore, the check return the same value across all runs:
 
     >>> from cbx.dynamics import CBO
-    >>> dyn = CBO(lambda x:x, d=1, M=5, max_it=2)
+    >>> from cbx.utils.termination import check_max_it
+    >>> dyn = CBO(lambda x:x, d=1, M=5, term_args={'max_it':2})
     >>> dyn.step()
-    >>> print(dyn.check_max_it())
+    >>> print(check_max_it(dyn))
     >>> dyn.step()
-    >>> print(dyn.check_max_it())
+    >>> print(check_max_it(dyn))
     False
     True
 
 
-``max_eval``
-^^^^^^^^^^^^
+``term_args = {..., 'max_eval': <int>}``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Specify a maximum number of objective evaluations. This is checked in the method :func:`check_max_eval <cbx.dynamics.CBXDynamic.check_max_eval>`. The value ``dyn.num_f_eval`` splits up into the different runs. Each ```cbx_objective`` also saves its number of iterations, which are however not split up across different runs.
+Specify a maximum number of objective evaluations. This is checked in the method :func:`check_max_eval <cbx.utils.termination.check_max_eval>`. The value ``dyn.num_f_eval`` splits up into the different runs. Each ```cbx_objective`` also saves its number of iterations, which are however not split up across different runs.
 
     >>> from cbx.dynamics import CBO
     >>> dyn = CBO(lambda x:x, d=1, N=20, M=5, check_f_dims=False)
@@ -343,27 +334,29 @@ Specify a maximum number of objective evaluations. This is checked in the method
 Since this value is evaluated per run, also the check is performed per run:
 
     >>> from cbx.dynamics import CBO
-    >>> dyn = CBO(lambda x:x, d=1, N=20, M=5, check_f_dims=False, max_eval=40)
+    >>> from cbx.utils.termination import check_max_eval
+    >>> dyn = CBO(lambda x:x, d=1, N=20, M=5, check_f_dims=False, term_args={'max_eval':40})
     >>> dyn.step()
-    >>> print(dyn.check_max_eval())
+    >>> print(check_max_eval(dyn))
     >>> dyn.step()
-    >>> print(dyn.check_max_eval())
+    >>> print(check_max_eval(dyn))
     [False False False False False]
     [ True  True  True  True  True]
 
-``energy_tol``
-^^^^^^^^^^^^^^
+``term_args = {..., 'energy_tol': <float>}``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If this parameter is set, the termination criterion :func:`check_energy <cbx.dynamics.CBXDynamic.check_energy>` returns ``True`` whenever the **best** particle of an ensemble is below the energy tolerance.
+If this parameter is set, the termination criterion :func:`check_energy <cbx.utils.termination.check_energy>` returns ``True`` whenever the **best** particle of an ensemble is below the energy tolerance.
 
     >>> from cbx.dynamics import CBO
     >>> from cbx.objectives import Quadratic
+    >>> from cbx.utils.termination import check_energy
     >>> import numpy as np
     >>> x = np.array([[[0.], [1.]], [[1.], [1.]]])
-    >>> dyn = CBO(Quadratic(), x=x, energy_tol=0.5)
+    >>> dyn = CBO(Quadratic(), x=x, term_args={'energy_tol':0.5})
     >>> dyn.eval_energy()
     >>> dyn.post_step()
-    >>> print(dyn.check_energy())
+    >>> print(check_energy(dyn))
     >>> print(dyn.terminate())
     [ True False]
     False
@@ -383,22 +376,22 @@ If this parameter is set, the termination criterion :func:`check_energy <cbx.dyn
     Therfore, the first particle in the first run, is already the optimum, :math:`x^{1,1} = 0`, with an energy of :math:`f(x^{1,1}) = 0`. On the other hand the second run has two particles with the sam energy :math:`f(x^{2,1}) = f(x^{2,2}) = 1`.
 
 
-    The energy is computed in the method :func:`eval_energy <cbx.dynamics.CBXDynamic.eval_energy>` and is stored in the attribute ``dyn.energy``. We use the method :func:`post_step <cbx.dynamics.CBXDynamic.post_step>` to update the best found energy in each run, which is stored in the attribute ``dyn.best_energy``. This is then used to in the check :func:`check_energy <cbx.dynamics.CBXDynamic.check_energy>`. As expected the first run returns ``True`` since it already found the optimum. For the second one, all particles have an energy above the energy tolerance and therefore the check returns ``False``. 
+    The energy is computed in the method :func:`eval_energy <cbx.dynamics.CBXDynamic.eval_energy>` and is stored in the attribute ``dyn.energy``. We use the method :func:`post_step <cbx.dynamics.CBXDynamic.post_step>` to update the best found energy in each run, which is stored in the attribute ``dyn.best_energy``. This is then used to in the check :func:`check_energy <cbx.utils.termination.check_energy>`. As expected the first run returns ``True`` since it already found the optimum. For the second one, all particles have an energy above the energy tolerance and therefore the check returns ``False``. 
     
     By default the Boolean ```term_on_all`` is set to ``True``, therefore ``dyn.terminate`` returns ``False``, since not all runs are terminated.
 
-``diff_tol``
-^^^^^^^^^^^^
+``term_args = {..., 'diff_tol': <float>}``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If this parameter is set, the termination criterion :func:`check_update_diff <cbx.dynamics.CBXDynamic.check_update_diff>` returns ``True`` whenever the difference between the previous ensemble and the current one is below the difference tolerance.
-
+If this parameter is set, the termination criterion :func:`check_update_diff <cbx.utils.termination.check_update_diff>` returns ``True`` whenever the difference between the previous ensemble and the current one is below the difference tolerance.
 
     >>> from cbx.dynamics import CBO
     >>> from cbx.objectives import Quadratic
+    >>> from cbx.utils.termination import check_diff_tol
     >>> import numpy as np
-    >>> dyn = CBO(Quadratic(), d=1, sigma=0, dt=0., diff_tol=0.5)
+    >>> dyn = CBO(Quadratic(), d=1, M=2, sigma=0, dt=0., term_args={'diff_tol':0.5})
     >>> dyn.step()
-    >>> print(dyn.check_update_diff())
+    >>> print(check_diff_tol(dyn))
     >>> print(dyn.terminate())
     [ True  True]
     Run 0 returning on checks: 
@@ -410,49 +403,89 @@ If this parameter is set, the termination criterion :func:`check_update_diff <cb
 .. note::
     In the above example we set ``dt=sigma=0``, therfore, particles can not move from one iteration to another. The difference between ``dyn.x_old`` and ``dyn.x`` is zero, after one step and therefore the check returns ``True``.
 
+``term_args = {..., 'extra_checks':[<callable>]}``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+With the keyword ``'extra_checks'`` you can specify a list of callable that perform additional checks. Each callable should take a dynamic object as its single argument and retrun a boolean.
+
+    >>> from cbx.dynamics import CBXDynamic
+    >>> def custom_check_0(dyn):
+    >>>     print('This is custom check 0')
+    >>>     return False
+    >>> def custom_check_1(dyn):
+    >>>     print('This is custom check 1')
+    >>>     return True
+    >>> dyn = CBXDynamic(lambda x:x, d=1, term_args={'extra_checks':[custom_check_0, custom_check_1]})
+    >>> dyn.terminate()
+    This is custom check 0
+    This is custom check 1
+    Run 0 returning on checks: 
+    custom_check_1
+
 .. _tracking:
 Tracking and history
 --------------------
 
-Dynamics that inherit from :class:`ParticleDynamic <cbx.dynamics.ParticleDynamic>` allow to track different quantities during the iteration. The function :func:`track <cbx.dynmaics.ParticleDynamic.track>` updates the dictionary ``dyn.history``, which stores the values, as specified by the user. In order to decide, which values to track, you can you use the keyword argument ``track_list``, which expects a list of strings that specifiy the name of the tracked object. In the following we detail, which strings are possible for :class:`ParticleDynamic <cbx.dynamics.ParticleDynamic>`:
+During the iteration, we can save different values in the dictionary ``dyn.history``. You can specify, which values to track, with the dictonary ``track_args``. In the follwing we specify possible keys:
 
-* ``'x'```: Specifies, that the particles ``dyn.x`` should be tracked after each step. Note, that in that case the entry in the history ``dyn.history['x']`` is initialized as a ``(max_it, M, N, d)`` array. It might happen that this is to large for your memory. Furthermore, the array is **not** reshaped after the termination of the iteration. If the dynamic allows for ``max_it`` many iterations, but terminates already after less iterations, the entry ``dyn.history['x']`` will still have the shape ``(max_it, M, N, d)``.
+``track_args={...,'save_int': <int>}``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* ``'update_norm'``: Specifies, that the norm of the difference between the old and the new ensemble should be tracked. The values are save in ``dyn.history['update_norm']`` which is a ``(max_it, M)`` array.
+The value ``save_int`` specifiy the interval in which the values should be tracked.
 
-* ``'energy'``: Specifies, that the **best** energy in each iteration should be tracked. The values are saved in ``dyn.history['energy']`` which is a ``(max_it, M)`` array.
+``track_args={...,names=[....,'x']}``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The subclass :class:`CBXDynamic cbx.dynamics.CBXDynamic` additionally allows to specify the following:
+Specifies, that the particles ``dyn.x`` should be tracked after each step. In that case the entry in the history ``dyn.history['x']`` is a basic list of arrays of shape ``(M, N, d)``.
 
-* ``'consensus'``: Specifies, that the consensus points should be tracked. They are saved in ``dyn.history['consensus']`` which is a ``(max_it, M, d)`` array.
+``track_args={...,names=[....,'update_norm']}``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* ``'drift'``: Specifies, that the drift vectors should be tracked. They are saved in ``dyn.history['drift']``. Since the dimensionality of the drift is not clear a priori, this is stored as a list, where in each step the new drift is appended.
+Specifies, that the norm of the difference between the old and the new ensemble should be tracked. The values are saved in ``dyn.history['update_norm']`` which is a list of arrays of shape ``(M,)``.
 
-* ``'drift_mean'``: Specifies that the mean of the drift vectors should be tracked. It is saved in ``dyn.history['drift_mean']`` which is a ``(max_it, M, d)`` array.
+``track_args={...,names=[....,'energy']}``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Specifying a custom track value
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Specifies, that the **best** energy in each iteration should be tracked. The values are saved in ``dyn.history['energy']`` which is a list of arrays of shape ``(M,)``.
 
-In order to use a custom tracking value you need to subclass :class:`CBXDynamic cbx.dynamics.CBXDynamic` and define the following functions (the concrete names are not important):
+``track_args={...,names=[....,'consensus']}``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* ``track_custom_init``: Here you initialize the value in ``dyn.history``, e.g., you can initialize an array to store the values in.
-* ``track_custom``: This performs the actual tracking after each update.
+Specifies, that the consensus points should be tracked. They are saved in ``dyn.history['consensus']`` which is a list of arrays of shape ``(M, d)``. This is only available in the subclass :class:`CBXDynamic cbx.dynamics.CBXDynamic`.
 
-In order to make this available via the ``track_list`` functionality, we need to alter the dictionary ``track_dict`` as follows:
+``track_args={...,names=[....,'drift']}``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Specifies, that the drift vectors should be tracked. They are saved in ``dyn.history['drift']`` which is a list of arrays of shape ``(M, d)``. This is only available in the subclass :class:`CBXDynamic cbx.dynamics.CBXDynamic`.
+
+``track_args={...,names=[....,'drift_mean']}``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Specifies that the mean of the drift vectors should be tracked. It is saved in ``dyn.history['drift_mean']`` which is a list of arrays of shape ``(M, d)``.
+
+``track_args={...,extra_tracks=[<track>]}``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The list ``extra_tracks`` allows you to specify additional functions that perform custom tracking routines. The instances should be a class that implement the following functions
+
+* ``init_history``: Here you initialize the value in ``dyn.history``, e.g., you can initialize an array or list to store the values in.
+* ``update``: This performs the tracking after each update.
+
 
     >>> from cbx.dynamics import CBXDynamic
-    >>> class custom_CBO(CBXDynamic):
-    >>>     ...
-    >>>     def track_custom_init(self,):
-    >>>         ...
-    >>>
-    >>>     def track_custom(self,):
-    >>>         ...
-    >>>
-    >>>     track_dict = {'custom': ('track_custom_init', 'track_custom'), **CBXDynamic.track_dict}
-
-This allows us to specify the value 'custom' in the above class, via ``custom_CBO(..., track_list=[...,'custom'])``.
-
+    >>> class MyCustomTrack:
+    >>>     def init_history(dyn):
+    >>>         print('Initializing my custom track')
+    >>>         dyn.history['my_custom_track'] = []
+    >>>     def update(dyn):
+    >>>         print('Updating my custom track')
+    >>>         dyn.history['my_custom_track'].append(dyn.x.min(axis=-1))
+    >>> dyn = CBXDynamic(lambda x:x, d=1, track_args={'extra_tracks':[MyCustomTrack]})
+    >>> dyn.step()
+    >>> print(dyn.history['my_custom_track'])
+    Initializing my custom track
+    Updating my custom track
+    [0]
 
 Batching
 --------

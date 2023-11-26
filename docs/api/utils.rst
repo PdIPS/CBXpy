@@ -3,6 +3,43 @@ utils
 
 This module implements some helpful utilities.
 
+Termination criteria
+---------------------
+
+.. currentmodule:: cbx.utils
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+   :recursive:
+   :template: classtemplate.rst
+   
+   termination.Termination
+   termination.check_energy
+   termination.check_max_it
+   termination.check_max_time
+   termination.check_max_eval
+   termination.check_diff_tol
+
+History
+-------
+
+.. currentmodule:: cbx.utils
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+   :recursive:
+   :template: classtemplate.rst
+
+   history.track
+   history.track_x
+   history.track_energy
+   history.track_update_norm
+   history.track_consensus
+   history.track_drift
+   history.track_drift_mean
+
 
 Particle initialization
 ------------------------

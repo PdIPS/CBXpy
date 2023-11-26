@@ -1,14 +1,45 @@
 import numpy as np
 
-class track_x:
+class track:
+    """
+    Base class for tracking of variables in the history dictionary of given dynamics.
+    """
+
+    @staticmethod
+    def init_history(dyn) -> None:
+        """
+        Initializes the value to be tracked in the history dictionary of the given dyn object.
+        
+        Parameters
+        ----------
+        dyn : object
+            The object to track in the history dictionary.
+            
+        Returns
+        -------
+        None
+        """
+        pass
+
+    @staticmethod
+    def update(dyn) -> None:
+        """
+        Updates the value to be tracked in the history dictionary of the given dyn object.
+        
+        Parameters
+        ----------
+        dyn : object
+            The object to track in the history dictionary.
+            
+        Returns
+        -------
+        None
+        """
+        pass
+
+class track_x(track):
     """
     Class for tracking of variable 'x' in the history dictionary.
-
-    Parameters:
-        None
-
-    Returns:
-        None
     """
     @staticmethod
     def init_history(dyn):
@@ -20,25 +51,26 @@ class track_x:
         """
         Update the history of the 'x' variable by copying the current particles to the next time step.
 
-        Parameters:
-            None
+        Parameters
+        ----------
+            dyn : object
+                The object to track in the history dictionary.
 
-        Returns:
+        Returns
+        -------
             None
         """
         dyn.history['x'].append(dyn.copy_particles(dyn.x))
         
         
-class track_update_norm:
+class track_update_norm(track):
     """
     Class for tracking the 'update_norm' entry in the history.
 
-    Returns:
-        None
     """
 
     @staticmethod
-    def init_history(dyn):
+    def init_history(dyn) -> None:
         dyn.history['update_norm'] = []
     
     @staticmethod
@@ -55,12 +87,9 @@ class track_update_norm:
         dyn.history['update_norm'].append(dyn.update_diff)
      
 
-class track_energy:
+class track_energy(track):
     """
     Class for tracking the 'energy' entry in the history.
-
-    Returns:
-        None
     """
 
     @staticmethod
@@ -72,7 +101,11 @@ class track_energy:
         dyn.history['energy'].append(dyn.best_cur_energy) 
 
 
-class track_consensus:
+class track_consensus(track):
+    """
+    Class for tracking the 'consensus' entry in the dynamic.
+    """
+
     @staticmethod
     def init_history(dyn) -> None:
         dyn.history['consensus'] = []
@@ -80,7 +113,11 @@ class track_consensus:
     def update(dyn) -> None:
         dyn.history['consensus'].append(dyn.copy_particles(dyn.consensus))
         
-class track_drift_mean:
+class track_drift_mean(track):
+    """
+    Class for tracking the 'drift_mean' entry in the history.
+    """
+
     @staticmethod
     def init_history(dyn) -> None:
         dyn.history['drift_mean'] = []
@@ -88,7 +125,11 @@ class track_drift_mean:
     def update(dyn) -> None:
         dyn.history['drift_mean'].append(np.mean(np.abs(dyn.drift), axis=(-2,-1)))
         
-class track_drift:
+class track_drift(track):
+    """
+    Class for tracking the 'drift' entry in the history.
+    """
+
     @staticmethod
     def init_history(dyn) -> None:
         dyn.history['drift'] = []

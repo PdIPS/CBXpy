@@ -466,15 +466,14 @@ class ParticleDynamic:
         """
         track_args = track_args if track_args else {}  
         track_names = track_args.get('names', ['update_norm', 'energy'])
+        extra_tracks = track_args.get('extra_tracks', [])
         self.save_int = track_args.get('save_int', 1)
         self.history = {}
-        self.tracks = []
+        self.tracks = extra_tracks
         self.track_it = 0
         for key in track_names:
             if key in self.known_tracks.keys():
-                self.tracks.append(self.known_tracks[key])
-            elif key == 'extra_tracks':
-                self.tracks += track_args[key]
+                self.tracks.append(self.known_tracks[key]())
             else:
                 raise RuntimeError('Unknown tracking key ' + key + ' specified!' +
                         ' You can choose from the following keys '+ 
