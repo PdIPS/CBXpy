@@ -5,7 +5,7 @@ This module implements algorithms for optimization and sampling for consensus ba
 particles systems as proposed in [1]_. 
 
 The base class ``ParticleDynamic`` implements functionality that is common 
-to particle based iterative methods. The class ``CBXDynmaic`` inherits from
+to particle based iterative methods. The class ``CBXDynamic`` inherits from
 ``ParticleDynamic`` and implements functionality that is specific to consensus 
 based schemes. The following dynamics are implemented:
 

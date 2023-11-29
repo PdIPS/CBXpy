@@ -154,13 +154,13 @@ class PolarCBO(CBO):
     f: objective
         The objective function :math:`f` of the system.
     kernel : optional
-        The kernel function :math:`K(x_i, x_j)` that is used to compute the mean :math:`\mathsf{m}(x_i)`.
+        The kernel function :math:`k(\cdot, \cdot)` that is used to compute the particle dependent consensus :math:`c(x_i)`.
         You can choose from the following options:
-        * 'Gaussian': The Gaussian kernel :math:`K(x_i, x_j) = e^{-\frac{1}{2\kappa^2} ||x_i - x_j||^2}`.
-        * 'Laplace': The Laplace kernel :math:`K(x_i, x_j) = e^{-\frac{1}{\kappa} ||x_i - x_j||}`
-        * 'Constant': The constant kernel :math:`K(x_i, x_j) = 1`.
-        * 'InverseQuadratic': The inverse quadratic kernel :math:`K(x_i, x_j) = \frac{1}{1 + \kappa^{-1} \cdot ||x_i - x_j||^2}`
-        * 'Taz': The Taz kernel
+            * 'Gaussian': The Gaussian kernel :math:`k(x_i, x_j) = e^{-\frac{1}{2\kappa^2} ||x_i - x_j||^2}`.
+            * 'Laplace': The Laplace kernel :math:`k(x_i, x_j) = e^{-\frac{1}{\kappa} ||x_i - x_j||}`
+            * 'Constant': The constant kernel :math:`k(x_i, x_j) = \begin{cases} 1, & ||x_i - x_j|| \leq \kappa \\ \infty, & \text{else} \end{cases}` .
+            * 'InverseQuadratic': The inverse quadratic kernel :math:`k(x_i, x_j) = \frac{1}{1 + \kappa^{-1} \cdot ||x_i - x_j||^2}`
+            * 'Taz': The Taz kernel
 
         You can also specify a custom class implemetning a ``neg_log`` function, i.e., the negative logarithm of the kernel.
 
