@@ -12,7 +12,7 @@ A Python package for consensus-based particle dynamics, focusing on **optimizati
 Minimizing a function using CBXPy can be done as follows:
 
 ```python
-   from cbx.dynamics import CBO       # import the CBO class
+   from cbx.dynamics import CBO        # import the CBO class
 
    f = lambda x: x[0]**2 + x[1]**2     # define the function to minimize
    x = CBO(f, d=2).optimize()          # run the optimization
