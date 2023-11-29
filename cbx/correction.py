@@ -90,7 +90,7 @@ class heavi_side_reg_correction(heavi_side_correction):
         self.eps = eps
 
     def correct(self, x:ArrayLike, f: Callable, energy: ArrayLike, consensus: ArrayLike) -> ArrayLike:
-        z = self.energy - f(consensus)
-        return x * (0.5 + 0.5 * np.tanh(z/self.eps))
+        z = energy - f(consensus)
+        return x * (0.5 + 0.5 * np.tanh(z/self.eps))[...,None]
     
 

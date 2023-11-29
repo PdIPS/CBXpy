@@ -28,6 +28,14 @@ class Test_cbo(test_abstract_dynamic):
         dyn.optimize()
         assert np.all(dyn.num_f_eval == np.array([6,6,6,6]))
 
+    def test_term_crit_on_any(self, dynamic, f):
+        '''Test termination criterion on any'''
+        x=np.zeros((2,5,7))
+        x[1,...] = 2.
+        dyn = dynamic(f, x=x, term_args={'energy_tol':1e-6, 'term_on_all':False})
+        dyn.optimize()
+        assert dyn.it == 1
+
     def test_mean_compute(self, dynamic, f):
         '''Test if mean is correctly computed'''
         x = np.random.uniform(-1,1,(3,5,7))
@@ -125,3 +133,19 @@ class Test_cbo(test_abstract_dynamic):
         best_cur_particle = np.array([[0.,0.], [0.,1.], [0.,0.5], [0.,0.3], [0.,1.]])
         
         assert np.allclose(dyn.best_cur_particle, best_cur_particle)
+
+    def test_anisotropic_noise(self, f, dynamic):
+        dyn = dynamic(f, d=3, noise='anisotropic')
+        dyn.step()
+        s = dyn.noise()
+        assert s.shape == dyn.x.shape
+
+    def test_heavi_side(self, f, dynamic):
+        dyn = dynamic(f, d=3, N=4, M=2, correction='heavi_side')
+        dyn.step()
+        assert dyn.x.shape == (2, 4, 3)
+
+    def test_heavi_side_reg(self, f, dynamic):
+        dyn = dynamic(f, d=3, N=4, M=2, correction='heavi_side_reg')
+        dyn.step()
+        assert dyn.x.shape == (2, 4, 3)

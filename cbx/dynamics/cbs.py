@@ -48,9 +48,9 @@ class CBS(CBXDynamic):
                 if not isinstance(sched, scheduler):
                     raise RuntimeError('Unknonw scheduler specified!')
 
-            while not self.terminate(verbosity=self.verbosity):
+            while not self.terminate():
                 self.step()
-                sched.update()
+                sched.update(self)
         
     def default_sched(self,):
         return scheduler([])

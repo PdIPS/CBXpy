@@ -33,7 +33,7 @@ class CBO(CBXDynamic):
     """
 
     def __init__(self, f, **kwargs) -> None:
-        super(CBO, self).__init__(f, **kwargs)
+        super().__init__(f, **kwargs)
         
     
     def inner_step(self,) -> None:

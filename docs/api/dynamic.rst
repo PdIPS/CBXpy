@@ -24,6 +24,7 @@ based schemes. The following dynamics are implemented:
    CBOMemory
    CBS
    PSO
+   PolarCBO
 
 
 

@@ -332,8 +332,7 @@ class ParticleDynamic:
         elif sched == 'default':
             sched = self.default_sched()
         else:
-            if not isinstance(sched, scheduler):
-                raise RuntimeError('Unknonw scheduler specified!')
+            self.sched = sched
 
         while not self.terminate():
             self.step()
@@ -477,7 +476,7 @@ class ParticleDynamic:
             else:
                 raise RuntimeError('Unknown tracking key ' + key + ' specified!' +
                         ' You can choose from the following keys '+ 
-                        str(self.track_dict.keys()))
+                        str(self.known_tracks.keys()))
             
         for track in self.tracks:
             track.init_history(self)
