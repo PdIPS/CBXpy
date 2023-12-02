@@ -3,7 +3,7 @@ import pytest
 from test_abstraction import test_abstract_dynamic
 import numpy as np
 
-class Test_pso(test_abstract_dynamic):
+class Test_polarcbo(test_abstract_dynamic):
     
     @pytest.fixture
     def dynamic(self):
@@ -60,7 +60,7 @@ class Test_pso(test_abstract_dynamic):
                 nom = np.zeros((dyn.d,))
                 denom = 0.
                 for nn in range(dyn.N):
-                    w = dyn.kernel(dyn.x[m,n,:], dyn.x[m,nn,:]) * np.exp(-dyn.alpha * dyn.f(dyn.x[m,nn,:]))
+                    w = dyn.kernel(dyn.x[m,n,:], dyn.x[m,nn,:]) * np.exp(-dyn.alpha * dyn.f(dyn.x[m,nn,:]))[0,0]
                     nom += w * dyn.x[m,nn,:]
                     denom += w
                 c[m,n,:] = nom / denom

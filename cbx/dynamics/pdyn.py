@@ -6,7 +6,7 @@ from ..utils.termination import Termination, check_energy, check_max_it, check_d
 from ..utils.history import track_x, track_energy, track_update_norm, track_consensus, track_drift, track_drift_mean
 from ..utils.particle_init import init_particles
 from ..utils.numpy_torch_comp import copy_particles
-from ..utils.objective_handling import _promote_objective, cbx_objective
+from cbx.utils.objective_handling import _promote_objective
 
 #%%
 from typing import Callable, Union
@@ -171,12 +171,9 @@ class ParticleDynamic:
         self.x = self.copy_particles(x)
 
     def init_f(self, f, f_dim, check_f_dims):
-        if not isinstance(f, cbx_objective):
-            if f_dim != '3D' and self.array_mode == 'pytorch':
-                raise RuntimeError('Pytorch array_mode only supported for 3D objective functions.')
-            self.f = _promote_objective(f, f_dim)
-        else:
-            self.f = f
+        if f_dim != '3D' and self.array_mode == 'pytorch':
+            raise RuntimeError('Pytorch array_mode only supported for 3D objective functions.')
+        self.f = _promote_objective(f, f_dim)
 
                 
         self.num_f_eval = 0 * np.ones((self.M,), dtype=int) # number of function evaluations  

@@ -78,7 +78,7 @@ A key element of each particle dynamic is the objective function :math:`f(x)`. T
 
 I.e., in terms of dimensionality an application of ``dyn.f`` strips away the last dimension (which is the dimension of the original problem :math:`\mathcal{X}=\mathbb{R}^d`) and keeps the structure given by :math:`M\times N`.
 
-However, there might be cases where the user specifies an objective function, which that only works within the original interpretation, i.e., :math:`f: \mathbb{R}^d \to \mathbb{R}^d`, as in the following example:
+However, there might be cases where the user specifies an objective function, that only works within the original interpretation, i.e., :math:`f: \mathbb{R}^d \to \mathbb{R}^d`, as in the following example:
 
     >>> import numpy as np
     >>> def f(x):
@@ -98,29 +98,30 @@ In the above example the array ``x`` yields :math:`M=3, N=4` and :math:`d=2`, th
     >>> print(dyn.f(x).shape)
     (3, 4)
 
-We observe that the objective function ``dyn.f`` now returns an array of shape :math:`M\times N`. This is due to the fact that an objective is promoted to the class :func:`cbx_objective <cbx.objectives.Objective>`, which handles the evaluation on the array level. By default it is assumed that the specified function, only works on the single particle level, which is expressed in the keyword argument ``f_dim=1`` of the class :class:`ParticleDynamic <cbx.dynamics.ParticleDynamic>`. If your function works on single-run ensembles of shape :math:`N\times d`, you can specify ``f_dim=2`` and respectively if it works on multi-run ensembles of shape :math:`M\times N\times d` you can specify ``f_dim=3``. 
-
-Alternatively, one can directly specifiy the objective function as a :func:`cbx_objective <cbx.objectives.Objective>` by using the following decorator:
+We observe that the objective function ``dyn.f`` now returns an array of shape :math:`M\times N`. This is due to the fact that an objective is promoted to the class :func:`cbx_objective <cbx.objectives.Objective>`, which handles the evaluation on the array level. By default it is assumed that the specified function, only works on the single particle level, which is expressed in the keyword argument ``f_dim=1D`` of the class :class:`ParticleDynamic <cbx.dynamics.ParticleDynamic>`. If your function works on single-run ensembles of shape :math:`N\times d`, you can specify ``f_dim=2D`` and respectively if it works on multi-run ensembles of shape :math:`M\times N\times d` you can specify ``f_dim=3D``. If you specify the latter, the objective function is **not** modfied or wrapped, but is directly used for the dynamic:
 
     >>> import numpy as np
     >>> from cbx.dynamics import ParticleDynamic
-    >>> from cbx.utils.objective_handling import cbx_objective_fh
-    >>> 
-    >>> @cbx_objective_fh
+    >>>
     >>> def f(x):
     >>>     return abs(x[...,0] + x[...,1])
     >>>
-    >>> dyn = ParticleDynamic(f, x=np.ones((2,5,2)))
+    >>> dyn0 = ParticleDynamic(f, x=np.ones((2,5,2)))
+    >>> dyn1 = ParticleDynamic(f, x=np.ones((2,5,2)), f_dim='3D')
     >>>
-    >>> print(dyn.f(np.ones((3,4,2))).shape)
-    >>> print(dyn.f is f)
+    >>> print(dyn0.f(np.ones((3,4,2))).shape)
+    >>> print(dyn1.f(np.ones((3,4,2))).shape)
+    >>> print(dyn0.f is f)
+    >>> print(dyn1.f is f)
     (3, 4)
+    (3, 4)
+    False
     True
 
-Here, we observe that the dynamic directly uses the specified objective function. For more complicated functions, one can also inherit from :class:`cbx_objective <cbx.objectives.Objective>`.
+Here, we observe that the dynamic directly uses the specified objective function for ``f_dim='3D'``. For more complicated functions, one can also inherit from :class:`cbx_objective <cbx.objectives.Objective>`.
 
 .. note::
-    When inherinting from :class:`cbx_objective <cbx.objectives.Objective>`, the method :meth:`__call__ <cbx.objectives.Objective.__call__>` should not be overwritten as it is used internally to update the number of evaluation. Instead, the actual function function call should be implemented in the method ``apply(self, x)``.
+    When inheriting from :class:`cbx_objective <cbx.objectives.Objective>`, the method :meth:`__call__ <cbx.objectives.Objective.__call__>` should not be overwritten as it is used internally to update the number of evaluation. Instead, the actual function function call should be implemented in the method ``apply(self, x)``.
 
     >>> import numpy as np
     >>> from cbx.dynamics import ParticleDynamic
@@ -131,11 +132,6 @@ Here, we observe that the dynamic directly uses the specified objective function
     >>>         self.a = a
     >>>     def apply(self, x):
     >>>         return self.a * x[...,0] + x[...,1]
-    >>> 
-    >>> f = objective(a=2.)        
-    >>> dyn = ParticleDynamic(f, x=np.ones((2,5,2)))
-    >>> print(dyn.f is f)
-    True
 
 .. _step:
 The step method
