@@ -59,7 +59,7 @@ If the initial ensemble is not specified, then it is initialized randomly unifor
     >>> dyn = ParticleDynamic(lambda x:x)
     RuntimeError: If the inital partical system is not given, the dimension d must be specified!
 
-However, one can specify the initial ensemble directly, in which case the dimension :math:`d` can be inferred from the shape of the array:	
+However, one can specify the initial ensemble directly, in which case the dimension :math:`d` can be inferred from the shape of the array:
 
     >>> import numpy as np
     >>> from cbx.dynamics import ParticleDynamic
@@ -78,7 +78,7 @@ A key element of each particle dynamic is the objective function :math:`f(x)`. T
 
 I.e., in terms of dimensionality an application of ``dyn.f`` strips away the last dimension (which is the dimension of the original problem :math:`\mathcal{X}=\mathbb{R}^d`) and keeps the structure given by :math:`M\times N`.
 
-However, there might be cases where the user specifies an objective function, that only works within the original interpretation, i.e., :math:`f: \mathbb{R}^d \to \mathbb{R}^d`, as in the following example:
+However, there might be cases where the user specifies an objective function that only works within the original interpretation, i.e., :math:`f: \mathbb{R}^d \to \mathbb{R}`, as in the following example:
 
     >>> import numpy as np
     >>> def f(x):
@@ -88,7 +88,7 @@ However, there might be cases where the user specifies an objective function, th
     (4, 2)
 
 In the above example the array ``x`` yields :math:`M=3, N=4` and :math:`d=2`, therefore the output must of shape :math:`3\times 4`. However, since ``f`` as defined above only works on the single particle level, the shape of the output and therefore also the application is wrong. Let's see how the situation changes when we use the above ``f`` as an objective for a dynamic:
-    
+
     >>> import numpy as np
     >>> from cbx.dynamics import ParticleDynamic
     >>> def f(x):
@@ -121,7 +121,7 @@ We observe that the objective function ``dyn.f`` now returns an array of shape :
 Here, we observe that the dynamic directly uses the specified objective function for ``f_dim='3D'``. For more complicated functions, one can also inherit from :class:`cbx_objective <cbx.objectives.Objective>`.
 
 .. note::
-    When inheriting from :class:`cbx_objective <cbx.objectives.Objective>`, the method :meth:`__call__ <cbx.objectives.Objective.__call__>` should not be overwritten as it is used internally to update the number of evaluation. Instead, the actual function function call should be implemented in the method ``apply(self, x)``.
+    When inheriting from :class:`cbx_objective <cbx.objectives.Objective>`, the method :meth:`__call__ <cbx.objectives.Objective.__call__>` should not be overwritten as it is used internally to update the number of evaluation. Instead, the actual function call should be implemented in the method ``apply(self, x)``.
 
     >>> import numpy as np
     >>> from cbx.dynamics import ParticleDynamic
@@ -146,7 +146,7 @@ At the heart of every iterative method is the actual update that is performed. E
         self.consensus, energy = self.compute_consensus(self.x[self.consensus_idx])
         self.drift = self.x[self.particle_idx] - self.consensus
         self.energy[self.consensus_idx] = energy
-        
+
         # compute noise
         self.s = self.sigma * self.noise()
 
@@ -170,19 +170,19 @@ with an additional correction step on the drift. If you want to implement a cust
     def pre_step(self,) -> None:
         self.x_old = self.copy_particles(self.x)
 
-After each inner step, the base class updates the best particles (both of the current ensemble and the best of the whole iteration), performs the tracking step (see :ref:`tracking`), performs an optional post processing step (e.g., clip the particles within a valid range) and most importantly, increments the iteration counter: 
+After each inner step, the base class updates the best particles (both of the current ensemble and the best of the whole iteration), performs the tracking step (see :ref:`tracking`), performs an optional post processing step (e.g., clip the particles within a valid range) and most importantly, increments the iteration counter:
 
 .. code-block:: python
 
     def post_step(self) -> None:
         if hasattr(self, 'x_old'):
             self.update_diff = np.linalg.norm(self.x - self.x_old, axis=(-2,-1))/self.N
-        
+
         self.update_best_cur_particle()
         self.update_best_particle()
         self.track()
         self.process_particles()
-            
+
         self.it+=1
 
 The main step method, which actually used in the iteration is the defined as
@@ -198,7 +198,7 @@ The main step method, which actually used in the iteration is the defined as
 Noise methods and how to customize them
 ---------------------------------------
 
-In the update step of consensus based methods, diffusion is modeled by the addition of noise, which is scaled by a factor dependent on the iteration. Here, it is very convenient to assume that we can compute the noise, given full information about the dynamic. Therefore, the callable that implements the specific noise, needs to accept the dynamic as an argument. This function is then saved in the attribute :attr:`noise_callable <cbx.dynamics.CBXDynamic.noise_callable>`. The function that is called during the iteration :func:`noise <cbx.dynamics.CBXDynamic.noise>` which is defined as follows:
+In the update step of consensus based methods, diffusion is modeled by the addition of noise, which is scaled by a factor dependent on the iteration. Here, it is very convenient to assume that we can compute the noise, given full information about the dynamic. Therefore, the callable that implements the specific noise needs to accept the dynamic as an argument. This function is then saved in the attribute :attr:`noise_callable <cbx.dynamics.CBXDynamic.noise_callable>`. The function that is called during the iteration :func:`noise <cbx.dynamics.CBXDynamic.noise>` is defined as follows:
 
 .. code-block:: python
 
@@ -242,7 +242,7 @@ In the original CBO paper it is proposed to perform a correction step on the dri
 * ``correction = 'heavi_side'``: Heaviside correction (see :func:`heavi_side_correction <cbx.correction.heavi_side_correction>`),
 * ``correction = 'heavi_side_reg'``: Heaviside correction with regularization (see :func:`heavi_side_correction_reg <cbx.correction.heavi_side_correction_reg>`).
 
-As in the case for the noise, this first sets the function :func:`corecction_callable <cbx.dynamics.CBXDynamic.correction_callable>` of the dynamic class. The actual correction is then defined as follows:
+As in the case for the noise, this first sets the function :func:`correction_callable <cbx.dynamics.CBXDynamic.correction_callable>` of the dynamic class. The actual correction is then defined as follows:
 
 .. code-block:: python
 
@@ -271,7 +271,7 @@ You can specify different termination criteria for your CBO algorithm, by passin
 .. note::
     We check whether to terminate the run. Therefore, ``False`` means a certain check is not meant and the run should continue. ``True`` means the check is meant and the run should be stopped.
 
-However, the function :func:`terminate <cbx.dynamics.CBXDynamic.terminate>` only returns a single Boolean value, which used to decide whether the whole dynamic should be terminated. This is due the fact, that all these sub-runs are executed by the same same step method, by one single dynamic, which needs a single termination check. If this does not fit your application, you can instead use :math:`M` different instances of a dynamic each with the number of sub-runs set to ``1``. You can decide whether to terminate, as soon as one of the sub-runs terminates, or only if all sub-runs terminate, with the keyword ``term_on_all``, i.e., ``term_args = {..., 'term_on_all':True}`. 
+However, the function :func:`terminate <cbx.dynamics.CBXDynamic.terminate>` only returns a single Boolean value, which is used to decide whether the whole dynamic should be terminated. This is because all these sub-runs are executed by the same step method, by one single dynamic, which needs a single termination check. If this does not fit your application, you can instead use :math:`M` different instances of a dynamic each with the number of sub-runs set to ``1``. You can decide whether to terminate, as soon as one of the sub-runs terminates, or only if all sub-runs terminate, with the keyword ``term_on_all``, i.e., ``term_args = {..., 'term_on_all':True}``.
 
 .. note::
     If we set the option ``term_on_all=False`` (this is also the default option) the particles of sub-runs which already met a termination criterion, will be further updated. It is technically possible, to not update the particles of a sub-run after it terminated, using the values from ``dyn.all_check``, and defining a custom indexing. However, this is not implemented in the dynamics that are provided by the library. If this is a problem for your use-case, you can either specify a custom indexing or use different instances of single-sub-run dynamics.
@@ -318,7 +318,7 @@ Specify a maximum number of objective evaluations. This is checked in the method
     100
 
 .. note::
-    In the above example we used the keyword argument ``check_f_dims=False`` to disable the check of the dimensionality of the objective function. Per default this check is enabled, in order to ensure that the objective functions returns the right dimension. However, this yields some extra evaluations. 
+    In the above example we used the keyword argument ``check_f_dims=False`` to disable the check of the dimensionality of the objective function. Per default this check is enabled, in order to ensure that the objective functions returns the right dimension. However, this yields some extra evaluations.
 
     We used the standard CBO algorithm, where one step requires us to compute the consensus point
 
@@ -358,7 +358,7 @@ If this parameter is set, the termination criterion :func:`check_energy <cbx.uti
     False
 
 .. note::
-    In the above example we choose the initial configuration ``x`` with shape (2, 2, 1), i.e., we have ``M=2`` runs, ``N=2`` particles per run and ``d=1``. The particles are chosen as 
+    In the above example we choose the initial configuration ``x`` with shape (2, 2, 1), i.e., we have ``M=2`` runs, ``N=2`` particles per run and ``d=1``. The particles are chosen as
 
     .. math::
         x^{1,:} = \begin{bmatrix} [0]\\ [1] \end{bmatrix},\quad
@@ -372,8 +372,8 @@ If this parameter is set, the termination criterion :func:`check_energy <cbx.uti
     Therfore, the first particle in the first run, is already the optimum, :math:`x^{1,1} = 0`, with an energy of :math:`f(x^{1,1}) = 0`. On the other hand the second run has two particles with the sam energy :math:`f(x^{2,1}) = f(x^{2,2}) = 1`.
 
 
-    The energy is computed in the method :func:`eval_energy <cbx.dynamics.CBXDynamic.eval_energy>` and is stored in the attribute ``dyn.energy``. We use the method :func:`post_step <cbx.dynamics.CBXDynamic.post_step>` to update the best found energy in each run, which is stored in the attribute ``dyn.best_energy``. This is then used to in the check :func:`check_energy <cbx.utils.termination.check_energy>`. As expected the first run returns ``True`` since it already found the optimum. For the second one, all particles have an energy above the energy tolerance and therefore the check returns ``False``. 
-    
+    The energy is computed in the method :func:`eval_energy <cbx.dynamics.CBXDynamic.eval_energy>` and is stored in the attribute ``dyn.energy``. We use the method :func:`post_step <cbx.dynamics.CBXDynamic.post_step>` to update the best found energy in each run, which is stored in the attribute ``dyn.best_energy``. This is then used to in the check :func:`check_energy <cbx.utils.termination.check_energy>`. As expected the first run returns ``True`` since it already found the optimum. For the second one, all particles have an energy above the energy tolerance and therefore the check returns ``False``.
+
     By default the Boolean ```term_on_all`` is set to ``True``, therefore ``dyn.terminate`` returns ``False``, since not all runs are terminated.
 
 ``term_args = {..., 'diff_tol': <float>}``
@@ -390,9 +390,9 @@ If this parameter is set, the termination criterion :func:`check_update_diff <cb
     >>> print(check_diff_tol(dyn))
     >>> print(dyn.terminate())
     [ True  True]
-    Run 0 returning on checks: 
+    Run 0 returning on checks:
     check_update_diff
-    Run 1 returning on checks: 
+    Run 1 returning on checks:
     check_update_diff
     True
 
@@ -415,7 +415,7 @@ With the keyword ``'extra_checks'`` you can specify a list of callable that perf
     >>> dyn.terminate()
     This is custom check 0
     This is custom check 1
-    Run 0 returning on checks: 
+    Run 0 returning on checks:
     custom_check_1
 
 .. _tracking:
@@ -494,7 +494,7 @@ As proposed in [1]_ it is common to perform only batch updates across the ensemb
 
 * ``'seed'``: The seed for the random number generator.
 
-* ``'var'``: The resampling variant. 
+* ``'var'``: The resampling variant.
 
 We explain the mechanism and the behavior of these arguments below.
 
@@ -502,7 +502,7 @@ We explain the mechanism and the behavior of these arguments below.
     Here, and in the following this batching should not be confused with the batching of a objective function. If your objective function is given as a sum over many functions, it might make sense to batch the evaluation of this function. However, the batching over the ensemble is conceptually different.
 
 
-The base class :class:`CBXDynamic <cbx.dynamics.CBXDynamic>` implements the function :func:`set_batch_idx <cbx.dynamics.CBXDynamic.set_batch_idx>`. If it is called it sets the following attributes 
+The base class :class:`CBXDynamic <cbx.dynamics.CBXDynamic>` implements the function :func:`set_batch_idx <cbx.dynamics.CBXDynamic.set_batch_idx>`. If it is called it sets the following attributes
 
 * ``dyn.consensus_idx``: the indices used to computed the consensus point,
 * ``dyn.particle_idx``: the indices updated in each step.
