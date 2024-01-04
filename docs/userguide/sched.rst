@@ -2,8 +2,8 @@
 Schedulers
 ==========
 
-Schedulers allow to update parameters of the dynamic. Most commonly, one wants to adjust the heat parameter :math:`\alpha` during the iteration. 
-The base class is :class:`param_update cbx.scheduler.param_update` and all schedulers are derived from it. 
+Schedulers allow to update parameters of the dynamic. Most commonly, one may want to adjust the heat parameter :math:`\alpha` during the iteration. 
+The base class is :class:`cbx.scheduler.param_update` and all schedulers are derived from it. 
 
 The function that performs the update is :func:`update <cbx.scheduler.param_update.update>`. The scheduler accesses the parameters of the dynamic from the outside, therefore the dynamic needs to be passed to the update function.  
 
