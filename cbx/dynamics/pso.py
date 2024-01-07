@@ -74,7 +74,7 @@ class PSO(CBXDynamic):
         self.v = np.zeros(self.x.shape)
         
         # init historical best positions of particles
-        self.y = self.copy_particles(self.x)
+        self.y = self.copy(self.x)
         
         if sigma_memory is None:
             self.sigma_memory = self.lamda_memory * self.sigma
@@ -86,9 +86,9 @@ class PSO(CBXDynamic):
         
     def pre_step(self,):
         # save old positions
-        self.x_old = self.copy_particles(self.x) # save old positions
-        self.y_old = self.copy_particles(self.y) # save old positions
-        self.v_old = self.copy_particles(self.v) # save old velocities
+        self.x_old = self.copy(self.x) # save old positions
+        self.y_old = self.copy(self.y) # save old positions
+        self.v_old = self.copy(self.v) # save old velocities
         
         # set new batch indices
         self.set_batch_idx()

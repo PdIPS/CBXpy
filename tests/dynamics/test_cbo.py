@@ -116,8 +116,13 @@ class Test_cbo(test_abstract_dynamic):
         @cbx_objective_fh
         def g(x):
             return torch.sum(x, dim=-1)
-        
-        dyn = dynamic(g, x=x, term_args={'max_it':2}, array_mode='torch', 
+        def norm_torch(x, axis, **kwargs):
+            return torch.linalg.norm(x, dim=axis, **kwargs)
+        dyn = dynamic(g, x=x, 
+                      term_args={'max_it':2},
+                      norm=norm_torch,
+                      copy=torch.clone,
+                      normal=torch.normal,
                       f_dim='3D')
         dyn.optimize()
         assert dyn.x.shape == (6,5,7)

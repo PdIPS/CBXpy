@@ -15,7 +15,8 @@ class test_abstract_dynamic():
     def test_eval_counting(self, f, dynamic):
         '''Test if evaluation counting is correct'''
         f.reset()
-        dyn = dynamic(f, d=5, M=7, N=5, term_args={'max_it':3}, check_f_dims=False)
+        dyn = dynamic(f, d=5, M=7, N=5, term_args={'max_it':3}, 
+                      check_f_dims=False)
         dyn.optimize()
         
         assert dyn.num_f_eval.shape == (7,)

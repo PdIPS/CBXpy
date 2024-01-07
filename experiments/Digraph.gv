@@ -1,0 +1,170 @@
+// Modules
+digraph {
+	vb [label=vb]
+	pb [label=pb]
+	gt [label=gt]
+	hj [label=hj]
+	zd [label=zd]
+	hr [label=hr]
+	rg [label=rg]
+	tf [label=tf]
+	pp [label=pp]
+	vx [label=vx]
+	tx [label=tx]
+	nh [label=nh]
+	sc [label=sc]
+	cc [label=cc]
+	tn [label=tn]
+	fp [label=fp]
+	hc [label=hc]
+	rb [label=rb]
+	pc [label=pc]
+	broadcaster [label=broadcaster]
+	zn [label=zn]
+	ns [label=ns]
+	nc [label=nc]
+	mf [label=mf]
+	xv [label=xv]
+	rj [label=rj]
+	tg [label=tg]
+	gp [label=gp]
+	jz [label=jz]
+	jl [label=jl]
+	vr [label=vr]
+	jq [label=jq]
+	kz [label=kz]
+	gv [label=gv]
+	gf [label=gf]
+	df [label=df]
+	kq [label=kq]
+	lk [label=lk]
+	vs [label=vs]
+	lt [label=lt]
+	nl [label=nl]
+	mr [label=mr]
+	zf [label=zf]
+	br [label=br]
+	rk [label=rk]
+	qf [label=qf]
+	rv [label=rv]
+	ls [label=ls]
+	fm [label=fm]
+	ck [label=ck]
+	fv [label=fv]
+	tp [label=tp]
+	vh [label=vh]
+	hh [label=hh]
+	lr [label=lr]
+	kh [label=kh]
+	bp [label=bp]
+	lj [label=lj]
+	vb -> ck
+	pb -> xv
+	gt -> jq
+	hj -> lk
+	hj -> hh
+	zd -> fm
+	hr -> hh
+	rg -> tp
+	tf -> ck
+	tf -> tx
+	pp -> vs
+	pp -> hh
+	vx -> df
+	tx -> mr
+	tx -> ck
+	nh -> vx
+	sc -> ck
+	sc -> vb
+	cc -> ck
+	cc -> rj
+	tn -> kz
+	tn -> lt
+	fp -> rb
+	hc -> kz
+	rb -> ns
+	rb -> mf
+	pc -> vh
+	broadcaster -> tf
+	broadcaster -> br
+	broadcaster -> zn
+	broadcaster -> nc
+	zn -> kz
+	zn -> fv
+	ns -> pb
+	ns -> lr
+	ns -> br
+	ns -> fp
+	ns -> gp
+	ns -> gv
+	ns -> jl
+	nc -> hh
+	nc -> hj
+	mf -> ns
+	mf -> gp
+	xv -> ns
+	xv -> kh
+	rj -> ck
+	rj -> sc
+	tg -> cc
+	gp -> pb
+	jz -> lj
+	jz -> ns
+	jl -> fp
+	vr -> jq
+	jq -> rx
+	kz -> zf
+	kz -> nl
+	kz -> df
+	kz -> zn
+	kz -> vx
+	kz -> nh
+	gv -> jl
+	gf -> zf
+	gf -> kz
+	df -> gf
+	kq -> pp
+	lk -> hh
+	lk -> zd
+	vs -> bp
+	lt -> ls
+	lt -> kz
+	nl -> jq
+	mr -> rg
+	zf -> qf
+	br -> gv
+	br -> ns
+	rk -> hh
+	rk -> hr
+	qf -> kz
+	qf -> tn
+	rv -> rk
+	rv -> hh
+	ls -> hc
+	ls -> kz
+	fm -> kq
+	ck -> tp
+	ck -> vr
+	ck -> pc
+	ck -> tg
+	ck -> mr
+	ck -> tf
+	ck -> rg
+	fv -> nh
+	fv -> kz
+	tp -> pc
+	vh -> ck
+	vh -> tg
+	hh -> vs
+	hh -> kq
+	hh -> gt
+	hh -> nc
+	hh -> zd
+	hh -> fm
+	lr -> jq
+	kh -> ns
+	kh -> jz
+	bp -> hh
+	bp -> rv
+	lj -> ns
+}

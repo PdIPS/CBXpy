@@ -7,10 +7,10 @@ from ..scheduler import scheduler
 class CBS(CBXDynamic):
     def __init__(self, f, mode='sampling', noise='covariance',
                  M=1,
-                 track_list=None, 
+                 track_args=None, 
                  **kwargs):
-        track_list = track_list if track_list is not None else []
-        super().__init__(f, track_list=track_list, M=M, **kwargs)
+        track_args = track_args if track_args is not None else{'names':[]}
+        super().__init__(f, track_args=track_args, M=M, **kwargs)
         
         if self.batched:
             raise NotImplementedError('Batched mode not implemented for CBS!')

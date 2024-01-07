@@ -60,7 +60,7 @@ class track_x(track):
         -------
             None
         """
-        dyn.history['x'].append(dyn.copy_particles(dyn.x))
+        dyn.history['x'].append(dyn.copy(dyn.x))
         
         
 class track_update_norm(track):
@@ -111,7 +111,7 @@ class track_consensus(track):
         dyn.history['consensus'] = []
     @staticmethod
     def update(dyn) -> None:
-        dyn.history['consensus'].append(dyn.copy_particles(dyn.consensus))
+        dyn.history['consensus'].append(dyn.copy(dyn.consensus))
         
 class track_drift_mean(track):
     """

@@ -1,8 +1,9 @@
 """
 This module implements the noise methods for cbx dynamics
 """
-
+from typing import Callable
 from numpy.typing import ArrayLike
+from numpy.random import normal
 import numpy as np
 
 def get_noise(name):
@@ -16,7 +17,12 @@ def get_noise(name):
         raise NotImplementedError('Noise model {} not implemented'.format(name))
 
 
-class noise:      
+class noise:
+    def __init__(self, 
+                 norm: Callable = None, 
+                 sampler: Callable = None):
+        self.norm = norm if norm is not None else np.linalg.norm
+        self.sampler = sampler if sampler is not None else normal
     def __call__(self, dyn):
         """
         This function returns the noise vector for a given dynamic object. This is the function that is called in the dynamic object.
@@ -63,8 +69,10 @@ class isotropic_noise(noise):
     Only the norm of the drift is used for the noise. Therefore, the noise vector is scaled with the same factor in each dimension, 
     which motivates the name **isotropic**. 
     """
-    def __init__(self,):
-         super().__init__()
+    def __init__(self, 
+                 norm: Callable = None, 
+                 sampler: Callable = None):
+         super().__init__(norm = norm, sampler = sampler)
 
     def __call__(self, dyn) -> ArrayLike:
         return np.sqrt(dyn.dt) * self.sample(dyn.drift)
@@ -91,8 +99,8 @@ class isotropic_noise(noise):
         Only the norm of the drift is used for the noise. Therefore, the noise vector is scaled with the same factor in each dimension, 
         which motivates the name **isotropic**. 
         '''
-        z = np.random.normal(0, 1, size=(drift.shape))
-        return z * np.linalg.norm(drift, axis=-1, keepdims=True)
+        z = self.sampler(0, 1, size=(drift.shape))
+        return z * self.norm(drift, axis=-1, keepdims=True)
     
 
 
@@ -116,13 +124,15 @@ class anisotropic_noise(noise):
         which motivates the name **anisotropic**.
         """
 
-        def __init__(self,):
-            super().__init__()
+        def __init__(self, 
+                     norm: Callable = None,
+                     sampler: Callable = None):
+            super().__init__(norm = norm, sampler = sampler)
 
         def __call__(self, dyn) -> ArrayLike:
             return np.sqrt(dyn.dt) * self.sample(dyn.drift)
 
-        def sample(self, drift) -> ArrayLike:
+        def sample(self, drift: ArrayLike) -> ArrayLike:
             r"""
 
             This function implements the anisotropic noise model. From the drift :math:`d = x - c(x)`,
@@ -143,7 +153,7 @@ class anisotropic_noise(noise):
             which motivates the name **anisotropic**.
             """
 
-            return np.random.normal(0, 1, size=drift.shape) * drift
+            return self.sampler(0, 1, size=drift.shape) * drift
         
 class covariance_noise(noise):
         r"""
@@ -158,8 +168,10 @@ class covariance_noise(noise):
         Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
         """
         
-        def __init__(self,):
-            super().__init__()
+        def __init__(self, 
+                     norm: Callable = None,
+                     sampler: Callable = None):
+            super().__init__(norm = norm, sampler = sampler)
 
         def __call__(self, dyn) -> ArrayLike:
              factor = np.sqrt((1/dyn.lamda) * (1 - np.exp(-dyn.dt)**2))
@@ -188,7 +200,7 @@ class covariance_noise(noise):
             
             """
 
-            z = np.random.normal(0, 1, size = drift.shape) 
+            z = self.sampler(0, 1, size = drift.shape) 
             return self.apply_cov_sqrt(Cov_sqrt, z)
         
         def apply_cov_sqrt(self, Cov_sqrt: ArrayLike, z:ArrayLike) -> ArrayLike:

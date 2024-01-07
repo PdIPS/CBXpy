@@ -5,7 +5,7 @@ from ..scheduler import scheduler, multiply
 from ..utils.termination import Termination, check_energy, check_max_it, check_diff_tol, check_max_eval, check_max_time
 from ..utils.history import track_x, track_energy, track_update_norm, track_consensus, track_drift, track_drift_mean
 from ..utils.particle_init import init_particles
-from ..utils.numpy_torch_comp import copy_particles
+from ..utils.resampling import apply_resamplings
 from cbx.utils.objective_handling import _promote_objective
 
 #%%
@@ -14,7 +14,6 @@ from numpy.typing import ArrayLike
 import numpy as np
 from numpy.random import Generator, MT19937
 from scipy.special import logsumexp
-
 
 class ParticleDynamic:
     r"""The base particle dynamic class
@@ -100,8 +99,6 @@ class ParticleDynamic:
             A list of extra tracks that should be performed.
     max_x_thresh : float, optional
         The maximum value of the absolute value of the position. The default is 1e5
-    array_mode : str, optional
-        The mode of the array. The default is 'numpy'.
     track_list : list, optional
         The list of objects that are tracked. The default is None.
         Possible objects to track are the following:
@@ -126,14 +123,20 @@ class ParticleDynamic:
             term_args: Union[None, dict] = None,
             track_args: list = None,
             max_x_thresh: float = 1e5,
-            array_mode: str = 'numpy',
             verbosity: int = 1,
-            **kwargs) -> None:
+            copy: Callable = None,
+            norm: Callable = None,
+            normal: Callable = None
+            ) -> None:
         
         self.verbosity = verbosity
         
-        # init particles
-        self.array_mode = array_mode      
+        # set utilities
+        self.copy = copy if copy is not None else np.copy 
+        self.norm = norm if norm is not None else np.linalg.norm
+        self.normal = normal if normal is not None else np.random.normal
+        
+        # init particles    
         self.init_x(x, M, N, d, x_min, x_max)
         
         # set and promote objective function
@@ -168,13 +171,10 @@ class ParticleDynamic:
         self.M = x.shape[-3]
         self.N = x.shape[-2]
         self.d = x.shape[-1]
-        self.x = self.copy_particles(x)
+        self.x = self.copy(x)
 
     def init_f(self, f, f_dim, check_f_dims):
-        if f_dim != '3D' and self.array_mode == 'pytorch':
-            raise RuntimeError('Pytorch array_mode only supported for 3D objective functions.')
         self.f = _promote_objective(f, f_dim)
-
                 
         self.num_f_eval = 0 * np.ones((self.M,), dtype=int) # number of function evaluations  
         self.f_min = float('inf') * np.ones((self.M,)) # minimum function value
@@ -190,8 +190,8 @@ class ParticleDynamic:
         Returns:
             None
         """
-        if check and (self.array_mode != 'torch'): # check if f returns correct shape
-            x = np.random.uniform(-1,1,(self.M, self.N, self.d))
+        if check: # check if f returns correct shape
+            x = self.normal(0.,1.,(self.M, self.N, self.d))
             if self.f(x).shape != (self.M,self.N):
                 raise ValueError("The given objective function does not return the correct shape!")
             self.num_f_eval += self.N * np.ones((self.M,), dtype=int) # number of function evaluations
@@ -208,7 +208,7 @@ class ParticleDynamic:
             None
         """
         # save old positions
-        self.x_old = self.copy_particles(self.x)
+        self.x_old = self.copy(self.x)
         
     def inner_step(self,):
         """
@@ -246,7 +246,7 @@ class ParticleDynamic:
             None
         """
         if hasattr(self, 'x_old'):
-            self.update_diff = np.linalg.norm(self.x - self.x_old, axis=(-2,-1))/self.N
+            self.update_diff = self.norm(self.x - self.x_old, axis=(-2,-1))/self.N
         
         self.update_best_cur_particle()
         self.update_best_particle()
@@ -369,21 +369,6 @@ class ParticleDynamic:
             print('Finished solver.')
             print('Best energy: ' + str(self.best_energy))
             print('-'*20)
-            
-    def copy_particles(self, x):
-        """
-        Copy particles from one location to another. This is necessary to be compatible with torch arrays.
-
-        Parameters:
-            x: The location of the particles to be copied.
-
-        Returns:
-            The copied particles.
-
-        Note:
-            This function uses the `copy_particles` function with the `array_mode` set to the class attribute `self.array_mode`.
-        """
-        return copy_particles(x, mode=self.array_mode)
 
             
     def reset(self,):
@@ -525,7 +510,7 @@ class ParticleDynamic:
         idx = np.where(self.best_energy > self.best_cur_energy)[0]
         if len(idx) > 0:
             self.best_energy[idx] = self.best_cur_energy[idx]
-            self.best_particle[idx, :] = self.copy_particles(self.best_cur_particle[idx, :])
+            self.best_particle[idx, :] = self.copy(self.best_cur_particle[idx, :])
             
 
             
@@ -571,10 +556,9 @@ class CBXDynamic(ParticleDynamic):
             The correction method. Default: 'no_correction'. One of 'no_correction', 'heavi_side', 'heavi_side_reg' or a Callable.
         correction_eps: float, optional
             The parameter :math:`\epsilon` for the regularized correction. Default: 1e-3.
-        resampling: bool, optional
-            Whether to use resampling. Default: False.
-        update_thresh: float, optional
-            The threshold for resampling scheme. Default: 0.1
+        resamplings: list, optional
+            List of callables that return indices of runs to resample. 
+            Default: [].
 
     Returns:
         None
@@ -588,7 +572,7 @@ class CBXDynamic(ParticleDynamic):
             lamda: float = 1.0,
             correction: Union[str, None] = 'no_correction', 
             correction_eps: float = 1e-3,
-            resampling: bool = False,
+            resamplings: list[Callable] = None,
             update_thresh: float = 0.1,
             **kwargs) -> None:
         
@@ -607,8 +591,7 @@ class CBXDynamic(ParticleDynamic):
         
         self.init_batch_idx(batch_args)
         
-        self.resampling = resampling
-        self.update_thresh = update_thresh
+        self.resamplings = resamplings
         self.num_resampling = np.zeros((self.M,), dtype=int)
         
         self.consensus = None #consensus point
@@ -819,17 +802,18 @@ class CBXDynamic(ParticleDynamic):
 
 
     def resample(self,) -> None:
-        idx = np.where(self.update_diff < self.update_thresh)[0]
+        idx = apply_resamplings(self, self.resamplings)
         if len(idx)>0:
-            z = np.random.normal(0, 1., size=(len(idx), self.N, self.d))
+            z = self.normal(0, 1., size=(len(idx), self.N, self.d))
             self.x[idx, ...] += self.sigma * np.sqrt(self.dt) * z
+            
             self.num_resampling[idx] += 1
             if self.verbosity > 0:
                     print('Resampled in runs ' + str(idx))
                     
     def pre_step(self,):
         # save old positions
-        self.x_old = self.copy_particles(self.x)
+        self.x_old = self.copy(self.x)
         
         # set new batch indices
         self.set_batch_idx()
@@ -839,14 +823,14 @@ class CBXDynamic(ParticleDynamic):
         
     def post_step(self):
         if hasattr(self, 'x_old'):
-            self.update_diff = np.linalg.norm(self.x - self.x_old, axis=(-2,-1))/self.N
+            self.update_diff = self.norm(self.x - self.x_old, axis=(-2,-1))/self.N
         
         self.update_best_cur_particle()
         self.update_best_particle()
         self.process_particles()
         self.track()
 
-        if self.resampling:
+        if self.resamplings is not None:
             self.resample()
             
         self.t += self.dt

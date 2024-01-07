@@ -56,7 +56,7 @@ class CBOMemory(CBXDynamic):
         self.lamda_memory = lamda_memory
         
         # init historical best positions of particles
-        self.y = self.copy_particles(self.x)
+        self.y = self.copy(self.x)
         
         if sigma_memory is None:
             self.sigma_memory = self.lamda_memory * self.sigma
@@ -68,8 +68,8 @@ class CBOMemory(CBXDynamic):
         
     def pre_step(self,):
         # save old positions
-        self.x_old = self.copy_particles(self.x) # save old positions
-        self.y_old = self.copy_particles(self.y) # save old positions
+        self.x_old = self.copy(self.x) # save old positions
+        self.y_old = self.copy(self.y) # save old positions
         
         # set new batch indices
         self.set_batch_idx()
