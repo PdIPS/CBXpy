@@ -9,7 +9,7 @@ from ..utils.resampling import apply_resamplings
 from cbx.utils.objective_handling import _promote_objective
 
 #%%
-from typing import Callable, Union
+from typing import Callable, Union, List
 from numpy.typing import ArrayLike
 import numpy as np
 from numpy.random import Generator, MT19937
@@ -572,7 +572,7 @@ class CBXDynamic(ParticleDynamic):
             lamda: float = 1.0,
             correction: Union[str, None] = 'no_correction', 
             correction_eps: float = 1e-3,
-            resamplings: list[Callable] = None,
+            resamplings: List[Callable] = None,
             update_thresh: float = 0.1,
             **kwargs) -> None:
         
