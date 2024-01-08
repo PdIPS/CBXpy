@@ -86,7 +86,7 @@ f = objective(train_loader, N, (10,784), (10,))
 
 w = torch.concatenate((params['linear.weight'].view(N,-1).detach(),
                        params['linear.bias'].detach()),
-                      dim=-1
+                       dim=-1
                       )
 
 def eval_model(x, w, n = 0, m = 0, wshape=(10, 784), bshape=(10,)):
@@ -127,7 +127,7 @@ dyn = CBO(f, f_dim='3D', x=w, noise=noise,
 sched = cbx.scheduler.multiply(factor=1.03, name='alpha')
 #%%
 e = 0
-while f.epochs < 5:
+while f.epochs < 10:
     dyn.step()
     sched.update(dyn)
 

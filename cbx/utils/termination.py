@@ -108,18 +108,18 @@ def check_max_eval(dyn):
     
 def check_max_it(dyn):
     """
-    Checks if the current value of `self.it` is greater than or equal to the value of `self.max_it`.
+    Checks if the current value of `dyn.it` is greater than or equal to the value of `dyn.max_it`.
 
     Returns:
-        bool: True if `self.it` is greater than or equal to `self.max_it`, False otherwise.
+        bool: True if `dyn.it` is greater than or equal to `dyn.max_it`, False otherwise.
     """
     return dyn.it >= dyn.max_it
 
 def check_max_time(dyn):
     """
-    Checks if the current value of `self.it` is greater than or equal to the value of `self.max_it`.
+    Checks if the current value of `dyn` is greater than or equal to the value of `dyn.max_time`.
 
     Returns:
-        bool: True if `self.it` is greater than or equal to `self.max_it`, False otherwise.
+        bool: True if `dyn.t` is greater than or equal to `dyn.max_time`, False otherwise.
     """
     return dyn.t >= dyn.max_time

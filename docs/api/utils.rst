@@ -1,3 +1,4 @@
+.. _utils:
 utils
 ==========
 
@@ -20,6 +21,23 @@ Termination criteria
    termination.check_max_time
    termination.check_max_eval
    termination.check_diff_tol
+
+Resampling schemes
+------------------
+
+.. currentmodule:: cbx.utils
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+   :recursive:
+   :template: classtemplate.rst
+
+   resampling.apply_resamplings
+   resampling.ensemble_update_resampling
+   resampling.loss_update_resampling
+
+
 
 History
 -------

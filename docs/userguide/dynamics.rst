@@ -25,7 +25,7 @@ Each dynamic implements a step method that delineates the update in each iterati
 Modelling the ensemble
 ----------------------
 
-All particle-based methods operate on an ensemble of points :math:`x = (x^1, \ldots, x^N) \in \mathcal{X}^N`. Here, we opt to model the ensemble as an array, assuming :math:`\mathcal{X} = \mathbb{R}^d`, hence representing it as an :math:`N \times d` array. In most cases, we assume this array is provided as a ``numpy`` array. However, it's often straightforward to use torch tensors instead, see also :ref:`npvstorch`.
+All particle-based methods operate on an ensemble of points :math:`x = (x^1, \ldots, x^N) \in \mathcal{X}^N`. Here, we opt to model the ensemble as an array, assuming :math:`\mathcal{X} = \mathbb{R}^d`, hence representing it as an :math:`N \times d` array. In most cases, we assume this array is provided as a ``numpy`` arraWy. However, it's often straightforward to use torch tensors instead.
 
 For multiple runs of a particle-based scheme, creating :math:`M \in \mathbb{N}` instances of a dynamic and running them is a typical approach. This process could also be parallelized at an external level. However, in scenarios where, for instance, all parameters remain fixed across runs, it can be efficient to represent the different runs directly on the array level. We therefore model an ensemble as an
 
@@ -540,9 +540,46 @@ The first entry, allows for convenient broadcasting in the run dimension, this a
 The second entry stores the indices of the particles that belong to the current batch. This array has the same shape as the previous one and randomly selects indices in the range ``0`` to ``N-1``, independently across each run. In the best the indices are unique within a single sub-run.
 
 
-Performance evaluation
-----------------------
+Resampling strategies
+---------------------
 
+As described in [1]_ in certain situations it is useful to add noise independent from the current ensemble, or even resample the whole ensemble. In order to perform such a operation we can use the instance function :func:`resample <cbx.dynamics.CBXDynamic.resample>`. In the first, this functions determines in which runs to resample, by using the list `resamplings` that can be specified as keyword argument to a dynamic instance. This list should contain a list of callables that take the dynamic as their input and output a list of indices, specifying the runs to resample in.
+
+    >>> from cbx.dynamics import CBXDynamic
+    >>> def always_resample_in_run_one(dyn):
+    >>>     return [1]
+    >>> dyn = CBXDynamic(lambda x:x.sum(axis=-1), M=4, N=5, d=1, resamplings=[always_resample_in_run_one])
+    >>> dyn.resample()
+    Resampled in runs [1]
+
+We refer to :ref:`utils` for available resampling functions.
+
+Using torch tensors
+-------------------
+
+Since numpys universal functions can handle foreign objects such as torch tensors, we can perform most of the operations with torch tensors. 
+However, there are three operations, which lead to inconsistencies when mixing numpy arrays and torch tensors, namely
+
+* array copying,
+* norm computations,
+* sampling from normal distributions.
+
+For this reasons, you can specify these methods as arguments of a CBXDynamic. By default these methods are chosen as 
+
+* dyn.copy = np.copy
+* dyn.norm = np.linalg.norm
+* dyn.normal = np.random.normal
+
+If you want to use torch tensors, you can instead do the following
+
+    >>> import torch
+    >>> from cbx.dynamics import CBXDynamic
+    >>> x = torch.normal(0,1,(1,7,8))
+    >>> def norm_torch(x, axis=-1, **kwargs):
+    >>>     return torch.linalg.norm(x, dim=axis, **kwargs)
+    >>> dyn = CBXDynamic(lambda x:norm_torch(x), f_dim = '3D', x=x, norm=norm_torch,copy=torch.clone, normal=torch.normal)
+
+Here, it is important to specify the argument ``f_dim = '3D'``, such that no ``numpy`` vectorization is performed.
 
 References
 ----------
