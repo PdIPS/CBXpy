@@ -13,7 +13,6 @@ from typing import Callable, Union, List
 from numpy.typing import ArrayLike
 import numpy as np
 from numpy.random import Generator, MT19937
-from scipy.special import logsumexp
 
 class ParticleDynamic:
     r"""The base particle dynamic class
@@ -126,7 +125,7 @@ class ParticleDynamic:
             verbosity: int = 1,
             copy: Callable = None,
             norm: Callable = None,
-            normal: Callable = None
+            normal: Callable = None,
             ) -> None:
         
         self.verbosity = verbosity
@@ -142,8 +141,8 @@ class ParticleDynamic:
         # set and promote objective function
         self.init_f(f, f_dim, check_f_dims)
 
-        self.energy = float('inf') * np.ones((self.M, self.N)) # energy of the particles
-        self.best_energy = float('inf') * np.ones((self.M,))
+        self.energy = float('inf') * x[...,0] # energy of the particles
+        self.best_energy = float('inf') * x[:,0,0]
         self.best_particle = np.zeros((self.M,self.d))
         self.update_diff = float('inf') * np.ones((self.M,))
         self.max_x_thresh = max_x_thresh
@@ -527,6 +526,16 @@ def compute_mat_sqrt(A):
     B, V = np.linalg.eigh(A)
     B = np.maximum(B,0.)
     return V@(np.sqrt(B)[...,None]*V.transpose(0,2,1))
+
+def compute_consensus_standard(f, x, alpha):
+    energy = f(x) # update energy
+    weights = - alpha * energy
+    coeffs = np.exp(weights - np.logaddexp(weights, axis=(-1,), keepdims=True))[...,None]
+    problem_idx = np.where(np.abs(coeffs.sum(axis=-2)-1) > 0.1)[0]
+    if len(problem_idx) > 0:
+        raise RuntimeError('Problematic consensus computation!')
+
+    return (x * coeffs).sum(axis=-2, keepdims=True), energy
     
     
 class CBXDynamic(ParticleDynamic):
@@ -574,6 +583,7 @@ class CBXDynamic(ParticleDynamic):
             correction_eps: float = 1e-3,
             resamplings: List[Callable] = None,
             update_thresh: float = 0.1,
+            compute_consensus: Callable = None,
             **kwargs) -> None:
         
         super().__init__(f, **kwargs)
@@ -595,6 +605,7 @@ class CBXDynamic(ParticleDynamic):
         self.num_resampling = np.zeros((self.M,), dtype=int)
         
         self.consensus = None #consensus point
+        self._compute_consensus = compute_consensus if compute_consensus is not None else compute_consensus_standard
         
         
     known_term_checks = {'max_time': check_max_time, **ParticleDynamic.known_term_checks}
@@ -794,7 +805,7 @@ class CBXDynamic(ParticleDynamic):
     
         """                       
         weights = - self.alpha * self.energy
-        coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))
+        coeffs = np.exp(weights - np.logaddexp(weights, axis=(-1,), keepdims=True))
       
         D = self.drift[...,None] * self.drift[...,None,:]
         D = np.sum(D * coeffs[..., None, None], axis = -3)
@@ -865,17 +876,9 @@ class CBXDynamic(ParticleDynamic):
 
         """
         # evaluation of objective function on batch
-        energy = self.f(x_batch) # update energy
+        
         self.num_f_eval += np.ones(self.M,dtype=int) * x_batch.shape[-2] # update number of function evaluations
-        
-        weights = - self.alpha * energy
-        coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
-        
-        problem_idx = np.where(np.abs(coeffs.sum(axis=-2)-1) > 0.1)[0]
-        if len(problem_idx) > 0:
-            raise RuntimeError('Problematic consensus computation!')
-        
-        return (x_batch * coeffs).sum(axis=-2, keepdims=True), energy
+        return self._compute_consensus(self.f, x_batch, self.alpha)
         
         
     
