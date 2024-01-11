@@ -10,17 +10,19 @@ class Perceptron(nn.Module):
         self.std = std
         self.act_fun = act_fun()
         self.sizes = sizes if sizes else [784, 10]
-        self.linear = nn.Linear(self.sizes[0], self.sizes[1])
-        self.bn = nn.BatchNorm1d(10, track_running_stats=False)
+        self.linears = nn.ModuleList([nn.Linear(self.sizes[i], self.sizes[i+1]) for i in range(len(self.sizes)-1)])
+        self.bns = nn.ModuleList([nn.BatchNorm1d(self.sizes[i+1], track_running_stats=False) for i in range(len(self.sizes)-1)])
         self.sm = nn.Softmax(dim=1)
 
     def __call__(self, x):
         x = x.view([x.shape[0], -1])
         x = (x - self.mean)/self.std
-        x = self.linear(x)
-        x = self.act_fun(x)
+        
+        for l, bn in zip(self.linears, self.bns):
+            x = l(x)
+            x = self.act_fun(x)
+            x = bn(x)
 
         # apply softmax
-        x = self.bn(x)
         x = self.sm(x)
         return x

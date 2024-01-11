@@ -13,6 +13,27 @@ from typing import Callable, Union, List
 from numpy.typing import ArrayLike
 import numpy as np
 from numpy.random import Generator, MT19937
+from scipy.special import logsumexp
+
+        
+class post_process_default:
+    """
+    Default post processing.
+
+    This function performs some operations on the particles, after the inner step. 
+
+    Parameters:
+        None
+
+    Return:
+        None
+    """
+    def __init__(self, max_thresh: float = 1e8):
+        self.max_thresh = max_thresh
+    
+    def __call__(self, dyn):
+        np.nan_to_num(dyn.x, copy=False, nan=self.max_thresh)
+        dyn.x = np.clip(dyn.x, -self.max_thresh, self.max_thresh)
 
 class ParticleDynamic:
     r"""The base particle dynamic class
@@ -121,11 +142,11 @@ class ParticleDynamic:
             M: int = 1, N: int = 20, d: int = None,
             term_args: Union[None, dict] = None,
             track_args: list = None,
-            max_x_thresh: float = 1e5,
             verbosity: int = 1,
             copy: Callable = None,
             norm: Callable = None,
             normal: Callable = None,
+            post_process: Callable = None,
             ) -> None:
         
         self.verbosity = verbosity
@@ -141,17 +162,19 @@ class ParticleDynamic:
         # set and promote objective function
         self.init_f(f, f_dim, check_f_dims)
 
-        self.energy = float('inf') * x[...,0] # energy of the particles
-        self.best_energy = float('inf') * x[:,0,0]
-        self.best_particle = np.zeros((self.M,self.d))
+        self.energy = float('inf') * np.ones((self.M,self.N)) # energy of the particles
+        self.best_energy = float('inf') * np.ones(self.M,)
+        self.best_particle = self.copy(self.x[:, 0, :])
         self.update_diff = float('inf') * np.ones((self.M,))
-        self.max_x_thresh = max_x_thresh
 
 
         # termination parameters and checks
         self.init_term(term_args)
         self.it = 0
         self.init_history(track_args)
+        
+        # post processing
+        self.post_process = post_process if post_process is not None else post_process_default
 
     def init_x(self, x, M, N, d, x_min, x_max):
         if x is None:
@@ -250,24 +273,8 @@ class ParticleDynamic:
         self.update_best_cur_particle()
         self.update_best_particle()
         self.track()
-        self.process_particles()
-            
+        self.post_process(self)
         self.it+=1
-        
-    def process_particles(self,):
-        """
-        Process the particles.
-
-        This function performs some operations on the particles, after the inner step. 
-
-        Parameters:
-            None
-
-        Return:
-            None
-        """
-        np.nan_to_num(self.x, copy=False, nan=self.max_x_thresh)
-        self.x = np.clip(self.x, -self.max_x_thresh, self.max_x_thresh)
         
     def step(self,) -> None:
         """
@@ -527,10 +534,10 @@ def compute_mat_sqrt(A):
     B = np.maximum(B,0.)
     return V@(np.sqrt(B)[...,None]*V.transpose(0,2,1))
 
-def compute_consensus_standard(f, x, alpha):
+def compute_consensus_default(f, x, alpha):
     energy = f(x) # update energy
     weights = - alpha * energy
-    coeffs = np.exp(weights - np.logaddexp(weights, axis=(-1,), keepdims=True))[...,None]
+    coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
     problem_idx = np.where(np.abs(coeffs.sum(axis=-2)-1) > 0.1)[0]
     if len(problem_idx) > 0:
         raise RuntimeError('Problematic consensus computation!')
@@ -605,7 +612,7 @@ class CBXDynamic(ParticleDynamic):
         self.num_resampling = np.zeros((self.M,), dtype=int)
         
         self.consensus = None #consensus point
-        self._compute_consensus = compute_consensus if compute_consensus is not None else compute_consensus_standard
+        self._compute_consensus = compute_consensus if compute_consensus is not None else compute_consensus_default
         
         
     known_term_checks = {'max_time': check_max_time, **ParticleDynamic.known_term_checks}
@@ -805,7 +812,7 @@ class CBXDynamic(ParticleDynamic):
     
         """                       
         weights = - self.alpha * self.energy
-        coeffs = np.exp(weights - np.logaddexp(weights, axis=(-1,), keepdims=True))
+        coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))
       
         D = self.drift[...,None] * self.drift[...,None,:]
         D = np.sum(D * coeffs[..., None, None], axis = -3)
@@ -838,7 +845,7 @@ class CBXDynamic(ParticleDynamic):
         
         self.update_best_cur_particle()
         self.update_best_particle()
-        self.process_particles()
+        self.post_process()
         self.track()
 
         if self.resamplings is not None:

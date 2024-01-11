@@ -69,7 +69,7 @@ class loss_update_resampling:
     
     def __call__(self,dyn):
         self.wait += 1
-        self.wait[np.where(self.best_energy > dyn.best_energy)[0]] = 0
+        self.wait[self.best_energy > dyn.best_energy] = 0
         self.best_energy = dyn.best_energy
         idx = np.where(self.wait >= self.wait_thresh)[0]
         self.wait = np.mod(self.wait, self.wait_thresh)
