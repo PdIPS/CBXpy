@@ -143,19 +143,23 @@ class effective_number(param_update):
 
 
     """
-    def __init__(self, name = 'alpha', eta=1.0, maximum=1e5, factor=1.05):
+    def __init__(self, name = 'alpha', eta=1.0, maximum=1e5, factor=1.05,reeval=False):
         super(effective_number, self).__init__(name = name, maximum=maximum)
         if self.name != 'alpha':
             warnings.warn('effective_number scheduler only works for alpha parameter! You specified name = {}!'.format(self.name), stacklevel=2)
         self.eta = eta
         self.J_eff = 1.0
         self.factor=factor
+        self.reeval=reeval
     
     def update(self, dyn):
         val = getattr(dyn, self.name)
         
-        energy = dyn.f(dyn.x)
-        dyn.num_f_eval += np.ones(dyn.M, dtype=int) * dyn.x.shape[-1]
+        if self.reeval:
+            energy = dyn.f(dyn.x)
+            dyn.num_f_eval += np.ones(dyn.M, dtype=int) * dyn.x.shape[-1]
+        else:
+            energy = dyn.energy
 
         term1 = logsumexp(-val * energy)
         term2 = logsumexp(-2 * val * energy)

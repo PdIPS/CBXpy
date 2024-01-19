@@ -5,11 +5,10 @@ from ..scheduler import scheduler, multiply
 from ..utils.termination import Termination, check_energy, check_max_it, check_diff_tol, check_max_eval, check_max_time
 from ..utils.history import track_x, track_energy, track_update_norm, track_consensus, track_drift, track_drift_mean
 from ..utils.particle_init import init_particles
-from ..utils.resampling import apply_resamplings
 from cbx.utils.objective_handling import _promote_objective
 
 #%%
-from typing import Callable, Union, List
+from typing import Callable, Union
 from numpy.typing import ArrayLike
 import numpy as np
 from numpy.random import Generator, MT19937
@@ -125,8 +124,6 @@ class ParticleDynamic:
         * 'x': The positions of the particles.
         * 'update_norm': The norm of the particle update.
         * 'energy': The energy of the system.
-    save_int : int, optional
-        The frequency of the saving of the data. The default is 1.
     verbosity : int, optional
         The verbosity level. The default is 1.
     
@@ -572,9 +569,6 @@ class CBXDynamic(ParticleDynamic):
             The correction method. Default: 'no_correction'. One of 'no_correction', 'heavi_side', 'heavi_side_reg' or a Callable.
         correction_eps: float, optional
             The parameter :math:`\epsilon` for the regularized correction. Default: 1e-3.
-        resamplings: list, optional
-            List of callables that return indices of runs to resample. 
-            Default: [].
 
     Returns:
         None
@@ -588,7 +582,6 @@ class CBXDynamic(ParticleDynamic):
             lamda: float = 1.0,
             correction: Union[str, None] = 'no_correction', 
             correction_eps: float = 1e-3,
-            resamplings: List[Callable] = None,
             update_thresh: float = 0.1,
             compute_consensus: Callable = None,
             **kwargs) -> None:
@@ -607,9 +600,6 @@ class CBXDynamic(ParticleDynamic):
         self.set_noise(noise)
         
         self.init_batch_idx(batch_args)
-        
-        self.resamplings = resamplings
-        self.num_resampling = np.zeros((self.M,), dtype=int)
         
         self.consensus = None #consensus point
         self._compute_consensus = compute_consensus if compute_consensus is not None else compute_consensus_default
@@ -817,17 +807,6 @@ class CBXDynamic(ParticleDynamic):
         D = self.drift[...,None] * self.drift[...,None,:]
         D = np.sum(D * coeffs[..., None, None], axis = -3)
         self.Cov_sqrt = compute_mat_sqrt(D)
-
-
-    def resample(self,) -> None:
-        idx = apply_resamplings(self, self.resamplings)
-        if len(idx)>0:
-            z = self.normal(0, 1., size=(len(idx), self.N, self.d))
-            self.x[idx, ...] += self.sigma * np.sqrt(self.dt) * z
-            
-            self.num_resampling[idx] += 1
-            if self.verbosity > 0:
-                    print('Resampled in runs ' + str(idx))
                     
     def pre_step(self,):
         # save old positions
@@ -845,11 +824,8 @@ class CBXDynamic(ParticleDynamic):
         
         self.update_best_cur_particle()
         self.update_best_particle()
-        self.post_process()
+        self.post_process(self)
         self.track()
-
-        if self.resamplings is not None:
-            self.resample()
             
         self.t += self.dt
         self.it+=1

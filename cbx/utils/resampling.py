@@ -1,25 +1,52 @@
 import numpy as np
+from typing import Callable, List
 
-def apply_resamplings(dyn, resamplings: list):
+def apply_resampling_default(dyn, idx):
+    z = dyn.normal(0, 1., size=(len(idx), dyn.N, dyn.d))
+    dyn.x[idx, ...] += dyn.sigma * np.sqrt(dyn.dt) * z
+
+class resampling:
     """
-    Apply resamplings to a given dynamic
+    Resamplings from a list of callables
 
     Parameters
     ----------
-    dyn
-        The dynamic object to apply resamplings to
-
-    resamplings
+    resamplings: list
         The list of resamplings to apply. Each entry should be a callable that accepts exactly one argument (the dynamic object) and returns a one-dimensional
         numpy array of indices.
-
-    Returns
-    -------
-    The indices of the runs to resample as a numpy array
-    """
-
-    return np.unique(np.concatenate([r(dyn) for r in resamplings]))
+        
+    apply: Callable
+        - ``dyn``: The dynmaic which the resampling is applied to.
+        - ``idx``: List of indices that are resampled.
+        
+        The function that should be performed on a given dynamic for selected indices. This function has to have the signature apply(dyn,idx).
     
+    """
+    def __init__(self, resamplings: List[Callable], M: int, apply:Callable = None):
+        self.resamplings = resamplings
+        self.M = M
+        self.num_resampling = np.zeros(M)
+        self.apply = apply if apply is not None else apply_resampling_default
+
+    def __call__(self, dyn):
+        """
+        Applies the resamplings to a given dynamic
+            
+        Parameters
+        ----------
+        dyn
+            The dynamic object to apply resamplings to
+        
+        Returns
+        -------
+        None
+        """
+        idx = np.unique(np.concatenate([r(dyn) for r in self.resamplings]))
+        if len(idx)>0:
+            self.apply(dyn, idx)
+            self.num_resampling[idx] += 1
+            if dyn.verbosity > 0:
+                print('Resampled in runs ' + str(idx))
 
 class ensemble_update_resampling:
     """
@@ -69,8 +96,9 @@ class loss_update_resampling:
     
     def __call__(self,dyn):
         self.wait += 1
-        self.wait[self.best_energy > dyn.best_energy] = 0
-        self.best_energy = dyn.best_energy
+        u_idx = self.best_energy > dyn.best_energy
+        self.wait[u_idx] = 0
+        self.best_energy[u_idx] = dyn.best_energy[u_idx]
         idx = np.where(self.wait >= self.wait_thresh)[0]
         self.wait = np.mod(self.wait, self.wait_thresh)
         return idx
