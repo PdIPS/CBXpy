@@ -5,8 +5,7 @@ from torch.func import functional_call, stack_module_state, vmap
 def norm_torch(x, axis, **kwargs):
     return torch.linalg.norm(x, dim=axis, **kwargs)  
 
-def compute_consensus_torch(f, x, alpha):
-    energy = f(x) # update energy
+def compute_consensus_torch(energy, x, alpha):
     weights = - alpha * energy
     coeffs = torch.exp(weights - torch.logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
     return (x * coeffs).sum(axis=-2, keepdims=True), energy.cpu().numpy()

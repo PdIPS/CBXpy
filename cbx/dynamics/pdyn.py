@@ -531,8 +531,7 @@ def compute_mat_sqrt(A):
     B = np.maximum(B,0.)
     return V@(np.sqrt(B)[...,None]*V.transpose(0,2,1))
 
-def compute_consensus_default(f, x, alpha):
-    energy = f(x) # update energy
+def compute_consensus_default(energy, x, alpha):
     weights = - alpha * energy
     coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
     problem_idx = np.where(np.abs(coeffs.sum(axis=-2)-1) > 0.1)[0]
@@ -835,8 +834,9 @@ class CBXDynamic(ParticleDynamic):
         self.init_history()
         self.t = 0.
 
-    def eval_energy(self,):
-        self.energy = self.f(self.x)
+    def eval_f(self, x):
+        self.num_f_eval += np.ones(self.M, dtype=int) * x.shape[-2] # update number of function evaluations
+        return self.f(x)
     
     def print_cur_state(self,):
         if self.verbosity > 0:
@@ -846,7 +846,7 @@ class CBXDynamic(ParticleDynamic):
         if self.verbosity > 1:
             print('Current alpha: ' + str(self.alpha))
             
-    def compute_consensus(self, x_batch) -> None:
+    def compute_consensus(self, x) -> None:
         r"""Updates the weighted mean of the particles.
 
         Parameters
@@ -860,8 +860,8 @@ class CBXDynamic(ParticleDynamic):
         """
         # evaluation of objective function on batch
         
-        self.num_f_eval += np.ones(self.M,dtype=int) * x_batch.shape[-2] # update number of function evaluations
-        return self._compute_consensus(self.f, x_batch, self.alpha)
+        energy = self.eval_f(x) # update energy
+        return self._compute_consensus(energy, x, self.alpha)
         
         
     
