@@ -590,7 +590,7 @@ class CBXDynamic(ParticleDynamic):
         # cbx parameters
         self.dt = dt
         self.t = 0.
-        self.alpha = alpha
+        self.alpha = alpha # np.ones((self.M,1,)) * alpha if isinstance(alpha,float) else alpha
         self.sigma = sigma
         self.lamda = lamda
         

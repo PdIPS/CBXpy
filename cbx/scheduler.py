@@ -45,7 +45,7 @@ class param_update():
 
     def ensure_max(self, dyn):
         r"""Ensures that the parameter does not exceed its maximum value."""
-        setattr(dyn, self.name, min(self.maximum, getattr(dyn, self.name)))
+        setattr(dyn, self.name, np.minimum(self.maximum, getattr(dyn, self.name)))
 
 
 class scheduler():
@@ -97,10 +97,9 @@ class multiply(param_update):
     def update(self, dyn) -> None:
         r"""Update the parameter as specified by ``'name'``, by multiplying it by a given ``'factor'``."""
         old_val = getattr(dyn, self.name)
-        new_val = min(self.factor * old_val, self.maximum)
+        new_val = self.factor * old_val
         setattr(dyn, self.name, new_val)
         self.ensure_max(dyn)
-    
     
 
 # class for alpha_eff scheduler
@@ -161,13 +160,14 @@ class effective_number(param_update):
         else:
             energy = dyn.energy
 
-        term1 = logsumexp(-val * energy)
-        term2 = logsumexp(-2 * val * energy)
+        term1 = logsumexp(-val * energy, axis=-1)
+        term2 = logsumexp(-2 * val * energy, axis=-1)
         self.J_eff = np.exp(2*term1 - term2)
-        
-        if self.J_eff >= self.eta * dyn.N:
-            setattr(dyn, self.name, val * self.factor)
+        #val *= 1/self.factor
+        #val[np.where(self.J_eff >= self.eta * dyn.N),...] *= self.factor**2
+        if self.J_eff.mean() >= self.eta * dyn.N:
+            val*=self.factor
         else:
-            setattr(dyn, self.name, val/self.factor)
-
+            val*=1/self.factor
+        setattr(dyn, self.name, val)
         self.ensure_max(dyn)

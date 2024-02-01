@@ -7,8 +7,14 @@ def norm_torch(x, axis, **kwargs):
 
 def compute_consensus_torch(energy, x, alpha):
     weights = - alpha * energy
-    coeffs = torch.exp(weights - torch.logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
+    coeffs = torch.exp(weights - torch.logsumexp(weights, dim=(-1,), keepdims=True))[...,None]
     return (x * coeffs).sum(axis=-2, keepdims=True), energy.cpu().numpy()
+
+def compute_polar_consensus_torch(energy, x, neg_log_eval, alpha = 1., kernel_factor = 1.):
+    weights = -kernel_factor * neg_log_eval - alpha * energy[:,None,:]
+    coeffs = torch.exp(weights - torch.logsumexp(weights, dim=(-1,), keepdims=True))[...,None]
+    c = torch.sum(x[:,None,...] * coeffs, axis=-2)
+    return c, energy.cpu().numpy()
 
 def normal_torch(device):
     def _normal_torch(mean, std, size):

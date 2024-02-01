@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Callable
 from numpy.typing import ArrayLike
 from scipy.special import logsumexp
 
@@ -79,8 +80,7 @@ class Gaussian_kernel(kernel):
             return np.exp(-np.true_divide(1, 2*self.kappa**2) *dists**2)
     
     def neg_log(self, x, y):        
-        dists = np.linalg.norm(x-y, axis=-1,ord=2)
-        return np.true_divide(1, 2*self.kappa**2) * dists**2
+        return np.true_divide(1, 2*self.kappa**2) * ((x-y)**2).sum(-1)
     
 class Laplace_kernel(kernel):
     """Laplace Kernel
@@ -142,6 +142,13 @@ class Taz_kernel(kernel):
         return  dists**2
 
 #%% PolarCBO
+def compute_polar_consensus(energy, x, neg_log_eval, alpha = 1., kernel_factor = 1.):
+    weights = -kernel_factor * neg_log_eval - alpha * energy[:,None,:]
+    coeffs = np.exp(weights - logsumexp(weights, axis=-1, keepdims=True))
+    c = np.sum(x[:,None,...] * coeffs[...,None], axis=-2)
+    return c, energy
+
+
 class PolarCBO(CBO):
     r"""PolarCBO
 
@@ -183,8 +190,9 @@ class PolarCBO(CBO):
                  kernel = 'Gaussian',
                  kappa: float = 1.0,
                  kernel_factor_mode: str = 'alpha',
+                 compute_consensus: Callable = None,
                  **kwargs) -> None:
-        super().__init__(f, **kwargs)
+        super().__init__(f, compute_consensus = compute_consensus if compute_consensus is not None else compute_polar_consensus, **kwargs)
         
         self.kappa = kappa
         self.set_kernel(kernel)
@@ -231,26 +239,8 @@ class PolarCBO(CBO):
         else:
             raise NotImplementedError('Unknown mode: ' + self.kernel_factor_mode)
         
-        
-    def compute_consensus(self, x_batch):
-        r"""Compute the mean :math:`\mathsf{m}(x_i)` of the particles.
-
-        Parameters
-        ----------
-        ind : array_like, optional
-
-        Returns
-        -------
-        m_beta : array_like
-            The mean :math:`\mathsf{m}(x_i)` of the particles.
-        """
-        
-        # update energy
-        energy = self.f(x_batch)
-        self.num_f_eval += np.ones(self.M,dtype=int) * x_batch.shape[-2]
-        neg_log_eval = self.kernel.neg_log(x_batch[:,None,...],x_batch[:,:,None,:])
-        weights = -self.kernel_factor() * neg_log_eval -self.alpha * energy[:,None,:]
-        coeffs = np.exp(weights - logsumexp(weights,axis=-1,keepdims=True))
-        c = np.sum(x_batch[:,None,...] * coeffs[...,None], axis=-2)
-        return c, energy
+    def compute_consensus(self, x):
+        energy = self.eval_f(x)
+        neg_log_eval = self.kernel.neg_log(x[:,None,...],x[:,:,None,:])
+        return self._compute_consensus(energy, x, neg_log_eval, alpha = self.alpha, kernel_factor = self.kernel_factor())
         
