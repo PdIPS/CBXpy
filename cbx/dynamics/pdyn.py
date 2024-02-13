@@ -403,7 +403,7 @@ class ParticleDynamic:
 
         """
         self.term_criteria = term_criteria if term_criteria is not None else [max_it_term(max_it)]
-        self.term_reason = np.zeros((self.M), dtype=int)
+        self.term_reason = [None for i in range((self.M))]
         self.active_runs_idx = np.arange(self.M)
         self.num_active_runs = self.M
     
@@ -856,7 +856,7 @@ class CBXDynamic(ParticleDynamic):
         self.t = 0.
 
     def eval_f(self, x):
-        self.num_f_eval += np.ones(self.M, dtype=int) * x.shape[-2] # update number of function evaluations
+        self.num_f_eval[self.active_runs_idx] += x.shape[-2] # update number of function evaluations
         return self.f(x)
     
     def print_cur_state(self,):
