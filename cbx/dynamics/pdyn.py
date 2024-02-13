@@ -2,15 +2,16 @@
 from ..noise import get_noise
 from ..correction import get_correction
 from ..scheduler import scheduler, multiply
-from ..utils.termination import Termination, check_energy, check_max_it, check_diff_tol, check_max_eval, check_max_time
+from ..utils.termination import max_it_term
 from ..utils.history import track_x, track_energy, track_update_norm, track_consensus, track_drift, track_drift_mean
 from ..utils.particle_init import init_particles
 from cbx.utils.objective_handling import _promote_objective
 
 #%%
-from typing import Callable, Union
+from typing import Callable, Union, List
 from numpy.typing import ArrayLike
 import numpy as np
+from numpy.lib.stride_tricks import as_strided
 from numpy.random import Generator, MT19937
 from scipy.special import logsumexp
 
@@ -137,7 +138,8 @@ class ParticleDynamic:
             x: Union[None, np.ndarray] = None,
             x_min: float = -1., x_max: float = 1.,
             M: int = 1, N: int = 20, d: int = None,
-            term_args: Union[None, dict] = None,
+            max_it: int = 1000,
+            term_criteria: List[Callable] = None,
             track_args: list = None,
             verbosity: int = 1,
             copy: Callable = None,
@@ -166,7 +168,7 @@ class ParticleDynamic:
 
 
         # termination parameters and checks
-        self.init_term(term_args)
+        self.init_term(term_criteria, max_it)
         self.it = 0
         self.init_history(track_args)
         
@@ -334,7 +336,7 @@ class ParticleDynamic:
         else:
             self.sched = sched
 
-        while not self.terminate():
+        while not self.terminate_all():
             self.step()
             sched.update(self)
             if (self.it % print_int == 0):
@@ -389,14 +391,7 @@ class ParticleDynamic:
         self.it = 0
         self.init_history()
 
-    known_term_checks = {
-        'max_it': check_max_it, 
-        'energy_tol': check_energy, 
-        'diff_tol': check_diff_tol, 
-        'max_eval': check_max_eval
-    }
-
-    def init_term(self, term_args: dict):
+    def init_term(self, term_criteria, max_it):
         """
         Initialize the termination criteria of the object.
 
@@ -407,23 +402,18 @@ class ParticleDynamic:
             checks : list
 
         """
-        checks = []
-        term_args = term_args if term_args else {'max_it': 1000,}
-
-        self.term_on_all = term_args.get('term_on_all', True)
-
-        for key in term_args:
-            if key in self.known_term_checks:
-                setattr(self, key, term_args[key])
-                checks.append(self.known_term_checks[key])
-            elif key == 'extra_checks':
-                checks += term_args[key]
-
-        self.termination = Termination(checks, M=self.M, term_on_all=self.term_on_all, verbosity=self.verbosity)
-
+        self.term_criteria = term_criteria if term_criteria is not None else [max_it_term(max_it)]
+        self.term_reason = np.zeros((self.M), dtype=int)
+        self.active_runs_idx = np.arange(self.M)
+        self.num_active_runs = self.M
+    
+    def terminate_all(self,):
+        self.terminate()
+        return self.num_active_runs <= 0
+    
     def terminate(self,):
         """
-        Terminate the process and return a boolean value indicating if for each run the termination criterion was met.
+        Selects the inidices that meet a termination criterion.
 
         Parameters:
             None
@@ -431,7 +421,18 @@ class ParticleDynamic:
         Returns:
             bool: True if all checks passed, False otherwise.
         """
-        return self.termination.terminate(self)
+
+        loc_term = np.zeros((self.M, len(self.term_criteria)), dtype=bool)
+        for i, term in enumerate(self.term_criteria):
+            loc_term[:, i] = term(self)
+            
+        terms = np.sum(loc_term, axis=1)
+        self.active_runs_idx = np.where(terms==0)[0]
+        self.num_active_runs = self.active_runs_idx.shape[0]
+            
+        for j in range(self.M):
+            if terms[j]:
+                self.term_reason[j] = np.where(loc_term[j,:])[0]
     
     known_tracks = {
         'update_norm': track_update_norm,
@@ -603,13 +604,14 @@ class CBXDynamic(ParticleDynamic):
         self.consensus = None #consensus point
         self._compute_consensus = compute_consensus if compute_consensus is not None else compute_consensus_default
         
-        
-    known_term_checks = {'max_time': check_max_time, **ParticleDynamic.known_term_checks}
     known_tracks = {
         'consensus': track_consensus,
         'drift_mean': track_drift_mean,
         'drift': track_drift,
         **ParticleDynamic.known_tracks,}
+    
+    def get_reshaped_run_idx(self,):
+        return as_strided(self.active_runs_idx, shape=(self.num_active_runs, self.batch_size), strides=(self.active_runs_idx.strides[0],0))
         
     def init_batch_idx(self, batch_args) -> None:
         """
@@ -649,17 +651,39 @@ class CBXDynamic(ParticleDynamic):
     
         if self.batch_size == self.N:
             self.batched = False
+            self.set_batch_idx = self.set_batch_idx_unbatched
         else: # set indices for batching
             self.batched = True
-            self.M_idx = np.repeat(np.arange(self.M)[:,None], self.batch_size, axis=1)
+            #self.M_idx = np.repeat(np.arange(self.M)[:,None], self.batch_size, axis=1)
             ind = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
             self.batch_rng = Generator(MT19937(batch_seed))#np.random.default_rng(batch_seed)
             self.indices = self.batch_rng.permuted(ind, axis=1)
+            self.set_batch_idx = self.set_batch_idx_batched
             
                 
-    def set_batch_idx(self,):
+    def set_batch_idx_unbatched(self,):
         """
-        Set the batch index for the data.
+        Set the batch index for the particles.
+
+        This method sets the indices for unbatched dynamics.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """ 
+
+        if self.num_active_runs == self.M:
+            self.consensus_idx = Ellipsis
+        else:
+            self.consensus_idx = (self.active_runs_idx, Ellipsis)
+            
+        self.particle_idx = self.consensus_idx
+        
+    def set_batch_idx_batched(self,):
+        """
+        Set the batch index for the particles.
 
         This method sets the batch index batched dynamics. 
         If the indices are exhausted, it generates new indices using `np.repeat` and `np.arange`. 
@@ -678,28 +702,25 @@ class CBXDynamic(ParticleDynamic):
         Returns:
             None
         """
-        if self.batched:   
-            if self.indices.shape[1] < self.batch_size: # if indices are exhausted
-                indices = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
-                indices = self.batch_rng.permuted(indices, axis=1)
-                    
-                if self.batch_var == 'concat':
-                    self.indices = np.concatenate((self.indices, indices), axis=1)
-                else:
-                    self.indices = indices
-                #self.batch_size
-    
-            self.batch_idx = self.indices[:,:self.batch_size] # get batch indices
-            self.indices = self.indices[:, self.batch_size:] # remove batch indices from indices
-            
-            self.consensus_idx = (self.M_idx, self.batch_idx, Ellipsis)
-        else:
-            self.consensus_idx = Ellipsis
-        
+        if self.indices.shape[1] < self.batch_size: # if indices are exhausted
+            indices = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
+            indices = self.batch_rng.permuted(indices, axis=1)
+
+            if self.batch_var == 'concat':
+                self.indices = np.concatenate((self.indices, indices), axis=1)
+            else:
+                self.indices = indices
+            #self.batch_size
+
+        self.batch_idx = self.indices[:, :self.batch_size] # get batch indices
+        self.indices = self.indices[:, self.batch_size:] # remove batch indices from indices
+
+        self.consensus_idx = (self.get_reshaped_run_idx(), self.batch_idx, Ellipsis)
         if self.batch_partial:
             self.particle_idx = self.consensus_idx
         else:
             self.particle_idx = Ellipsis
+        
             
     def default_sched(self,) -> scheduler:
         """

@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 from test_abstraction import test_abstract_dynamic
 from cbx.utils.objective_handling import cbx_objective_fh
+from cbx.utils.termination import max_it_term, energy_tol_term, max_eval_term, max_time_term
 
 class Test_cbo(test_abstract_dynamic):
     
@@ -12,29 +13,21 @@ class Test_cbo(test_abstract_dynamic):
     
     def test_term_crit_energy(self, dynamic, f):
         '''Test termination criterion on energy'''
-        dyn = dynamic(f, x=np.zeros((3,5,7)), term_args={'energy_tol':1e-6, 'max_it':10})
+        dyn = dynamic(f, x=np.zeros((3,5,7)), term_criteria=[energy_tol_term(1e-6), max_it_term(10)])
         dyn.optimize()
         assert dyn.it == 1
         
     def test_term_crit_maxtime(self, dynamic, f):
         '''Test termination criterion on max time'''
-        dyn = dynamic(f, d=5, term_args={'max_time':0.1}, dt=0.02)
+        dyn = dynamic(f, d=5, term_criteria=[max_time_term(0.1)], dt=0.02)
         dyn.optimize()
         assert dyn.t == 0.1
 
     def test_term_crit_maxeval(self, dynamic, f):
         '''Test termination criterion on max function evaluations'''
-        dyn = dynamic(f, d=5, M=4, N=3, term_args={'max_eval':6, 'max_it':10})
+        dyn = dynamic(f, d=5, M=4, N=3, term_criteria=[max_eval_term(6), max_it_term(10)])
         dyn.optimize()
         assert np.all(dyn.num_f_eval == np.array([6,6,6,6]))
-
-    def test_term_crit_on_any(self, dynamic, f):
-        '''Test termination criterion on any'''
-        x=np.zeros((2,5,7))
-        x[1,...] = 2.
-        dyn = dynamic(f, x=x, term_args={'energy_tol':1e-6, 'term_on_all':False})
-        dyn.optimize()
-        assert dyn.it == 1
 
     def test_mean_compute(self, dynamic, f):
         '''Test if mean is correctly computed'''
@@ -119,7 +112,7 @@ class Test_cbo(test_abstract_dynamic):
         def norm_torch(x, axis, **kwargs):
             return torch.linalg.norm(x, dim=axis, **kwargs)
         dyn = dynamic(g, x=x, 
-                      term_args={'max_it':2},
+                      max_it = 2,
                       norm=norm_torch,
                       copy=torch.clone,
                       normal=torch.normal,

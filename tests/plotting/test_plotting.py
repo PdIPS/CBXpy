@@ -31,7 +31,7 @@ class Test_plot_dynamic_history(test_plot_dynamic):
         return plot_dynamic_history
     
     def test_max_it(self, f, plot):
-        dyn = cbx.dynamics.CBO(f, d=2, track_args={'names':['x']}, term_args={'max_it':1})
+        dyn = cbx.dynamics.CBO(f, d=2, track_args={'names':['x']}, max_it=1)
         dyn.step()
         plotter = plot(dyn)
         assert plotter.max_it == 1
@@ -55,7 +55,7 @@ class Test_plot_dynamic_history(test_plot_dynamic):
         plotter.plot_at_ind(0)
 
     def test_run_plots(self, f, plot):
-        dyn = cbx.dynamics.CBO(f, d=2, track_args={'names':['x']}, term_args={'max_it':1})
+        dyn = cbx.dynamics.CBO(f, d=2, track_args={'names':['x']}, max_it=1)
         dyn.step()
         plotter = plot(dyn)
         plotter.run_plots()
