@@ -74,13 +74,12 @@ class Gaussian_kernel(kernel):
         -------
             ArrayLike
         """
-        
-        dists = np.linalg.norm(x-y, axis=-1)
+        dists = ((x-y)**2).sum(tuple(i for i in range(3, x.ndim)))
         with np.errstate(divide='ignore', invalid='ignore'):
-            return np.exp(-np.true_divide(1, 2*self.kappa**2) *dists**2)
+            return np.exp(-np.true_divide(1, 2*self.kappa**2) * dists)
     
     def neg_log(self, x, y):        
-        return np.true_divide(1, 2*self.kappa**2) * ((x-y)**2).sum(-1)
+        return np.true_divide(1, 2*self.kappa**2) * ((x-y)**2).sum(tuple(i for i in range(3, x.ndim)))
     
 class Laplace_kernel(kernel):
     """Laplace Kernel
@@ -144,8 +143,13 @@ class Taz_kernel(kernel):
 #%% PolarCBO
 def compute_polar_consensus(energy, x, neg_log_eval, alpha = 1., kernel_factor = 1.):
     weights = -kernel_factor * neg_log_eval - alpha * energy[:,None,:]
+    print((alpha * energy[:,None,:]).shape)
+    print(neg_log_eval.shape)
     coeffs = np.exp(weights - logsumexp(weights, axis=-1, keepdims=True))
-    c = np.sum(x[:,None,...] * coeffs[...,None], axis=-2)
+    coeff_expan = tuple([Ellipsis] + [None for i in range(x.ndim-2)])
+    print(x.shape)
+    print(coeffs[coeff_expan].shape)
+    c = np.sum(x[:,None,...] * coeffs[coeff_expan], axis=2)
     return c, energy
 
 
@@ -235,12 +239,13 @@ class PolarCBO(CBO):
         if self.kernel_factor_mode == 'const':
             return 1
         elif self.kernel_factor_mode == 'alpha':
-            return self.alpha
+            return self.alpha[self.active_runs_idx, :, None]
         else:
             raise NotImplementedError('Unknown mode: ' + self.kernel_factor_mode)
         
-    def compute_consensus(self, x):
+    def compute_consensus(self,):
+        x = self.x[self.consensus_idx]
         energy = self.eval_f(x)
-        neg_log_eval = self.kernel.neg_log(x[:,None,...],x[:,:,None,:])
-        return self._compute_consensus(energy, x, neg_log_eval, alpha = self.alpha, kernel_factor = self.kernel_factor())
+        neg_log_eval = self.kernel.neg_log(x[:,None,...], x[:,:,None,...])
+        return self._compute_consensus(energy, x, neg_log_eval, alpha = self.alpha[self.active_runs_idx, :, None], kernel_factor = self.kernel_factor())
         

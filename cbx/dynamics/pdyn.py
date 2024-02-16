@@ -13,7 +13,7 @@ from numpy.typing import ArrayLike
 import numpy as np
 from numpy.lib.stride_tricks import as_strided
 from numpy.random import Generator, MT19937
-from scipy.special import logsumexp
+from scipy.special import logsumexp as logsumexp_scp
 
         
 class post_process_default:
@@ -189,10 +189,12 @@ class ParticleDynamic:
             elif len(x.shape) == 2:
                 x = x[None, :]
         
-        self.M = x.shape[-3]
-        self.N = x.shape[-2]
-        self.d = x.shape[-1]
+        self.M = x.shape[0]
+        self.N = x.shape[1]
+        self.d = x.shape[2:]
+        self.ddims = tuple(i for i in range(2, x.ndim))
         self.x = self.copy(x)
+        
 
     def init_f(self, f, f_dim, check_f_dims):
         self.f = _promote_objective(f, f_dim)
@@ -212,7 +214,7 @@ class ParticleDynamic:
             None
         """
         if check: # check if f returns correct shape
-            x = self.normal(0.,1.,(self.M, self.N, self.d))
+            x = self.normal(0., 1., self.x.shape)
             if self.f(x).shape != (self.M,self.N):
                 raise ValueError("The given objective function does not return the correct shape!")
             self.num_f_eval += self.N * np.ones((self.M,), dtype=int) # number of function evaluations
@@ -515,9 +517,7 @@ class ParticleDynamic:
         if len(idx) > 0:
             self.best_energy[idx] = self.best_cur_energy[idx]
             self.best_particle[idx, :] = self.copy(self.best_cur_particle[idx, :])
-            
-
-            
+              
 def compute_mat_sqrt(A):
     """
     Compute the square root of a matrix.
@@ -532,14 +532,28 @@ def compute_mat_sqrt(A):
     B = np.maximum(B,0.)
     return V@(np.sqrt(B)[...,None]*V.transpose(0,2,1))
 
-def compute_consensus_default(energy, x, alpha):
-    weights = - alpha * energy
-    coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
-    problem_idx = np.where(np.abs(coeffs.sum(axis=-2)-1) > 0.1)[0]
-    if len(problem_idx) > 0:
-        raise RuntimeError('Problematic consensus computation!')
-
-    return (x * coeffs).sum(axis=-2, keepdims=True), energy
+class compute_consensus_default:
+    def __init__(self, logsumexp = None, check_coeffs = False):
+        self._logsumexp = logsumexp if logsumexp is not None else logsumexp_scp
+        if check_coeffs:
+            self.check_coeffs = self._check_coeffs
+        else:
+            self.check_coeffs = self._no_check_coeffs
+    
+    def __call__(self, energy, x, alpha):
+        weights = - alpha * energy
+        coeff_expan = tuple([Ellipsis] + [None for i in range(x.ndim-2)])
+        coeffs = np.exp(weights - self._logsumexp(weights, axis=-1, keepdims=True))[coeff_expan]
+        self.check_coeffs(coeffs)
+        return (x * coeffs).sum(axis=1, keepdims=True), energy
+    
+    def _check_coeffs(self, coeffs):
+        problem_idx = np.where(np.abs(coeffs.sum(axis=1)-1) > 0.1)[0]
+        if len(problem_idx) > 0:
+            raise RuntimeError('Problematic consensus computation!')
+    
+    def _no_check_coeffs(self, coeffs):
+        pass
     
     
 class CBXDynamic(ParticleDynamic):
@@ -591,7 +605,7 @@ class CBXDynamic(ParticleDynamic):
         # cbx parameters
         self.dt = dt
         self.t = 0.
-        self.alpha = alpha # np.ones((self.M,1,)) * alpha if isinstance(alpha,float) else alpha
+        self.init_alpha(alpha)
         self.sigma = sigma
         self.lamda = lamda
         
@@ -602,7 +616,7 @@ class CBXDynamic(ParticleDynamic):
         self.init_batch_idx(batch_args)
         
         self.consensus = None #consensus point
-        self._compute_consensus = compute_consensus if compute_consensus is not None else compute_consensus_default
+        self._compute_consensus = compute_consensus if compute_consensus is not None else compute_consensus_default()
         
     known_tracks = {
         'consensus': track_consensus,
@@ -610,6 +624,24 @@ class CBXDynamic(ParticleDynamic):
         'drift': track_drift,
         **ParticleDynamic.known_tracks,}
     
+    def init_alpha(self, alpha):
+        '''
+        Initialize alpha per batch. If alpha is a float it is broadcasted to an array similar to x with dimensions (x.shape[0], 1). 
+        Otherwise, it is set to the given parameter.
+        
+        Parameters:
+            alpha:
+                The initial value of alpha
+        Returns:
+            None
+        '''
+        if isinstance(alpha, (int, float)):
+            Mslice = tuple([Ellipsis] + [0 for i in range(self.x.ndim-1)])
+            self.alpha = self.copy(self.x[Mslice])[:, None]
+            self.alpha[:,0] = alpha
+        else:
+            self.alpha = alpha
+            
     def get_reshaped_run_idx(self,):
         return as_strided(self.active_runs_idx, shape=(self.num_active_runs, self.batch_size), strides=(self.active_runs_idx.strides[0],0))
         
@@ -659,6 +691,9 @@ class CBXDynamic(ParticleDynamic):
             self.batch_rng = Generator(MT19937(batch_seed))#np.random.default_rng(batch_seed)
             self.indices = self.batch_rng.permuted(ind, axis=1)
             self.set_batch_idx = self.set_batch_idx_batched
+            
+        self.consensus_idx = Ellipsis
+        self.particle_idx  = Ellipsis
             
                 
     def set_batch_idx_unbatched(self,):
@@ -867,7 +902,7 @@ class CBXDynamic(ParticleDynamic):
         if self.verbosity > 1:
             print('Current alpha: ' + str(self.alpha))
             
-    def compute_consensus(self, x) -> None:
+    def compute_consensus(self,) -> None:
         r"""Updates the weighted mean of the particles.
 
         Parameters
@@ -881,8 +916,8 @@ class CBXDynamic(ParticleDynamic):
         """
         # evaluation of objective function on batch
         
-        energy = self.eval_f(x) # update energy
-        return self._compute_consensus(energy, x, self.alpha)
+        energy = self.eval_f(self.x[self.consensus_idx]) # update energy
+        return self._compute_consensus(energy, self.x[self.consensus_idx], self.alpha[self.active_runs_idx, :])
         
         
     

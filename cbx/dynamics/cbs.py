@@ -14,6 +14,8 @@ class CBS(CBXDynamic):
         
         if self.batched:
             raise NotImplementedError('Batched mode not implemented for CBS!')
+        if self.x.ndim > 3:
+            raise NotImplementedError('Multi dimensional domains not implemented for CBS! The particle should have the dimension M x N x d, where d is an integer!')
             
         self.exp_dt = np.exp(-self.dt)
         if mode == 'sampling':
@@ -28,7 +30,7 @@ class CBS(CBXDynamic):
         
         
     def inner_step(self,):
-        self.consensus, energy = self.compute_consensus(self.x)
+        self.consensus, energy = self.compute_consensus()
         self.energy = energy
         self.drift = self.x - self.consensus
         self.update_covariance()

@@ -113,7 +113,8 @@ class CBOMemory(CBXDynamic):
         self.num_f_eval += np.ones(self.M, dtype=int) * self.x[ind].shape[-2] # update number of function evaluations   
         
         # historical best positions of particles
-        self.y[ind] = self.y[ind] + ((self.energy>energy_new)[:, :, None]) * (self.x[ind] - self.y[ind])
+        energy_expand = tuple([Ellipsis] + [None for _ in range(self.x.ndim-2)]) 
+        self.y[ind] = self.y[ind] + ((self.energy>energy_new)[energy_expand]) * (self.x[ind] - self.y[ind])
         self.energy = np.minimum(self.energy, energy_new)
 
         
@@ -129,9 +130,8 @@ class CBOMemory(CBXDynamic):
         None
 
         """
-        weights = - self.alpha * energy
-        coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
-        return (x_batch * coeffs).sum(axis=-2, keepdims=True)
+        c, _ = self._compute_consensus(energy, self.x[self.consensus_idx], self.alpha[self.active_runs_idx, :])
+        return c
     
     def update_best_cur_particle(self,) -> None:
         self.f_min = self.energy.min(axis=-1)

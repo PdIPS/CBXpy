@@ -29,5 +29,5 @@ def test_effective_number_scheduler():
     sched = scheduler([effective_number(name='alpha', maximum=20.0, factor=1.5)])
     
     dyn.optimize(sched=sched)
-    assert dyn.alpha == 1.5
+    assert np.allclose(dyn.alpha, 1.5 * np.ones((dyn.M,1)))
 

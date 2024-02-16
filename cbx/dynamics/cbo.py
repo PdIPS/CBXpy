@@ -49,9 +49,10 @@ class CBO(CBXDynamic):
         
         """
         # update, consensus point, drift and energy
-        self.consensus, energy = self.compute_consensus(self.x[self.consensus_idx])        
-        self.drift = self.x[self.particle_idx] - self.consensus
+        self.consensus, energy = self.compute_consensus()
         self.energy[self.consensus_idx] = energy
+        self.drift = self.x[self.particle_idx] - self.consensus
+
         
         # compute noise
         self.s = self.sigma * self.noise()

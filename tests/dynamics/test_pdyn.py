@@ -120,7 +120,7 @@ class Test_cbx(test_abstract_dynamic):
         d=4
         N=12
         dyn = dynamic(f, M=M, d=d, N=N)
-        dyn.consensus, energy = dyn.compute_consensus(dyn.x)
+        dyn.consensus, energy = dyn.compute_consensus()
         dyn.energy = energy
         dyn.drift = dyn.x - dyn.consensus
         dyn.update_covariance()
@@ -131,7 +131,7 @@ class Test_cbx(test_abstract_dynamic):
             denom = 0.
             for n in range(N):
                 drift = dyn.x[m,n,:] - dyn.consensus[m, 0, :]
-                factor = np.exp(-dyn.alpha * f(dyn.x[m,n,:]))
+                factor = np.exp(-dyn.alpha[m] * f(dyn.x[m,n,:]))
                 denom += factor
                 C[n,...] = np.outer(drift,drift) * factor
         

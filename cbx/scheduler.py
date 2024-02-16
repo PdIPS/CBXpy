@@ -163,11 +163,11 @@ class effective_number(param_update):
         term1 = logsumexp(-val * energy, axis=-1)
         term2 = logsumexp(-2 * val * energy, axis=-1)
         self.J_eff = np.exp(2*term1 - term2)
-        #val *= 1/self.factor
-        #val[np.where(self.J_eff >= self.eta * dyn.N),...] *= self.factor**2
-        if self.J_eff.mean() >= self.eta * dyn.N:
-            val*=self.factor
-        else:
-            val*=1/self.factor
+        val *= 1/self.factor
+        val[np.where(self.J_eff >= self.eta * dyn.N),...] *= self.factor**2
+        # if self.J_eff.mean() >= self.eta * dyn.N:
+        #     val*=self.factor
+        # else:
+        #     val*=1/self.factor
         setattr(dyn, self.name, val)
         self.ensure_max(dyn)

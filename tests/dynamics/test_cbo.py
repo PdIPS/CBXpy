@@ -40,8 +40,8 @@ class Test_cbo(test_abstract_dynamic):
             loc_mean = 0
             loc_denom = 0
             for i in range(x.shape[1]):
-                loc_mean += np.exp(-dyn.alpha * f(x[j,i,:])) * x[j,i,:]
-                loc_denom += np.exp(-dyn.alpha * f(x[j,i,:]))
+                loc_mean += np.exp(-dyn.alpha[j] * f(x[j,i,:])) * x[j,i,:]
+                loc_denom += np.exp(-dyn.alpha[j] * f(x[j,i,:]))
             mean[j,...] = loc_mean / loc_denom
 
         assert np.allclose(dyn.consensus, mean)
@@ -58,8 +58,8 @@ class Test_cbo(test_abstract_dynamic):
             loc_mean = 0
             loc_denom = 0
             for i in range(ind.shape[1]):
-                loc_mean += np.exp(-dyn.alpha * f(x[j,ind[j, i],:])) * x[j,ind[j, i],:]
-                loc_denom += np.exp(-dyn.alpha * f(x[j,ind[j, i],:]))
+                loc_mean += np.exp(-dyn.alpha[j] * f(x[j,ind[j, i],:])) * x[j,ind[j, i],:]
+                loc_denom += np.exp(-dyn.alpha[j] * f(x[j,ind[j, i],:]))
             mean[j,...] = loc_mean / loc_denom
 
         assert np.allclose(dyn.consensus, mean)
