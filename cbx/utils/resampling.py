@@ -2,7 +2,7 @@ import numpy as np
 from typing import Callable, List
 
 def apply_resampling_default(dyn, idx):
-    z = dyn.normal(0, 1., size=(len(idx), dyn.N, dyn.d))
+    z = dyn.normal(0, 1., size=(len(idx), dyn.N, *dyn.d))
     dyn.x[idx, ...] += dyn.sigma * np.sqrt(dyn.dt) * z
 
 class resampling:

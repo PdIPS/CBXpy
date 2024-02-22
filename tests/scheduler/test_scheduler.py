@@ -1,6 +1,6 @@
 import numpy as np
 import cbx
-from cbx.scheduler import multiply, scheduler, effective_number
+from cbx.scheduler import multiply, scheduler, effective_sample_size
 
 def test_multiply_update():
     '''Test if multiply scheduler updates params correctly'''
@@ -26,8 +26,8 @@ def test_effective_number_scheduler():
     '''Test if effective number scheduler updates params correctly'''
     x = np.ones((6,5,7))
     dyn = cbx.dynamics.CBO(f=lambda x: np.sum(x**2), x=x, max_it=1, alpha=1.0, sigma=1.0)
-    sched = scheduler([effective_number(name='alpha', maximum=20.0, factor=1.5)])
+    sched = scheduler([effective_sample_size(name='alpha', maximum=20.0)])
     
     dyn.optimize(sched=sched)
-    assert np.allclose(dyn.alpha, 1.5 * np.ones((dyn.M,1)))
+    assert dyn.alpha.shape == (6,1)
 

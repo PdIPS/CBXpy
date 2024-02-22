@@ -29,5 +29,5 @@ class Test_CBS(test_abstract_dynamic):
         def g(x):
             return np.sum(x, axis=(2,3,4))**2
         
-        with pytest.raises(Exception):
-            dyn = dynamic(g, x=x, f_dim ='3D')
+        with pytest.raises(NotImplementedError):
+            dynamic(g, x=x, f_dim ='3D')

@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Union
-from scipy.special import logsumexp
+#from scipy.special import logsumexp
 
 from .pdyn import CBXDynamic
 

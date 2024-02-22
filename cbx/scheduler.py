@@ -24,9 +24,11 @@ class param_update():
     """
     def __init__(self, 
                  name: str ='alpha', 
-                 maximum: float = 1e5):
+                 maximum: float = 1e5,
+                 minimum: float = 1e-5):
         self.name = name
         self.maximum = maximum
+        self.minimum = minimum
 
     def update(self, dyn) -> None:
         """
@@ -103,7 +105,7 @@ class multiply(param_update):
     
 
 # class for alpha_eff scheduler
-class effective_number(param_update):
+class effective_sample_size(param_update):
     r"""effective_number scheduler class
     
     This class implements a scheduler for the :math:`\alpha`-parameter based on the effective number of particles.
@@ -142,32 +144,68 @@ class effective_number(param_update):
 
 
     """
-    def __init__(self, name = 'alpha', eta=1.0, maximum=1e5, factor=1.05,reeval=False):
-        super(effective_number, self).__init__(name = name, maximum=maximum)
+    def __init__(self, name = 'alpha', eta=1.0, maximum=1e5, solve_max_it = 15):
+        super().__init__(name = name, maximum=maximum)
         if self.name != 'alpha':
             warnings.warn('effective_number scheduler only works for alpha parameter! You specified name = {}!'.format(self.name), stacklevel=2)
         self.eta = eta
         self.J_eff = 1.0
-        self.factor=factor
-        self.reeval=reeval
-    
+        self.solve_max_it = solve_max_it
+        
     def update(self, dyn):
         val = getattr(dyn, self.name)
-        
-        if self.reeval:
-            energy = dyn.f(dyn.x)
-            dyn.num_f_eval += np.ones(dyn.M, dtype=int) * dyn.x.shape[-1]
-        else:
-            energy = dyn.energy
-
-        term1 = logsumexp(-val * energy, axis=-1)
-        term2 = logsumexp(-2 * val * energy, axis=-1)
-        self.J_eff = np.exp(2*term1 - term2)
-        val *= 1/self.factor
-        val[np.where(self.J_eff >= self.eta * dyn.N),...] *= self.factor**2
-        # if self.J_eff.mean() >= self.eta * dyn.N:
-        #     val*=self.factor
-        # else:
-        #     val*=1/self.factor
-        setattr(dyn, self.name, val)
+        val = bisection_solve(
+            eff_sample_size_gap(dyn.energy, self.eta), 
+            self.minimum * np.ones((dyn.M,)), self.maximum * np.ones((dyn.M,)), 
+            max_it = self.solve_max_it, thresh=1e-2
+        )
+        setattr(dyn, self.name, val[:, None])
         self.ensure_max(dyn)
+        
+        
+class eff_sample_size_gap:
+    def __init__(self, energy, eta):
+        self.eta = eta
+        self.energy = energy
+        self.N = energy.shape[-1]
+    
+    def __call__(self, alpha):
+        nom   = logsumexp(-alpha[:, None] * self.energy, axis=-1)
+        denom = logsumexp(-2 * alpha[:, None] * self.energy, axis=-1)
+        return np.exp(2 * nom - denom) - self.eta * self.N
+        
+def bisection_solve(f, low, high, max_it = 15, thresh = 1e-2):
+    r"""simple bisection optimization to solve for roots
+    
+    Parameters
+    ----------
+    f : Callable
+        A non-increasing function of which we want to find roots, it expects inputs of the shape (M,) where M denotes
+        the number of different runs
+    low: Array
+        The low initial value for the bisection, should be an array of size (M,)
+    high: Array
+        The high initial value for the bisection, should be an array of size (M,)
+    
+    
+    Returns
+    -------
+    roots of the function f
+    """
+    it = 0
+    x = high
+    term = False
+    idx = np.arange(len(low))
+    while not term:
+        x = (low + high)/2
+        fx = f(x)
+        gtzero = np.where(fx[idx] > 0)[0]
+        ltzero  = np.where(fx[idx] < 0)[0]
+        # update low and high
+        high[idx[gtzero]] = x[idx[gtzero]]
+        low[idx[ltzero]]  = x[idx[ltzero]]
+        # update running idx and iteration
+        idx = np.where(np.abs(fx) > thresh)[0]
+        it += 1
+        term = (it > max_it) | (len(idx) == 0)
+    return x
