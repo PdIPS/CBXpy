@@ -108,33 +108,24 @@ class multiply(param_update):
 
 # class for alpha_eff scheduler
 class effective_sample_size(param_update):
-    r"""effective_number scheduler class
+    r"""effective sample size scheduler class
     
-    This class implements a scheduler for the :math:`\alpha`-parameter based on the effective number of particles.
+    This class implements a scheduler for the :math:`\alpha`-parameter based on the effective sample size as inroduced 
+    in [1]_. In every step we try to find :math:`\alpha` such that
     The :math:`\alpha`-parameter is updated according to the rule
     
     .. math::
         
-        \alpha_{k+1} = \begin{cases}
-        \alpha_k \cdot r & \text{if } J_{eff} \geq \eta \cdot J \\ 
-        \alpha_k / r & \text{otherwise}
-        \end{cases} 
+        J_{eff}(\alpha) = \frac{\left(\sum_{i=1}^N w_i(\alpha)\right)^2}{\sum_{i=1}^N w_i(\alpha)^2} = \eta N
         
-    where :math:`r`, :math:`\eta` are parameters and :math:`J` is the number of particles. The effictive number of
-    particles is defined as
-
-    .. math::
-
-        J_{eff} = \frac{1}{\sum_{i=1}^J w_i^2}
-    
-    where :math:`w_i` are the weights of the particles. This was, e.g., employed in [1]_.
+    where :math:`\eta` is a parameter, :math:`N` is the number of particles and :math:`w_i := \exp(-\alpha f(x_i))`. The above equation is solved via bisection.
 
 
     
     Parameters
     ----------
     eta : float, optional
-        The parameter :math:`\eta` of the scheduler. The default is 1.0.
+        The parameter :math:`\eta` of the scheduler. The default is 0.5.
     alpha_max : float, optional
         The maximum value of the :math:`\alpha`-parameter. The default is 100000.0.
     factor : float, optional
@@ -166,6 +157,18 @@ class effective_sample_size(param_update):
         
         
 class eff_sample_size_gap:
+    r"""effective sample size gap
+    
+    This class is used for the effective sample size scheduler. Its call is defined as
+    
+    .. math::
+        
+        \alpha \mapsto J_{eff}(\alpha) - \eta N.
+        
+    Therefore, the root of this non-increasing function solve the effective sampling size equation for :math:`\alpha`.
+    """
+    
+    
     def __init__(self, energy, eta):
         self.eta = eta
         self.energy = energy
