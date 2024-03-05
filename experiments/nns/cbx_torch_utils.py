@@ -1,13 +1,16 @@
 from collections import OrderedDict
 import torch
+from torch import logsumexp
 from torch.func import functional_call, stack_module_state, vmap
+from cbx.scheduler import bisection_solve, eff_sample_size_gap
+import numpy as np
 
 def norm_torch(x, axis, **kwargs):
     return torch.linalg.norm(x, dim=axis, **kwargs)  
 
 def compute_consensus_torch(energy, x, alpha):
     weights = - alpha * energy
-    coeffs = torch.exp(weights - torch.logsumexp(weights, dim=(-1,), keepdims=True))[...,None]
+    coeffs = torch.exp(weights - logsumexp(weights, dim=(-1,), keepdims=True))[...,None]
     return (x * coeffs).sum(axis=-2, keepdims=True), energy.cpu().numpy()
 
 def compute_polar_consensus_torch(energy, x, neg_log_eval, alpha = 1., kernel_factor = 1.):
@@ -60,3 +63,23 @@ def get_param_properties(models, pnames=None):
             a = pprop[next(reversed(pprop))][-1]
         pprop[p] = (params[p][0,...].shape, a, a + params[p][0,...].numel())
     return pprop
+
+
+class effective_sample_size:
+    def __init__(self, name = 'alpha', eta=.5, maximum=1e5, minimum=1e-5, solve_max_it = 15):
+        self.name = name
+        self.eta = eta
+        self.J_eff = 1.0
+        self.solve_max_it = solve_max_it
+        self.maximum = maximum
+        self.minimum = minimum
+        
+    def update(self, dyn):
+        val = getattr(dyn, self.name)
+        device = val.device
+        val = bisection_solve(
+            eff_sample_size_gap(dyn.energy, self.eta), 
+            self.minimum * np.ones((dyn.M,)), self.maximum * np.ones((dyn.M,)), 
+            max_it = self.solve_max_it, thresh=1e-2
+        )
+        setattr(dyn, self.name, torch.tensor(val[:, None], device=device))
