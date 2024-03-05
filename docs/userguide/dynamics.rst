@@ -6,10 +6,10 @@ One of the core components in the CBX package are dynamics which are used to rep
 Optimization with dynamics
 --------------------------
 
-In the simplest case, where you choose a certain dynamic and just want to optimize a function you can use the function :func:`optimize <cbx.dynamics.CBXDynamic.optimize>`:
+In the simplest case, where you choose a certain dynamic and just want to optimize a function you can use :func:`optimize <cbx.dynamics.CBXDynamic.optimize>`:
 
-    >>> from cbx.dynamics import CBXDynamic
-    >>> dyn = CBXDynamic(lambda x:x**2, d=1)
+    >>> from cbx.dynamics import CBO
+    >>> dyn = CBO(lambda x:x**2, d=1)
     >>> dyn.optimize()
 
 This will run the optimization until a certain termination criterion is met. In some cases you might want to control parameters, via a scheduler, therefore the function takes the keyword argument ``sched``, see also :ref:`sched`.
@@ -25,14 +25,14 @@ Each dynamic, implements a ``step`` method that describes the update in each ite
 Modelling the ensemble
 ----------------------
 
-All particle based methods work with an ensemble of points :math:`x = (x^1, \ldots, x^N)\in \mathcal{X}^N`. Here, we choose to model the ensemble as an array, e.g., we assume that :math:`\mathcal{X} = \mathbb{R}^d` and therefore, we can represent as an :math:`N\times d` array. In most cases we assume that the array is given as a ``numpy`` array. However, often it straightforward to instead use ``torch`` tensors. See also :ref:`npvstorch`.
+All particle based methods work with an ensemble of points :math:`x = (x^1, \ldots, x^N)\in \mathcal{X}^N`. Here, we choose to model the ensemble as an array, e.g., we assume that :math:`\mathcal{X} = \mathbb{R}^{d_1\times \ldots \times d_s}` and therefore, we can represent it as an :math:`N\times d_1\times \ldots \times d_s` array. In most cases we assume that the array is given as a ``numpy`` array. However, in many cases one can simply adapt the functionality to also use other array-like structures. This also allows for execution on the GPU, using e.g. ``torch``, see also :ref:`_torchwithcbx`.
 
-In many cases one wants to perform more than one run of a certain particle based scheme. In this case, a straightforward approach is to create :math:`M\in \mathbb{N}` instances of a dynamic and run them. This could also be parallelized on the external level. However, in many cases, e.g., if all parameters stay fixed across runs, it can be efficient to directly represent the different runs on the array level. We therefore model an ensemble as an
+In many cases one wants to perform more than one run of a certain particle based scheme. In this case, a straightforward approach is to create :math:`M\in \mathbb{N}` instances of a dynamic and run them. This could also be parallelized on the external level. However, in many cases, e.g., if all parameters stay fixed across runs, it can be efficient to directly represent the different runs on the array level. We therefore model the ensemble as an
 
 .. math::
-    M\times N\times d
+    M\times N\times d_1\times \ldots \times d_s
 
-array, which allows us to employ parallelization on the array level. The value of :math:`M` defaults to 1, however it is important to always keep in mind that an ensemble has three dimensions. In the following we will use the term *sub-run* to refer to a separate run within the above interpretation, or just *run* if the context is clear.
+array, which allows us to employ parallelization on the array level. The value of :math:`M` defaults to 1, however it is important to always keep in mind that an ensemble has always :math:`2+s` different dimensions, where :math:`s` is given by the optimization space :math:`\mathcal{X} = \mathbb{R}^{d_1\times \ldots \times d_s}`. In the following we use the abbreviation :math:`d = (d_1,\ldots, d_s)`.
 
 .. note::
     One might ask what the difference between a dynamic with the array structure ``(M,N,d)`` and a dynamic with the structure ``(1,M*N,d)`` is. The difference becomes visible, whenever particles interact across their ensemble. E.g., in the first case, when the consensus is computed, we compute it separately for each :math:`m\in\{1,\ldots,M\}` sub-runs,
@@ -223,25 +223,6 @@ Internally this sets the method :func:`noise <cbx.dynamics.CBXDynamic.noise>` of
     >>> dyn = MyCBO(lambda x:x, d=1)
     >>> dyn.noise(dyn.x)
     This is my custom noise
-
-.. note::
-    The noise method does not take any arguments (other than ``self``). All information about the dynamic (e.g. the drift) is taken from the dynamic class.
-
-If you would rather define a class such that users can specify your custom noise as keyword argument you need to edit the attribute ``noise_dict`` as follows:
-
-    >>> from cbx.dynamics import CBXDynamic
-    >>> class MyCBO(CBXDynamic):
-    >>>     def custom_noise(self,):
-    >>>         print('This is my custom noise')
-    >>>         return np.zeros_like(x)
-    >>>     noise_dict = {**CBXDynamic.noise_dict, 'custom': 'custom_noise'}
-    >>> dyn = MyCBO(lambda x:x, d=1, noise='custom')
-    >>> dyn.noise(dyn.x)
-    This is my custom noise
-
-
-.. note::
-    It is technically possible to define a callable ``custom_noise`` and pass it as an argument by calling ``CBXDynamic(..., noise=custom_noise)``. However, this is not recommended, since this callable is not bound to the instance.
 
 
 Correction steps

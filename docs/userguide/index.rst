@@ -1,7 +1,7 @@
 User Guide
 ==========
 
-CBX implements consensus based particle schemes. Below, we list the pages that explain the functionality:
+CBX implements consensus based particle schemes. Below, we list the pages that explain the main functionality and modules.
 
 .. toctree::
    :maxdepth: 1
