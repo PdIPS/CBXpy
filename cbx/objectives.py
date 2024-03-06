@@ -309,7 +309,7 @@ class Rastrigin(cbx_objective):
 
     .. math::
 
-        \tilde{f}(x,y)  = \frac{1}{n} \sum_{i=1}^n (x_i - b)^2 - 10 \cos(2 \pi (x_i - b)) + 10 + c.
+        \tilde{f}(x,y)  = \frac{1}{n} \sum_{i=1}^n \left[ (x_i - b)^2 - 10 \cos(2 \pi (x_i - b)) + 10 \right] + c.
 
     Parameters
     ----------
@@ -432,7 +432,7 @@ class Ackley(cbx_objective):
     
     .. math::
 
-        f(x,y) = -20 \exp \left( -b \sqrt{\frac{1}{2} (x^2 + y^2)} \right) - \exp \left( \frac{1}{2} \cos(c x) + \cos(c y) \right) + a + e
+        f(x,y) = -20 \exp \left( -b \sqrt{\frac{1}{2} (x^2 + y^2)} \right) - \exp \left( \frac{1}{2} (\cos(c x) + \cos(c y)) \right) + a + e
 
     See `Ackley's function <https://en.wikipedia.org/wiki/Ackley_function>`_.
 
