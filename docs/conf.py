@@ -100,6 +100,8 @@ nbsphinx_thumbnails = {
     'examples/nns/mnist': '_static/cbx-logo.png',
     'examples/simple_example': '_static/cbx-logo.png',
     'examples/custom_noise': '_static/cbx-logo.png',
+    'examples/low_level': '_static/cbx-logo.png',
+    'examples/sampling': '_static/cbx-logo.png',
 }
 
 def setup(app):
