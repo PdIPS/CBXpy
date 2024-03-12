@@ -7,6 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
+      - uses: docker://pandoc/core:2.9
       - name: Install dependencies
         run: |
           pip install sphinx sphinx_rtd_theme
@@ -14,7 +15,6 @@ jobs:
           pip install nbsphinx
           pip install pydata-sphinx-theme
           pip install -r requirements.txt
-          conda install pandoc
       - name: Sphinx build
         run: |
           sphinx-build docs _build
