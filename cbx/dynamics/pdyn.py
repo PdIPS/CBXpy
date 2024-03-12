@@ -1,17 +1,39 @@
-import warnings
 #%%
+from ..noise import get_noise
+from ..correction import get_correction
 from ..scheduler import scheduler, multiply
+from ..utils.termination import max_it_term
+from ..utils.history import track_x, track_energy, track_update_norm, track_consensus, track_drift, track_drift_mean
 from ..utils.particle_init import init_particles
-from ..utils.numpy_torch_comp import copy_particles
-from ..utils.objective_handling import _promote_objective, cbx_objective
+from cbx.utils.objective_handling import _promote_objective
 
 #%%
-from typing import Callable, Union, Any
+from typing import Callable, Union, List
 from numpy.typing import ArrayLike
 import numpy as np
+from numpy.lib.stride_tricks import as_strided
 from numpy.random import Generator, MT19937
-from scipy.special import logsumexp
+from scipy.special import logsumexp as logsumexp_scp
 
+        
+class post_process_default:
+    """
+    Default post processing.
+
+    This function performs some operations on the particles, after the inner step. 
+
+    Parameters:
+        None
+
+    Return:
+        None
+    """
+    def __init__(self, max_thresh: float = 1e8):
+        self.max_thresh = max_thresh
+    
+    def __call__(self, dyn):
+        np.nan_to_num(dyn.x, copy=False, nan=self.max_thresh)
+        dyn.x = np.clip(dyn.x, -self.max_thresh, self.max_thresh)
 
 class ParticleDynamic:
     r"""The base particle dynamic class
@@ -36,6 +58,7 @@ class ParticleDynamic:
 
     * :math:`d` is the dimension of the system.
 
+    
     This means that :math:`x_{m,n}\in\mathbb{R}^{d}` denotes the position of the :math:`n`-th particle of the :math:`m`-th run.
 
     Promoting the objective function :math:`f` to the :class:`cbx_objective` instance :math:`\tilde{f}` allows for the evaluation on 
@@ -70,29 +93,28 @@ class ParticleDynamic:
         The number of particles in each run. The default is 20.
     d : int or None, optional
         The dimension of the system. The default is None.
-    energy_tol : float, optional
-        The energy tolerance. The default is None.
-    diff_tol : float, optional
-        The difference tolerance. The default is None.
-    max_eval : int, optional
-        The maximum number of evaluations. The default is None.
-    max_it : int, optional
-        The maximum number of iterations. The default is 1000.
-    max_x_thresh : float, optional
-        The maximum value of the absolute value of the position. The default is 1e5.
-    term_on_all : bool, optional
-        If ``True``, the iteration terminates only when all runs meet a termination criterion. If ``False``, 
-        the iteration terminates when any run meets a termination criterion. The default is ``True``.
-    array_mode : str, optional
-        The mode of the array. The default is 'numpy'.
-    track_list : list, optional
-        The list of objects that are tracked. The default is None.
-        Possible objects to track are the following:
-        * 'x': The positions of the particles.
-        * 'update_norm': The norm of the particle update.
-        * 'energy': The energy of the system.
-    save_int : int, optional
-        The frequency of the saving of the data. The default is 1.
+    term_criteria : list[Callable], optional
+        A list of callables that determine the termination of the optimization. Each callable in the list should accept a single argument (the dynamic object) 
+        and return a numpy array of size (M,), where term(dyn)[i] specifies, whether the optimization should be terminated for the i-th run.
+    track_args : dict
+        The arguments for the tracking certain objects in the history. The following keys are possible:
+        
+        * 'names' : list
+            The names of the objects that should be tracked.
+        * 'save_int' : int
+            The frequency of the saving of the data. The default is 1.
+        * 'extra_tracks' : list
+            A list of extra tracks that should be performed. Each object in this list must have init_history and an update method.
+
+    post_process : Callable
+        A callbale acting on the dynamic that should be performed after each optimization step.
+    copy : Callable
+        A callable that copies an array. The default is ``np.copy``.
+    norm : Callable
+        A callable that computes the norm of an array. The default is ``np.linalg.norm``.
+    normal : Callable
+        A callable that generates an array of random numbers that are distributed according to a normal distribution. The default is ``np.random.normal``.
+
     verbosity : int, optional
         The verbosity level. The default is 1.
     
@@ -106,18 +128,59 @@ class ParticleDynamic:
             x: Union[None, np.ndarray] = None,
             x_min: float = -1., x_max: float = 1.,
             M: int = 1, N: int = 20, d: int = None,
-            energy_tol: Union[float, None] = None, 
-            diff_tol: Union[float, None] = None,
-            max_eval: Union[int, None] = None,
-            max_it: Union[int, None] = 1000,
-            max_x_thresh: Union[float, None] = 1e5,
-            term_on_all: bool = True,
-            array_mode: str = 'numpy',
-            track_list: list = None,
-            save_int: int = 1,
-            verbosity: int = 1) -> None:
+            max_it: int = 1000,
+            term_criteria: List[Callable] = None,
+            track_args: list = None,
+            verbosity: int = 1,
+            copy: Callable = None,
+            norm: Callable = None,
+            normal: Callable = None,
+            post_process: Callable = None,
+            ) -> None:
         
-        # init particles        
+        self.verbosity = verbosity
+        
+        # set utilities
+        self.copy = copy if copy is not None else np.copy 
+        self.norm = norm if norm is not None else np.linalg.norm
+        self.normal = normal if normal is not None else np.random.normal
+        
+        # init particles    
+        self.init_x(x, M, N, d, x_min, x_max)
+        
+        # set and promote objective function
+        self.init_f(f, f_dim, check_f_dims)
+
+        self.energy = float('inf') * np.ones((self.M,self.N)) # energy of the particles
+        self.best_energy = float('inf') * np.ones(self.M,)
+        self.best_particle = self.copy(self.x[:, 0, :])
+        self.update_diff = float('inf') * np.ones((self.M,))
+
+
+        # termination parameters and checks
+        self.init_term(term_criteria, max_it)
+        self.it = 0
+        self.init_history(track_args)
+        
+        # post processing
+        self.post_process = post_process if post_process is not None else post_process_default
+
+    def init_x(self, x, M, N, d, x_min, x_max):
+        """
+        Initialize the particle system with the given parameters.
+
+        Parameters:
+            x: the initial particle system. If x is None, the dimension d must be specified and the particle system is initialized randomly. 
+               If x is specified, it is broadcasted to the correct shape (M,N,d).
+            M: the number of particles in the first dimension
+            N: the number of particles in the second dimension
+            d: the dimension of the particle system
+            x_min: the minimum value for x
+            x_max: the maximum value for x
+
+        Returns:
+            None
+        """
         if x is None:
             if d is None:
                 raise RuntimeError('If the inital partical system is not given, the dimension d must be specified!')
@@ -130,52 +193,21 @@ class ParticleDynamic:
                 x = x[None, None, :]
             elif len(x.shape) == 2:
                 x = x[None, :]
+        
+        self.M = x.shape[0]
+        self.N = x.shape[1]
+        self.d = x.shape[2:]
+        self.ddims = tuple(i for i in range(2, x.ndim))
+        self.x = self.copy(x)
+        
 
-        self.M = x.shape[-3]
-        self.N = x.shape[-2]
-        self.d = x.shape[-1]
-
-        # torch compatibility for copying particles
-        self.array_mode = array_mode
-        self.x = self.copy_particles(x)
-        
-        # set and promote objective function
-        if not isinstance(f, cbx_objective):
-            if f_dim != '3D' and array_mode == 'pytorch':
-                raise RuntimeError('Pytorch array_mode only supported for 3D objective functions.')
-            self.f = _promote_objective(f, f_dim)
-        else:
-            self.f = f
-        
-        
+    def init_f(self, f, f_dim, check_f_dims):
+        self.f = _promote_objective(f, f_dim)
+                
         self.num_f_eval = 0 * np.ones((self.M,), dtype=int) # number of function evaluations  
         self.f_min = float('inf') * np.ones((self.M,)) # minimum function value
         self.check_f_dims(check=check_f_dims) # check the dimension of the objective function
 
-        self.energy = float('inf') * np.ones((self.M, self.N)) # energy of the particles
-        self.best_energy = float('inf') * np.ones((self.M,))
-        self.best_particle = np.zeros((self.M,self.d))
-        self.update_diff = float('inf') * np.ones((self.M,))
-
-
-        # termination parameters and checks
-        self.energy_tol = energy_tol
-        self.diff_tol = diff_tol
-        self.max_eval = max_eval
-        self.max_it = max_it
-        self.max_x_thresh = max_x_thresh
-        self.term_on_all = term_on_all
-    
-        self.checks = []
-        self.init_checks()
-        self.it = 0
-            
-        self.track_list = track_list if track_list is not None else ['update_norm', 'energy']
-        self.save_int = save_int
-        self.init_history()
-        
-        self.verbosity = verbosity 
-    
     def check_f_dims(self, check=True) -> None:
         """
         Check the dimensions of the objective function output.
@@ -186,8 +218,8 @@ class ParticleDynamic:
         Returns:
             None
         """
-        if check and (self.array_mode != 'torch'): # check if f returns correct shape
-            x = np.random.uniform(-1,1,(self.M, self.N, self.d))
+        if check: # check if f returns correct shape
+            x = self.normal(0., 1., self.x.shape)
             if self.f(x).shape != (self.M,self.N):
                 raise ValueError("The given objective function does not return the correct shape!")
             self.num_f_eval += self.N * np.ones((self.M,), dtype=int) # number of function evaluations
@@ -204,7 +236,7 @@ class ParticleDynamic:
             None
         """
         # save old positions
-        self.x_old = self.copy_particles(self.x)
+        self.x_old = self.copy(self.x)
         
     def inner_step(self,):
         """
@@ -242,29 +274,13 @@ class ParticleDynamic:
             None
         """
         if hasattr(self, 'x_old'):
-            self.update_diff = np.linalg.norm(self.x - self.x_old, axis=(-2,-1))/self.N
+            self.update_diff = self.norm(self.x - self.x_old, axis=(-2,-1))/self.N
         
         self.update_best_cur_particle()
         self.update_best_particle()
         self.track()
-        self.process_particles()
-            
+        self.post_process(self)
         self.it+=1
-        
-    def process_particles(self,):
-        """
-        Process the particles.
-
-        This function performs some operations on the particles, after the inner step. 
-
-        Parameters:
-            None
-
-        Return:
-            None
-        """
-        np.nan_to_num(self.x, copy=False, nan=self.max_x_thresh)
-        self.x = np.clip(self.x, -self.max_x_thresh, self.max_x_thresh)
         
     def step(self,) -> None:
         """
@@ -325,8 +341,7 @@ class ParticleDynamic:
         elif sched == 'default':
             sched = self.default_sched()
         else:
-            if not isinstance(sched, scheduler):
-                raise RuntimeError('Unknonw scheduler specified!')
+            self.sched = sched
 
         while not self.terminate():
             self.step()
@@ -366,21 +381,6 @@ class ParticleDynamic:
             print('Finished solver.')
             print('Best energy: ' + str(self.best_energy))
             print('-'*20)
-            
-    def copy_particles(self, x):
-        """
-        Copy particles from one location to another. This is necessary to be compatible with torch arrays.
-
-        Parameters:
-            x: The location of the particles to be copied.
-
-        Returns:
-            The copied particles.
-
-        Note:
-            This function uses the `copy_particles` function with the `array_mode` set to the class attribute `self.array_mode`.
-        """
-        return copy_particles(x, mode=self.array_mode)
 
             
     def reset(self,):
@@ -397,113 +397,83 @@ class ParticleDynamic:
         """
         self.it = 0
         self.init_history()
-        
-    def init_checks(self,):
+
+    def init_term(self, term_criteria, max_it):
         """
-        Initialize the checks for the optimization process.
+        Initialize the termination criteria of the object.
+
+        This function sets the value of the object's 'it' attribute to 0 and calls the 'init_history()' method to re-initialize the history of the object.
+
+        Parameters
+        ----------
+            checks : list
+
+        """
+        self.term_criteria = term_criteria if term_criteria is not None else [max_it_term(max_it)]
+        self.term_reason = [None for i in range((self.M))]
+        self.active_runs_idx = np.arange(self.M)
+        self.num_active_runs = self.M
+    
+    def terminate(self,):
+        self.select_active_runs()
+        return self.num_active_runs <= 0
+    
+    def select_active_runs(self,):
+        """
+        Selects the inidices that meet a termination criterion.
 
         Parameters:
-            self (object): The object instance.
-
-        Returns:
             None
-        """
-
-        if self.energy_tol is not None:
-            self.checks.append(self.check_energy)
-        if self.diff_tol is not None:
-            self.checks.append(self.check_update_diff)
-        if self.max_eval is not None:
-            self.checks.append(self.check_max_eval)
-        if self.max_it is not None:
-            self.checks.append(self.check_max_it)
-        
-        self.all_check = np.zeros(self.M, dtype=bool)
-        self.term_reason = {}
-        
-        
-    def check_energy(self):
-        """
-        Check if the energy is below a certain tolerance.
-
-        Returns:
-            bool: True if the energy is below the tolerance, False otherwise.
-        """
-        return self.f_min < self.energy_tol
-    
-    def check_update_diff(self):
-        """
-        Checks if the update difference is less than the difference tolerance.
-
-        Returns:
-            bool: True if the update difference is less than the difference tolerance, False otherwise.
-        """
-        return self.update_diff < self.diff_tol
-    
-    def check_max_eval(self):
-        """
-        Check if the number of function evaluations is greater than or equal to the maximum number of evaluations.
-
-        Returns:
-            bool: True if the number of function evaluations is greater than or equal to the maximum number of evaluations, False otherwise.
-        """
-        return self.num_f_eval >= self.max_eval
-    
-    def check_max_it(self):
-        """
-        Checks if the current value of `self.it` is greater than or equal to the value of `self.max_it`.
-
-        Returns:
-            bool: True if `self.it` is greater than or equal to `self.max_it`, False otherwise.
-        """
-        return self.it >= self.max_it
-    
-    def terminate(self, ):
-        """
-        Terminate the process and return a boolean value indicating if for each run the termination criterion was met.
-
-        Parameters:
-            verbosity (int): The level of verbosity for printing information. Default is 0.
 
         Returns:
             bool: True if all checks passed, False otherwise.
         """
-        loc_check = np.zeros((self.M,len(self.checks)), dtype=bool)
-        for i,check in enumerate(self.checks):
-            loc_check[:,i] = check()
+
+        loc_term = np.zeros((self.M, len(self.term_criteria)), dtype=bool)
+        for i, term in enumerate(self.term_criteria):
+            loc_term[:, i] = term(self)
             
-        all_check = np.sum(loc_check, axis=1)
+        terms = np.sum(loc_term, axis=1)
+        self.active_runs_idx = np.where(terms==0)[0]
+        self.num_active_runs = self.active_runs_idx.shape[0]
             
         for j in range(self.M):
-            if all_check[j] and not self.all_check[j]:
-                self.term_reason[j] = np.where(loc_check[j,:])[0]
-        self.all_check = all_check
+            if terms[j]:
+                self.term_reason[j] = np.where(loc_term[j,:])[0]
+    
+    known_tracks = {
+        'update_norm': track_update_norm,
+        'energy': track_energy,
+        'x': track_x
+    }
+    def init_history(self, track_args: dict):
+        """
+        Initialize the history dictionary and initialize the specified tracking keys.
 
-        return self.all_check_to_bool()
+        Parameters:
+            None
 
-        
-    def all_check_to_bool(self,):
-        term = False
-        if self.term_on_all:
-            if np.all(self.all_check):
-                for j in range(self.M):
-                    if self.verbosity > 0:
-                        print('Run ' + str(j) + ' returning on checks: ')
-                        for k in self.term_reason[j]:
-                            print(self.checks[k].__name__)
-                term = True
-        else:
-            if np.any(self.all_check):
-                for j in range(self.M):
-                    if self.verbosity > 0 and self.all_check[j]:
-                        print('Run ' + str(j) + ' returning on checks: ')
-                        for k in self.term_reason[j]:
-                            print(self.checks[k].__name__)
-                term = True
-
-        return term
+        Returns:
+            None
+        """
+        track_args = track_args if track_args else {}  
+        track_names = track_args.get('names', ['update_norm', 'energy'])
+        extra_tracks = track_args.get('extra_tracks', [])
+        self.save_int = track_args.get('save_int', 1)
+        self.history = {}
+        self.tracks = extra_tracks
+        self.track_it = 0
+        for key in track_names:
+            if key in self.known_tracks.keys():
+                self.tracks.append(self.known_tracks[key]())
+            else:
+                raise RuntimeError('Unknown tracking key ' + key + ' specified!' +
+                        ' You can choose from the following keys '+ 
+                        str(self.known_tracks.keys()))
             
-            
+        for track in self.tracks:
+            track.init_history(self)
+
     def track(self,):
         """
         Track the progress of the object.
@@ -515,104 +485,9 @@ class ParticleDynamic:
             None
         """
         if self.it % self.save_int == 0:
-            for key in self.track_list:
-                getattr(self, self.track_dict[key][1])()
-                
+            for track in self.tracks:
+                track.update(self)
             self.track_it += 1
-            
-    def track_x_init(self,) -> None:
-        """
-        Initializes the tracking of variable 'x' in the history dictionary.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
-        self.history['x'] = np.zeros((self.max_save_it + 1, self.M, self.N, self.d))
-        self.history['x'][0, ...] = self.x
-    
-    def track_x(self,) -> None:
-        """
-        Update the history of the 'x' variable by copying the current particles to the next time step.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
-        self.history['x'][self.track_it + 1, ...] = self.copy_particles(self.x)
-        
-        
-    def track_update_norm_init(self, ) -> None:
-        """
-        Initializes the 'update_norm' entry in the 'history' dictionary.
-
-        Returns:
-            None
-        """
-        self.history['update_norm'] = np.zeros((self.max_save_it, self.M,))
-        
-    def track_update_norm(self, ) -> None:
-        """
-        Updates the 'update_norm' entry in the 'history' dictionary with the 'update_diff' value.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
-        self.history['update_norm'][self.track_it, :] = self.update_diff
-     
-    def track_energy_init(self,) -> None:
-        """
-        Initializes the energy tracking for the dynamic.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
-        self.history['energy'] = np.zeros((self.max_save_it, self.M,))
-        
-    def track_energy(self,) -> None:
-        """
-        Updates the 'energy' history array with the current best energy value.
-
-        Returns:
-            None: This function does not return anything.
-        """
-        self.history['energy'][self.track_it, :] = self.best_cur_energy
-    
-    # known tracking functions and their initialization
-    track_dict = {'x': ('track_x_init', 'track_x'), 
-                  'update_norm': ('track_update_norm_init', 'track_update_norm'),
-                  'energy': ('track_energy_init', 'track_energy')}
-    
-    def init_history(self,):
-        """
-        Initialize the history dictionary and initialize the specified tracking keys.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-        """
-        self.history = {}
-        self.max_save_it = int(np.ceil(self.max_it/self.save_int))
-        self.track_it = 0
-        for key in self.track_list:
-            if key not in self.track_dict.keys():
-                raise RuntimeError('Unknown tracking key ' + key + ' specified!' +
-                                   ' You can choose from the following keys '+ 
-                                   str(self.track_dict.keys()))
-            else:
-                getattr(self, self.track_dict[key][0])()
 
     def update_best_cur_particle(self,) -> None:
         """
@@ -646,10 +521,8 @@ class ParticleDynamic:
         idx = np.where(self.best_energy > self.best_cur_energy)[0]
         if len(idx) > 0:
             self.best_energy[idx] = self.best_cur_energy[idx]
-            self.best_particle[idx, :] = self.copy_particles(self.best_cur_particle[idx, :])
-            
-
-            
+            self.best_particle[idx, :] = self.copy(self.best_cur_particle[idx, :])
+              
 def compute_mat_sqrt(A):
     """
     Compute the square root of a matrix.
@@ -663,6 +536,28 @@ def compute_mat_sqrt(A):
     B, V = np.linalg.eigh(A)
     B = np.maximum(B,0.)
     return V@(np.sqrt(B)[...,None]*V.transpose(0,2,1))
+
+class compute_consensus_default:
+    def __init__(self, check_coeffs = False):
+        if check_coeffs:
+            self.check_coeffs = self._check_coeffs
+        else:
+            self.check_coeffs = self._no_check_coeffs
+    
+    def __call__(self, energy, x, alpha):
+        weights = - alpha * energy
+        coeff_expan = tuple([Ellipsis] + [None for i in range(x.ndim-2)])
+        coeffs = np.exp(weights - logsumexp_scp(weights, axis=-1, keepdims=True))[coeff_expan]
+        self.check_coeffs(coeffs)
+        return (x * coeffs).sum(axis=1, keepdims=True), energy
+    
+    def _check_coeffs(self, coeffs):
+        problem_idx = np.where(np.abs(coeffs.sum(axis=1)-1) > 0.1)[0]
+        if len(problem_idx) > 0:
+            raise RuntimeError('Problematic consensus computation!')
+    
+    def _no_check_coeffs(self, coeffs):
+        pass
     
     
 class CBXDynamic(ParticleDynamic):
@@ -673,10 +568,9 @@ class CBXDynamic(ParticleDynamic):
     Parameters:
         f: Callable
             The function to optimize.
-        noise: str, Callable, or None, optional
-            The noise function. A string can be one of 'isotropic', 'anisotropic', or 'sampling'. It is technically possible 
-            to use a Callable instead of a string, but this is not recommended. A custom noise model should be implemented 
-            by subclassing this class and adding it as a instance method. Default: None.
+        noise: str or Callable, optional
+            A string can be one of 'isotropic', 'anisotropic', or 'sampling'. It is also possible 
+            to use a Callable instead of a string. This Callable needs to accept a single argument, which is the dynamic object. Default: 'isotropic'.
         batch_args: dict, optional
             The batch arguments. Default: None.
         dt: float, optional
@@ -689,30 +583,24 @@ class CBXDynamic(ParticleDynamic):
             The lamda parameter :math:`\lambda` of the dynamic. Default: 1.0.
         max_time: float, optional
             The maximum time to run the dynamic. Default: None.
-        correction: str, optional
-            The correction method. Default: 'no_correction'. One of 'no_correction', 'heavi_side', 'heavi_side_reg'.
+        correction: str or Callable, optional
+            The correction method. Default: 'no_correction'. One of 'no_correction', 'heavi_side', 'heavi_side_reg' or a Callable.
         correction_eps: float, optional
             The parameter :math:`\epsilon` for the regularized correction. Default: 1e-3.
-        resampling: bool, optional
-            Whether to use resampling. Default: False.
-        update_thresh: float, optional
-            The threshold for resampling scheme. Default: 0.1
 
     Returns:
         None
     """
     def __init__(self, f,
-            noise: Union[None, str, Callable] = None,
+            noise: Union[str, Callable] = 'isotropic',
             batch_args: Union[None, dict] = None,
             dt: float = 0.01, 
             alpha: float = 1.0, 
             sigma: float = 5.1,
             lamda: float = 1.0,
-            max_time: Union[None, float] = None,
-            correction: Union[str, None] = None, 
+            correction: Union[str, None] = 'no_correction', 
             correction_eps: float = 1e-3,
-            resampling: bool = False,
-            update_thresh: float = 0.1,
+            compute_consensus: Callable = None,
             **kwargs) -> None:
         
         super().__init__(f, **kwargs)
@@ -720,7 +608,7 @@ class CBXDynamic(ParticleDynamic):
         # cbx parameters
         self.dt = dt
         self.t = 0.
-        self.alpha = alpha
+        self.init_alpha(alpha)
         self.sigma = sigma
         self.lamda = lamda
         
@@ -730,17 +618,35 @@ class CBXDynamic(ParticleDynamic):
         
         self.init_batch_idx(batch_args)
         
-        self.resampling = resampling
-        self.update_thresh = update_thresh
-        self.num_resampling = np.zeros((self.M,), dtype=int)
-        
         self.consensus = None #consensus point
+        self._compute_consensus = compute_consensus if compute_consensus is not None else compute_consensus_default()
         
+    known_tracks = {
+        'consensus': track_consensus,
+        'drift_mean': track_drift_mean,
+        'drift': track_drift,
+        **ParticleDynamic.known_tracks,}
+    
+    def init_alpha(self, alpha):
+        '''
+        Initialize alpha per batch. If alpha is a float it is broadcasted to an array similar to x with dimensions (x.shape[0], 1). 
+        Otherwise, it is set to the given parameter.
         
-        # add max time check
-        self.max_time = max_time
-        if max_time is not None:
-            self.checks.append(self.check_max_time)
+        Parameters:
+            alpha:
+                The initial value of alpha
+        Returns:
+            None
+        '''
+        if isinstance(alpha, (int, float)):
+            Mslice = tuple([Ellipsis] + [0 for i in range(self.x.ndim-1)])
+            self.alpha = self.copy(self.x[Mslice])[:, None]
+            self.alpha[:,0] = alpha
+        else:
+            self.alpha = alpha
+            
+    def get_reshaped_run_idx(self,):
+        return as_strided(self.active_runs_idx, shape=(self.num_active_runs, self.batch_size), strides=(self.active_runs_idx.strides[0],0))
         
     def init_batch_idx(self, batch_args) -> None:
         """
@@ -780,17 +686,42 @@ class CBXDynamic(ParticleDynamic):
     
         if self.batch_size == self.N:
             self.batched = False
+            self.set_batch_idx = self.set_batch_idx_unbatched
         else: # set indices for batching
             self.batched = True
-            self.M_idx = np.repeat(np.arange(self.M)[:,None], self.batch_size, axis=1)
+            #self.M_idx = np.repeat(np.arange(self.M)[:,None], self.batch_size, axis=1)
             ind = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
             self.batch_rng = Generator(MT19937(batch_seed))#np.random.default_rng(batch_seed)
             self.indices = self.batch_rng.permuted(ind, axis=1)
+            self.set_batch_idx = self.set_batch_idx_batched
+            
+        self.consensus_idx = Ellipsis
+        self.particle_idx  = Ellipsis
             
                 
-    def set_batch_idx(self,):
+    def set_batch_idx_unbatched(self,):
         """
-        Set the batch index for the data.
+        Set the batch index for the particles.
+
+        This method sets the indices for unbatched dynamics.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """ 
+
+        if self.num_active_runs == self.M:
+            self.consensus_idx = Ellipsis
+        else:
+            self.consensus_idx = (self.active_runs_idx, Ellipsis)
+            
+        self.particle_idx = self.consensus_idx
+        
+    def set_batch_idx_batched(self,):
+        """
+        Set the batch index for the particles.
 
         This method sets the batch index batched dynamics. 
         If the indices are exhausted, it generates new indices using `np.repeat` and `np.arange`. 
@@ -809,28 +740,25 @@ class CBXDynamic(ParticleDynamic):
         Returns:
             None
         """
-        if self.batched:   
-            if self.indices.shape[1] < self.batch_size: # if indices are exhausted
-                indices = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
-                indices = self.batch_rng.permuted(indices, axis=1)
-                    
-                if self.batch_var == 'concat':
-                    self.indices = np.concatenate((self.indices, indices), axis=1)
-                else:
-                    self.indices = indices
-                #self.batch_size
-    
-            self.batch_idx = self.indices[:,:self.batch_size] # get batch indices
-            self.indices = self.indices[:, self.batch_size:] # remove batch indices from indices
-            
-            self.consensus_idx = (self.M_idx, self.batch_idx, Ellipsis)
-        else:
-            self.consensus_idx = Ellipsis
-        
+        if self.indices.shape[1] < self.batch_size: # if indices are exhausted
+            indices = np.repeat(np.arange(self.N)[None,:], self.M ,axis=0)
+            indices = self.batch_rng.permuted(indices, axis=1)
+
+            if self.batch_var == 'concat':
+                self.indices = np.concatenate((self.indices, indices), axis=1)
+            else:
+                self.indices = indices
+            #self.batch_size
+
+        self.batch_idx = self.indices[:, :self.batch_size] # get batch indices
+        self.indices = self.indices[:, self.batch_size:] # remove batch indices from indices
+
+        self.consensus_idx = (self.get_reshaped_run_idx(), self.batch_idx, Ellipsis)
         if self.batch_partial:
             self.particle_idx = self.consensus_idx
         else:
             self.particle_idx = Ellipsis
+        
             
     def default_sched(self,) -> scheduler:
         """
@@ -846,189 +774,79 @@ class CBXDynamic(ParticleDynamic):
 
         return scheduler([multiply(name='alpha', factor=1.05)])
     
-    
-    correction_dict = {'none':'no_correction', 'heavi_side': 'heavi_side_correction', 'heavi_side_reg': 'heavi_side_reg_correction'}
     def set_correction(self, correction):
         """
         Set the correction method for the object.
         
-        Parameters:
-            correction: str.
-                The correction method to be set. Must be one of 
-                
-                * 'no_correction', 
-                * 'heavi_side', 
-                * 'heavi_side_reg'.
+        Parameters
+        ----------
+            correction: (str or Callable): The type of correction to be set. Can be one of the following:
+                - 'no_correction': No correction, correction is the identity.
+                - 'heavi_side': Calculate the Heaviside correction.
+                - 'heavi_side_reg': Calculate the regularized Heaviside correction, with parameter eps.
         
         Returns:
             None
         """
-        if correction is None:
-            pass
-        elif correction in self.correction_dict:
-            self.correction = getattr(self, self.correction_dict[correction])
+        if isinstance(correction, str):
+            self.correction_callable = get_correction(correction, eps=self.correction_eps)
+        elif callable(correction):
+            self.correction_callable = correction
         else:
-            self.correction = correction
-
-    def no_correction(self, x:Any) -> Any:
+            raise ValueError('Invalid correction model! Choose from "no_correction", "heavi_side", or "heavi_side_reg" or a callable.')
+        
+    def correction(self, x: ArrayLike) -> ArrayLike:
         """
-        The function if no correction is specified. Is equla to the identity.
+        Calculate the correction for the given input.
 
-        Parameters:
-            x: The input value.
+        Parameters
+        ----------
+            x (ndarray): The input array.
 
-        Returns:
-            The input value without any correction.
+        Returns
+        -------
+            ndarray
+                The correction value.
         """
-        return x
+        return self.correction_callable(self, x)
 
-    correction = no_correction
-    def heavi_side_correction(self, x:ArrayLike) -> ArrayLike:
-        """
-        Calculate the Heaviside correction for the given input.
-
-        Parameters:
-            x : ndarray
-                The input array.
-
-        Returns:
-            ndarray: The result of the Heaviside correction.
-        """
-        z = self.energy - self.f(self.consensus)
-        self.num_f_eval += self.consensus.shape[0] # update number of function evaluations
-
-        return x * np.where(z > 0, 1,0)[...,None]
-
-    def heavi_side_reg_correction(self, x:ArrayLike) -> ArrayLike:
-        """
-        Calculate the Heaviside regularized correction.
-
-        Parameters:
-            x : ndarray
-                The input array.
-
-        Returns:
-            ndarray: The Heaviside regularized correction value.
-        """
-        z = self.energy - self.f(self.consensus)
-        self.num_f_eval += self.consensus.shape[0] # update number of function evaluations
-
-        return x * (0.5 + 0.5 * np.tanh(z/self.correction_eps))
-    
-    noise_dict = {'isotropic': 'isotropic_noise', 'anisotropic': 'anisotropic_noise', 'sampling': 'covariance_noise', 'covariance': 'covariance_noise'}
     def set_noise(self, noise) -> None:
         """
         Set the noise model for the object.
 
-        Parameters:
-            noise (str or Callable or None): The type of noise model to be set. Can be one of the following:
+        Parameters
+        ----------
+            noise (str or Callable): The type of noise model to be set. Can be one of the following:
                 - 'isotropic' or None: Set the isotropic noise model.
                 - 'anisotropic': Set the anisotropic noise model.
                 - 'sampling': Set the sampling noise model.
                 - 'covariance': Set the covariance noise model.
                 - else: use the given input as a callable.
 
-        Returns:
+        Returns
+        -------
             None
-
-        Warnings:
-            If 'noise' is set to a custom value, a warning will be raised to indicate that it is not the recommended way to choose a custom noise model.
         """
         # set noise model
-        if noise is None: # no noise specified
-            pass
-        elif noise in self.noise_dict:
-            self.noise = getattr(self, self.noise_dict[noise])
+        if isinstance(noise, str):
+            self.noise_callable = get_noise(noise)
+        elif callable(noise):
+            self.noise_callable = noise
         else:
-            warnings.warn('Custom noise specified. This is not the recommended way\
-                          for choosing a custom noise model.', stacklevel=2)
-            self.noise = noise
-    
-    def isotropic_noise(self,) -> ArrayLike:
-        r"""
+            raise ValueError('Invalid noise model: ' +str(noise) + '! Choose from "isotropic", "anisotropic", "sampling", "covariance", or a callable.')
 
-        This function implements the isotropic noise model. From the drift :math:`d = x - c(x)`,
-        the noise vector is computed as
-
-        .. math::
-
-            n_{m,n} = \sqrt{dt}\cdot \|d_{m,n}\|_2\cdot \xi.
-
-
-        Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
-        
-        Parameters
-        ----------
-        None
-        
-        Note
-        ----
-        Only the norm of the drift is used for the noise. Therefore, the noise vector is scaled with the same factor in each dimension, 
-        which motivates the name **isotropic**. 
+    def noise(self, ) -> ArrayLike:
         """
+        Calculate the noise vector. Here, we use the callable ``noise_callable``, which takes the dynamic as an input via ``self``.
 
-        z = np.sqrt(self.dt) * np.random.normal(0, 1, size=(self.drift.shape))
-        return z * np.linalg.norm(self.drift, axis=-1,keepdims=True)
-        
-    noise = isotropic_noise # if noise is not set or specified default to isotropic noise
-    
-    def anisotropic_noise(self,) -> ArrayLike:
-        r"""
-        This function implements the anisotropic noise model. From the drift :math:`d = x - c(x)`,
-        the noise vector is computed as
 
-        .. math::
-
-            n_{m,n} = \sqrt{dt}\cdot d_{m,n} \cdot \xi.
-
-        Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
+        Parameters:
+            None
 
         Returns:
-            numpy.ndarray: The generated noise.
-
-        Note
-        ----
-        The plain drift is used for the noise. Therefore, the noise vector is scaled with a different factor in each dimension, 
-        which motivates the name **anisotropic**.
+            ndarray: The noise vector.
         """
-        
-        z = np.random.normal(0, 1, size=self.drift.shape) * self.drift
-        return np.sqrt(self.dt) * z
-        
-
-    def covariance_noise(self,) -> ArrayLike:
-        r"""
-
-        This function implements the covariance noise model. Given the covariance matrix :math:`\text{Cov}(x)\in\mathbb{R}^{M\times d\times d}` of the ensemble,
-        the noise vector is computed as
-
-        .. math::
-
-            n_{m,n} = \sqrt{(1/\lambda)\cdot (1-\exp(-dt))^2} \cdot \sqrt{\text{Cov}(x)}\xi.
-
-        Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
-
-        Returns:
-            ArrayLike: The covariance noise.
-        """
-        
-        z = np.random.normal(0, 1, size = self.drift.shape) 
-        noise = self.apply_cov_sqrt(z)
-        
-        factor = np.sqrt((1/self.lamda) * (1 - np.exp(-self.dt)**2))
-        return factor * noise
-    
-    def apply_cov_sqrt(self, z:ArrayLike) -> ArrayLike:
-        """
-        Applies the square root of the covariance matrix to the input tensor.
-
-        Args:
-            z (ArrayLike): The input tensor of shape (batch_size, num_features, seq_length).
-
-        Returns:
-            ArrayLike: The output of the matrix-vector product.
-        """
-        return (self.Cov_sqrt@z.transpose(0,2,1)).transpose(0,2,1)
+        return self.noise_callable(self)
     
     def update_covariance(self,) -> None:
         r"""Update the covariance matrix :math:`\text{Cov}(x)` of the noise model
@@ -1042,50 +860,15 @@ class CBXDynamic(ParticleDynamic):
     
         """                       
         weights = - self.alpha * self.energy
-        coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))
+        coeffs = np.exp(weights - logsumexp_scp(weights, axis=(-1,), keepdims=True))
       
         D = self.drift[...,None] * self.drift[...,None,:]
         D = np.sum(D * coeffs[..., None, None], axis = -3)
         self.Cov_sqrt = compute_mat_sqrt(D)
-    
-    def track_consensus_init(self,) -> None:
-        self.history['consensus'] = np.zeros((self.max_save_it, self.M, 1, self.d))
-        
-    def track_consensus(self,) -> None:
-        self.history['consensus'][self.track_it, ...] = self.copy_particles(self.consensus)
-        
-    def track_drift_mean_init(self,) -> None:
-        self.history['drift_mean'] = np.zeros((self.max_save_it, self.M,))
-        
-    def track_drift_mean(self,) -> None:
-        self.history['drift_mean'][self.track_it, :] = np.mean(np.abs(self.drift), axis=(-2,-1))
-        
-    def track_drift_init(self,) -> None:
-        self.history['drift'] = []
-        self.history['particle_idx'] = []
-        
-    def track_drift(self,) -> None:          
-        self.history['drift'].append(self.drift)
-        self.history['particle_idx'].append(self.particle_idx)
-        
-    track_dict = {**ParticleDynamic.track_dict,
-                  'consensus': ('track_consensus_init', 'track_consensus'),
-                  'drift_mean': ('track_drift_mean_init', 'track_drift_mean'),
-                  'drift': ('track_drift_init', 'track_drift')}
-
-
-    def resample(self,) -> None:
-        idx = np.where(self.update_diff < self.update_thresh)[0]
-        if len(idx)>0:
-            z = np.random.normal(0, 1., size=(len(idx), self.N, self.d))
-            self.x[idx, ...] += self.sigma * np.sqrt(self.dt) * z
-            self.num_resampling[idx] += 1
-            if self.verbosity > 0:
-                    print('Resampled in runs ' + str(idx))
                     
     def pre_step(self,):
         # save old positions
-        self.x_old = self.copy_particles(self.x)
+        self.x_old = self.copy(self.x)
         
         # set new batch indices
         self.set_batch_idx()
@@ -1095,14 +878,12 @@ class CBXDynamic(ParticleDynamic):
         
     def post_step(self):
         if hasattr(self, 'x_old'):
-            self.update_diff = np.linalg.norm(self.x - self.x_old, axis=(-2,-1))/self.N
+            self.update_diff = self.norm(self.x - self.x_old, axis=(-2,-1))/self.N
         
         self.update_best_cur_particle()
         self.update_best_particle()
+        self.post_process(self)
         self.track()
-
-        if self.resampling:
-            self.resample()
             
         self.t += self.dt
         self.it+=1
@@ -1112,11 +893,9 @@ class CBXDynamic(ParticleDynamic):
         self.init_history()
         self.t = 0.
 
-    def eval_energy(self,):
-        self.energy = self.f(self.x)
-        
-    def check_max_time(self):
-        return self.t >= self.max_time
+    def eval_f(self, x):
+        self.num_f_eval[self.active_runs_idx] += x.shape[1] # update number of function evaluations
+        return self.f(x)
     
     def print_cur_state(self,):
         if self.verbosity > 0:
@@ -1126,7 +905,7 @@ class CBXDynamic(ParticleDynamic):
         if self.verbosity > 1:
             print('Current alpha: ' + str(self.alpha))
             
-    def compute_consensus(self, x_batch) -> None:
+    def compute_consensus(self,) -> None:
         r"""Updates the weighted mean of the particles.
 
         Parameters
@@ -1139,17 +918,9 @@ class CBXDynamic(ParticleDynamic):
 
         """
         # evaluation of objective function on batch
-        energy = self.f(x_batch) # update energy
-        self.num_f_eval += np.ones(self.M,dtype=int) * x_batch.shape[-2] # update number of function evaluations
         
-        weights = - self.alpha * energy
-        coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
-        
-        problem_idx = np.where(np.abs(coeffs.sum(axis=-2)-1) > 0.1)[0]
-        if len(problem_idx) > 0:
-            raise RuntimeError('Problematic consensus computation!')
-        
-        return (x_batch * coeffs).sum(axis=-2, keepdims=True), energy
+        energy = self.eval_f(self.x[self.consensus_idx]) # update energy
+        return self._compute_consensus(energy, self.x[self.consensus_idx], self.alpha[self.active_runs_idx, :])
         
         
     

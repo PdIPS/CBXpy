@@ -18,4 +18,4 @@ Classes
    param_update
    scheduler
    multiply
-   effective_number
+   effective_sample_size

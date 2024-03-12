@@ -7,13 +7,15 @@ from ..scheduler import scheduler
 class CBS(CBXDynamic):
     def __init__(self, f, mode='sampling', noise='covariance',
                  M=1,
-                 track_list=None, 
+                 track_args=None, 
                  **kwargs):
-        track_list = track_list if track_list is not None else []
-        super().__init__(f, track_list=track_list, M=M, **kwargs)
+        track_args = track_args if track_args is not None else{'names':[]}
+        super().__init__(f, track_args=track_args, noise=noise, M=M, **kwargs)
         
         if self.batched:
             raise NotImplementedError('Batched mode not implemented for CBS!')
+        if self.x.ndim > 3:
+            raise NotImplementedError('Multi dimensional domains not implemented for CBS! The particle should have the dimension M x N x d, where d is an integer!')
             
         self.exp_dt = np.exp(-self.dt)
         if mode == 'sampling':
@@ -25,11 +27,10 @@ class CBS(CBXDynamic):
         
         if noise not in ['covariance', 'sampling']:
             raise warnings.warn('For CBS usually covariance or sampling noise is used!', stacklevel=2)
-        self.noise = self.covariance_noise
         
         
     def inner_step(self,):
-        self.consensus, energy = self.compute_consensus(self.x)
+        self.consensus, energy = self.compute_consensus()
         self.energy = energy
         self.drift = self.x - self.consensus
         self.update_covariance()
@@ -49,15 +50,9 @@ class CBS(CBXDynamic):
                 if not isinstance(sched, scheduler):
                     raise RuntimeError('Unknonw scheduler specified!')
 
-            while not self.terminate(verbosity=self.verbosity):
+            while not self.terminate():
                 self.step()
-                sched.update()
-        
-    def post_step(self):
-        self.track()
-        self.process_particles()
-            
-        self.it+=1
+                sched.update(self)
         
     def default_sched(self,):
         return scheduler([])

@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Union
-from scipy.special import logsumexp
+#from scipy.special import logsumexp
 
 from .pdyn import CBXDynamic
 
@@ -8,7 +8,7 @@ from .pdyn import CBXDynamic
 class PSO(CBXDynamic):
     r"""Particle Swarm Optimization class
 
-    This class implements the PSO algorithm as described in [1,2]_. The algorithm
+    This class implements the PSO algorithm as described in [1]_ and [2]_. The algorithm
     is a particle dynamic algorithm that is used to minimize the objective function :math:`f(x)`.
 
     Parameters
@@ -74,7 +74,7 @@ class PSO(CBXDynamic):
         self.v = np.zeros(self.x.shape)
         
         # init historical best positions of particles
-        self.y = self.copy_particles(self.x)
+        self.y = self.copy(self.x)
         
         if sigma_memory is None:
             self.sigma_memory = self.lamda_memory * self.sigma
@@ -86,9 +86,9 @@ class PSO(CBXDynamic):
         
     def pre_step(self,):
         # save old positions
-        self.x_old = self.copy_particles(self.x) # save old positions
-        self.y_old = self.copy_particles(self.y) # save old positions
-        self.v_old = self.copy_particles(self.v) # save old velocities
+        self.x_old = self.copy(self.x) # save old positions
+        self.y_old = self.copy(self.y) # save old positions
+        self.v_old = self.copy(self.v) # save old velocities
         
         # set new batch indices
         self.set_batch_idx()
@@ -134,7 +134,8 @@ class PSO(CBXDynamic):
         self.num_f_eval += np.ones(self.M, dtype =int) * self.x[ind].shape[-2] # update number of function evaluations   
         
         # historical best positions of particles
-        self.y[ind] = self.y[ind] + ((self.energy>energy_new)[:, :, np.newaxis]) * (self.x[ind] - self.y[ind])
+        energy_expand = tuple([Ellipsis] + [None for _ in range(self.x.ndim-2)]) 
+        self.y[ind] = self.y[ind] + ((self.energy>energy_new)[energy_expand]) * (self.x[ind] - self.y[ind])
         self.energy = np.minimum(self.energy, energy_new)
 
         
@@ -150,7 +151,6 @@ class PSO(CBXDynamic):
         None
 
         """
-        weights = - self.alpha * energy#[e_ind]
-        coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))[...,None]
-        return (x_batch * coeffs).sum(axis=-2, keepdims=True)
+        c, _ = self._compute_consensus(energy, self.x[self.consensus_idx], self.alpha[self.active_runs_idx, :])
+        return c
         

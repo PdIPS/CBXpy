@@ -31,6 +31,7 @@ release = 'v0.1.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'nbsphinx',
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
@@ -53,6 +54,8 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+
+nbsphinx_execute = 'never'
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -91,6 +94,12 @@ html_theme_options = {
          "href": "cbx_py32x32.ico",
       },
    ]
+}
+
+nbsphinx_thumbnails = {
+    'examples/nns/mnist': '_static/cbx-logo.png',
+    'examples/simple_example': '_static/cbx-logo.png',
+    'examples/custom_noise': '_static/cbx-logo.png',
 }
 
 def setup(app):

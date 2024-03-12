@@ -70,7 +70,8 @@ class plot_dynamic:
                  eval_energy_1d = True,
                  objective_args = None,
                  particle_args = None,
-                 cosensus_args = None):
+                 cosensus_args = None,
+                 drift_args = None):
         
         self.dyn = dyn
         self.d = dyn.d
@@ -87,6 +88,17 @@ class plot_dynamic:
         self.objective_args = objective_args if objective_args is not None else {}
         self.particle_args = particle_args if particle_args is not None else {}
         self.cosensus_args = cosensus_args if cosensus_args is not None else {}
+        self.drift_args = {
+            'scale':1, 'scale_units':'xy', 'angles':'xy', 
+            'width':0.001, 'color':'orange'}
+        if drift_args is not None:
+            for k in drift_args.keys():
+                self.drift_args[k] = drift_args[k]
+            
+        xmin = self.objective_args.get('x_min', -1.)
+        xmax = self.objective_args.get('x_max', 1.)
+        ax.set_xlim([xmin, xmax])
+        ax.set_ylim([xmin, xmax])
         
         self.ax = ax
         
@@ -210,8 +222,7 @@ class plot_dynamic:
                 x[pidx][..., self.dims[1]][self.num_run,:], 
                 -dr[self.num_run, :, self.dims[0]], 
                 -dr[self.num_run, :, self.dims[1]],
-                scale=1., scale_units='xy', angles='xy', 
-                width=0.001,color='orange')
+                **self.drift_args)
         
     def update(self, wait=0.1):
         """
@@ -339,7 +350,7 @@ class plot_dynamic_history(plot_dynamic):
         if 'x' not in dyn.history:
             raise RuntimeError('The dynamic has no particle history!')
         self.x = self.dyn.history['x']
-        self.max_it = self.x.shape[0] - 1
+        self.max_it = len(self.x) - 1
         
         if self.plot_consensus:
             if 'consensus' not in dyn.history:
@@ -368,12 +379,12 @@ class plot_dynamic_history(plot_dynamic):
         """
 
         self.plot_objective()
-        self.init_x(self.x[0,...])
+        self.init_x(self.x[0])
         if self.plot_consensus:
-            self.init_consensus(self.c[0,...])
+            self.init_consensus(self.c[0])
 
         if self.plot_drift:
-            self.init_drift(self.x[0,...], self.dr[0], self.pidx[0])
+            self.init_drift(self.x[0], self.dr[0], self.pidx[0])
 
     def plot_at_ind(self, i):
         """
@@ -388,12 +399,12 @@ class plot_dynamic_history(plot_dynamic):
         None
         """
 
-        self.plot_particles(self.x[i,...])
+        self.plot_particles(self.x[i])
 
         if self.plot_consensus:
-            self.plot_c(self.c[i,...])
+            self.plot_c(self.c[i])
         if self.plot_drift:
-            self.plot_d(self.x[i,...], self.dr[i], self.pidx[i])
+            self.plot_d(self.x[i], self.dr[i], self.pidx[i])
 
     def decorate_at_ind(self,i):
         """
@@ -410,7 +421,7 @@ class plot_dynamic_history(plot_dynamic):
         """
         self.ax.set_title('Iteration: ' + str(i))
 
-    def run_plots(self, freq=5, wait=0.1):
+    def run_plots(self, freq=5, wait=0.1, save_args=None):
         """
         Visualizes the evolution of the dynamic over time, using the history
 
@@ -426,6 +437,11 @@ class plot_dynamic_history(plot_dynamic):
                 self.plot_at_ind(i)
                 self.decorate_at_ind(i)
                 plt.pause(wait)
+                if save_args is not None:
+                    plt.savefig(
+                        save_args['fname'] + str(i) + '.png', 
+                        **{k:save_args[k] for k in save_args.keys() if k not in ['fname']}
+                    )
         
         
 

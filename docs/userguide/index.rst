@@ -8,9 +8,9 @@ CBX implements consensus based particle schemes. Below, we list the pages that e
 
    dynamics
    sched
-   numpyvstorch
    objectives
    plotting
+   examples
 
 Basic Parameters and nomenclature
 ---------------------------------

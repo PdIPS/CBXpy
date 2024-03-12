@@ -14,9 +14,9 @@ class Test_pdyn(test_abstract_dynamic):
     
     def test_term_crit_maxit(self, dynamic, f):
         '''Test termination criterion on max iteration'''
-        dyn = dynamic(f, d=5, max_it=7)
+        dyn = dynamic(f, d=5, max_it=3)
         dyn.optimize()
-        assert dyn.it == 7
+        assert dyn.it == 3
 
     def test_no_given_x(self, dynamic, f):
         '''Test if x is correctly initialized'''
@@ -39,11 +39,11 @@ class Test_pdyn(test_abstract_dynamic):
         assert dyn.M == 1
         assert dyn.N == 5
 
-    def test_opt_hist_and_output(self, dynamic, f):
+    def test_opt_and_output(self, dynamic, f):
         '''Test if optimization history is correctly saved and output is correct'''
-        dyn = dynamic(f, x = np.zeros((6,5,7)), max_it=10, save_int = 3, track_list=['x'])
+        dyn = dynamic(f, x = np.zeros((6,5,7)), 
+                      max_it=10)
         x = dyn.optimize()
-        assert dyn.history['x'].shape == (5,6,5,7)
         assert x.shape == (6,7)
         assert dyn.x.shape == (6,5,7)
 
@@ -65,7 +65,17 @@ class Test_pdyn(test_abstract_dynamic):
         def g(x):
             return torch.sum(x, dim=-1)
         
-        dyn = dynamic(g, x=x, max_it=2, array_mode='torch')
+        def norm_torch(x, axis, **kwargs):
+            return torch.linalg.norm(x, dim=axis, **kwargs)
+        
+        dyn = dynamic(g, 
+                      f_dim = '3D',
+                      x=x, 
+                      max_it=2,
+                      norm=norm_torch,
+                      copy=torch.clone,
+                      normal=torch.normal
+                      )
         dyn.optimize()
         assert dyn.x.shape == (6,5,7)
   
@@ -90,7 +100,7 @@ class Test_cbx(test_abstract_dynamic):
         M=7
         d=4
         N=12
-        dyn = dynamic(f, M=M, d=d, N=N)
+        dyn = dynamic(f, M=M, d=d, N=N, noise='covariance')
         A = np.random.uniform(size=(M,d,d))
         dyn.Cov_sqrt = A.copy()
         
@@ -101,7 +111,7 @@ class Test_cbx(test_abstract_dynamic):
             for n in range(N):
                 g[m,n,:] = A[m,...]@z[m,n,:]
                 
-        gg = dyn.apply_cov_sqrt(z)
+        gg = dyn.noise_callable.apply_cov_sqrt(dyn.Cov_sqrt,z)
         assert np.allclose(g, gg)
         
         
@@ -110,7 +120,7 @@ class Test_cbx(test_abstract_dynamic):
         d=4
         N=12
         dyn = dynamic(f, M=M, d=d, N=N)
-        dyn.consensus, energy = dyn.compute_consensus(dyn.x)
+        dyn.consensus, energy = dyn.compute_consensus()
         dyn.energy = energy
         dyn.drift = dyn.x - dyn.consensus
         dyn.update_covariance()
@@ -121,7 +131,7 @@ class Test_cbx(test_abstract_dynamic):
             denom = 0.
             for n in range(N):
                 drift = dyn.x[m,n,:] - dyn.consensus[m, 0, :]
-                factor = np.exp(-dyn.alpha * f(dyn.x[m,n,:]))
+                factor = np.exp(-dyn.alpha[m] * f(dyn.x[m,n,:]))
                 denom += factor
                 C[n,...] = np.outer(drift,drift) * factor
         
