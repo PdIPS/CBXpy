@@ -46,6 +46,19 @@ The following example shows how to minimize a function using CBXPy
    dyn = CBO(f, d=2)
    x = dyn.optimize()
 
+More Examples
+-------------
+
+.. nblinkgallery::
+
+   /examples/nns/mnist.ipynb
+   /examples/simple_example.ipynb
+   /examples/custom_noise.ipynb
+   /examples/polarcbo.ipynb
+   /examples/onedim_example.ipynb
+   /examples/low_level.ipynb
+   /examples/sampling.ipynb
+
 
 
 Documentation
