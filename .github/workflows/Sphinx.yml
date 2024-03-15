@@ -1,6 +1,10 @@
 
 name: Docs
-on: [workflow_dispatch]
+on: 
+  workflow_dispatch:
+  push:
+    paths:
+      - docs/**
 jobs:
   docs:
     runs-on: ubuntu-latest
