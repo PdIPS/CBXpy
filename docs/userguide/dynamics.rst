@@ -12,7 +12,7 @@ In the simplest case, when selecting a specific dynamic and aiming to optimize a
     >>> dyn = CBO(lambda x:x**2, d=1)
     >>> dyn.optimize()
 
-This function executes the optimization process until a specified termination criterion is met. In scenarios where parameter control via a scheduler is necessary, the function includes the keyword argument sched (for more details, we refer to :ref:`sched`).
+This function executes the optimization process until a specified termination criterion is met. In scenarios where parameter control via a scheduler is necessary, the function includes the keyword argument ``sched`` (for more details, we refer to :ref:`sched`).
 
 Each dynamic implements a step method that delineates the update in each iteration (see :ref:`step`). If you wish to run a dynamic at a lower level, directly managing each iteration, you can define a custom for-loop:
 
