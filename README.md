@@ -1,5 +1,6 @@
 ![cbx](https://github.com/PdIPS/CBXpy/assets/44805883/a5b96135-1039-4303-9cb1-32a1b1393fe3)
 
+[![status](https://joss.theoj.org/papers/008799348e8232eb9fe8180712e2dfb8/status.svg)](https://joss.theoj.org/papers/008799348e8232eb9fe8180712e2dfb8)
 ![tests](https://github.com/PdIPS/CBXpy/actions/workflows/Tests.yml/badge.svg) 
 [![codecov](https://codecov.io/gh/PdIPS/CBXpy/graph/badge.svg?token=TU3LO8SLFP)](https://codecov.io/gh/PdIPS/CBXpy) 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
