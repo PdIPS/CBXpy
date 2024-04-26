@@ -1,6 +1,8 @@
 import cbx
 import pytest
 from cbx.plotting import plot_dynamic, plot_dynamic_history
+import matplotlib
+matplotlib.use('Agg')
 
 class test_plot_dynamic:
     @pytest.fixture
@@ -17,7 +19,8 @@ class Test_plot_dynamic(test_plot_dynamic):
         dyn.step()
         plotter = plot(dyn)
         plotter.init_plot()
-
+        
+    @pytest.mark.filterwarnings('ignore::UserWarning')
     def test_plot_x(self, f, plot):
         dyn = cbx.dynamics.CBO(f, d=2)
         dyn.step()
@@ -54,6 +57,7 @@ class Test_plot_dynamic_history(test_plot_dynamic):
         plotter = plot(dyn, plot_drift=True)
         plotter.plot_at_ind(0)
 
+    @pytest.mark.filterwarnings('ignore::UserWarning')
     def test_run_plots(self, f, plot):
         dyn = cbx.dynamics.CBO(f, d=2, track_args={'names':['x']}, max_it=1)
         dyn.step()

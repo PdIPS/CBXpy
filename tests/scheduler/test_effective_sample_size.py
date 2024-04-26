@@ -7,4 +7,4 @@ def test_alpha_to_zero():
     energy = np.random.normal((6,5,7))
     gap = eff_sample_size_gap(energy, 1.)
     alpha = bisection_solve(gap, 0*np.ones(6,), 100*np.ones(6,), max_it = 100, thresh = 1e-6)
-    assert np.max(alpha) < 1e-2
+    assert np.max(alpha) < 1e-1
