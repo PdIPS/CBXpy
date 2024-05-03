@@ -33,7 +33,7 @@ def norm_torch(x, axis, **kwargs):
 def compute_consensus_torch(energy, x, alpha):
     weights = - alpha * energy
     coeffs = torch.exp(weights - logsumexp(weights, dim=(-1,), keepdims=True))[...,None]
-    return (x * coeffs).sum(axis=-2, keepdims=True), energy.detach().cpu().numpy()
+    return (x * coeffs).sum(axis=1, keepdims=True), energy.detach().cpu().numpy()
 
 @requires_torch
 def compute_polar_consensus_torch(energy, x, neg_log_eval, alpha = 1., kernel_factor = 1.):

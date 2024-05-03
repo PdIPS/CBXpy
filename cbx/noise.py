@@ -6,13 +6,15 @@ from numpy.typing import ArrayLike
 from numpy.random import normal
 import numpy as np
 
-def get_noise(name):
+def get_noise(name: str,
+             norm: Callable = None, 
+             sampler: Callable = None):
     if name == 'isotropic':
-        return isotropic_noise()
+        return isotropic_noise(norm=norm, sampler=sampler)
     elif name == 'anisotropic':
-        return anisotropic_noise()
+        return anisotropic_noise(norm=norm, sampler=sampler)
     elif name == 'covariance' or name == 'sampling':
-        return covariance_noise()
+        return covariance_noise(norm=norm, sampler=sampler)
     else:
         raise NotImplementedError('Noise model {} not implemented'.format(name))
 
