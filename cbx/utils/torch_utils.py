@@ -40,7 +40,7 @@ def compute_polar_consensus_torch(energy, x, neg_log_eval, alpha = 1., kernel_fa
     weights = -kernel_factor * neg_log_eval - alpha * energy[:,None,:]
     coeffs = torch.exp(weights - torch.logsumexp(weights, dim=(-1,), keepdims=True))[...,None]
     c = torch.sum(x[:,None,...] * coeffs, axis=-2)
-    return c, energy.cpu().numpy()
+    return c, energy.detach().cpu().numpy()
 
 @requires_torch
 def normal_torch(device):
