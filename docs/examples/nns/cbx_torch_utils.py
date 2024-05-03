@@ -1,7 +1,13 @@
 from collections import OrderedDict
-import torch
-from torch import logsumexp
-from torch.func import functional_call, stack_module_state, vmap
+try:
+    import torch
+    from torch import logsumexp
+    from torch.func import functional_call, stack_module_state, vmap
+except ImportError:
+    _has_numpy = False
+else:
+    _has_numpy = True
+
 from cbx.scheduler import bisection_solve, eff_sample_size_gap
 import numpy as np
 

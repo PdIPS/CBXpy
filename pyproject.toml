@@ -28,6 +28,10 @@ test = [
     'torch'
     ]
 
+torch = [
+    'torch',
+]
+
 [tool.setuptools]
 packages = ['cbx', 'cbx.dynamics', 'cbx.utils']
 
