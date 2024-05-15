@@ -1,7 +1,7 @@
 import numpy as np
 import cbx as cbx
 import cbx.objectives as obj
-from cbx.scheduler import scheduler, multiply
+from cbx.scheduler import multiply
 from cbx.plotting import contour_2D
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D 
