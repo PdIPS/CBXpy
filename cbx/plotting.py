@@ -140,7 +140,7 @@ class plot_dynamic:
 
         """
         
-        if self.d == 1:
+        if self.d == (1,):
             _ = plot_1D(self.dyn.f, ax=self.ax, **self.objective_args)
         else:
              _ = contour_2D(self.dyn.f, ax=self.ax, **self.objective_args)
@@ -158,7 +158,7 @@ class plot_dynamic:
         None
         """
 
-        if self.d == 1:
+        if self.d == (1,):
             if self.eval_energy_1d:
                 y = self.dyn.f(x[self.num_run, :, self.dims[0]][None,:,None])[...,None]
             else:

@@ -9,6 +9,7 @@ Visualizing during the run
 If you want to visualize the dynamic while it runs, you can use the class :class:`plot_dynamic <cbx.plotting.plot_dynamic>`:
 
     >>> from cbx.dynamics import CBXDynamic
+    >>> from cbx.plotting import plot_dynamic
     >>> dyn = CBXDynamic(lambda x:x**2, d=1)
     >>> plotter = plot_dynamic(dyn)
     >>> plotter.init_plot()

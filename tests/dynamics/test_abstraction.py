@@ -30,7 +30,7 @@ class test_abstract_dynamic():
         
     def test_optimization_performance(self, f, dynamic, opt_kwargs):
         thresh = 0.5
-        test_funs = [objectives.Rastrigin(), objectives.Rastrigin(), 
+        test_funs = [objectives.Rastrigin(), objectives.Ackley(), 
                      objectives.three_hump_camel()]
         for g in test_funs:
             dyn = dynamic(g, **opt_kwargs)

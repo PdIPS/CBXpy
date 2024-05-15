@@ -14,6 +14,12 @@ class Test_plot_dynamic(test_plot_dynamic):
     def plot(self):
         return plot_dynamic
     
+    def test_plot_init_1D(self, f, plot):
+        dyn = cbx.dynamics.CBO(f, d=1)
+        dyn.step()
+        plotter = plot(dyn)
+        plotter.init_plot()
+        
     def test_plot_init(self, f, plot):
         dyn = cbx.dynamics.CBO(f, d=2)
         dyn.step()
