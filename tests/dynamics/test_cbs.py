@@ -6,6 +6,11 @@ import numpy as np
 class Test_CBS(test_abstract_dynamic):
     
     @pytest.fixture
+    def opt_kwargs(self):
+        return{'d':2, 'M':5, 'N':50, 'max_it':50, 'check_f_dims':False, 
+               'alpha':0.5, 'mode':'optimization'}
+    
+    @pytest.fixture
     def dynamic(self):
         return CBS
     

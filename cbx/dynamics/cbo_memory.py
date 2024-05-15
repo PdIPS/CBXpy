@@ -93,26 +93,26 @@ class CBOMemory(CBXDynamic):
         # first update
         self.consensus = self.compute_consensus(self.y[mind], self.energy[mind])
         
-        # compute drift and memory drift
-        drift = self.x[ind] - self.consensus
-        memory_diff = self.x[ind] - self.y[ind]
+        # compute consensus and memory drift
+        consensus_drift = self.x[ind] - self.consensus
+        memory_drift = self.x[ind] - self.y[ind]
         
         # perform noise steps
         # **NOTE**: noise always uses the ``drift`` attribute of the dynamic. 
         # We first use the actual drift here and 
         # then the memory difference
-        self.drift = drift
-        self.s = self.sigma * self.noise()
-        self.drift = memory_diff
+        self.drift = consensus_drift
+        self.s_consensus = self.sigma * self.noise()
+        self.drift = memory_drift
         self.s_memory = self.sigma_memory * self.noise()
 
         # dynamcis update
         # momentaneous positions of particles
         self.x[ind] = (
             self.x[ind] -
-            self.correction(self.lamda * self.dt * drift) -
-            self.lamda_memory * self.dt * memory_diff +
-            self.s + 
+            self.correction(self.lamda * self.dt * consensus_drift) -
+            self.lamda_memory * self.dt * memory_drift +
+            self.s_consensus + 
             self.s_memory)
         
         # evaluation of objective function on all particles
