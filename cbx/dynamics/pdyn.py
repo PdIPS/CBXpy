@@ -829,7 +829,7 @@ class CBXDynamic(ParticleDynamic):
         """
         # set noise model
         if isinstance(noise, str):
-            self.noise_callable = get_noise(noise)
+            self.noise_callable = get_noise(noise, norm=self.norm, sampler=self.normal)
         elif callable(noise):
             self.noise_callable = noise
         else:

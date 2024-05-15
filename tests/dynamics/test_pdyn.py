@@ -56,6 +56,9 @@ class Test_pdyn(test_abstract_dynamic):
         with pytest.raises(ValueError):
             dynamic(f, x=x, f_dim=f_dim)
             
+    def test_optimization_performance(self, f, dynamic, opt_kwargs):
+        pass
+            
     def test_torch_handling(self, f, dynamic):
         '''Test if torch is correctly handled'''
         import torch
@@ -114,7 +117,9 @@ class Test_cbx(test_abstract_dynamic):
         gg = dyn.noise_callable.apply_cov_sqrt(dyn.Cov_sqrt,z)
         assert np.allclose(g, gg)
         
-        
+    def test_optimization_performance(self, f, dynamic, opt_kwargs):
+        pass
+    
     def test_update_cov(self, f, dynamic):
         M=7
         d=4

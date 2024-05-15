@@ -53,6 +53,9 @@ class CBS(CBXDynamic):
             while not self.terminate():
                 self.step()
                 sched.update(self)
+                
+    def optimize(self, sched = 'default'):
+        self.run(sched=sched)
         
     def default_sched(self,):
         return scheduler([])
