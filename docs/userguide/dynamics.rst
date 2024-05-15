@@ -25,7 +25,7 @@ Each dynamic implements a step method that delineates the update in each iterati
 Modelling the ensemble
 ----------------------
 
-All particle-based methods operate on an ensemble of points :math:`x = (x^1, \ldots, x^N) \in \mathcal{X}^N`. Here, we opt to model the ensemble as an array, assuming :math:`\mathcal{X} = \mathbb{R}^d`, hence representing it as an :math:`N \times d` array. Note, that :math:`d=(d_1,\ldots,d_s)` can be a tuple of additional dimensions, which can be convenient for certain spaces \:math:`mathcal{X}`. In most cases, we assume this array is a ``numpy`` array. However, it's often straightforward to use other objects, like ``torch`` tensors instead.
+All particle-based methods operate on an ensemble of points :math:`x = (x^1, \ldots, x^N) \in \mathcal{X}^N`. Here, we opt to model the ensemble as an array, assuming :math:`\mathcal{X} = \mathbb{R}^d`, hence representing it as an :math:`N \times d` array. Note, that :math:`d=(d_1,\ldots,d_s)` can be a tuple of additional dimensions, which can be convenient for certain spaces :math:`\mathcal{X}`. In most cases, we assume this array is a ``numpy`` array. However, it's often straightforward to use other objects, like ``torch`` tensors instead.
 
 For multiple runs of a particle-based scheme, creating :math:`M \in \mathbb{N}` instances of a dynamic and running them is a typical approach. This process can be parallelized at an external level, by creating :math:`M` copies of the dynamic. However, in scenarios where, for instance, all parameters remain fixed across runs, it can be efficient to represent the different runs directly on the array level. We therefore model an ensemble as an
 

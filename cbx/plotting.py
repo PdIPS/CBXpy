@@ -32,8 +32,8 @@ def contour_2D(f, ax = None, num_pts = 50,
     return cf
 
 
-class plot_dynamic:
-    r"""plot_dynamic
+class PlotDynamic:
+    r"""PlotDynamic
 
     Plots particles, consensus, and drift of the specified dynamic.
 
@@ -324,8 +324,8 @@ class plot_dynamic:
             
             
 
-class plot_dynamic_history(plot_dynamic):
-    """plot_dynamic_history
+class PlotDynamicHistory(PlotDynamic):
+    """PlotDynamicHistory
     
     Visualize a dynamic from its history.
 
