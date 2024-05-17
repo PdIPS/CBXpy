@@ -16,9 +16,15 @@ class Test_plot_dynamic(test_plot_dynamic):
 
         
     def test_plot_init(self, f, plot):
+        class obj:
+            def __init__(self, d):
+                self.d = d
+            def __call__(self, x):
+                return sum(x[i]**2 for i in range(self.d))
+        g = obj(1)
+            
         for d in range(1,5):
-            def g(x):
-                return sum(x[i]**2 for i in range(d))
+            g.d = d
             dyn = cbx.dynamics.CBO(g, d=d)
             dyn.step()
             plotter = plot(dyn)
