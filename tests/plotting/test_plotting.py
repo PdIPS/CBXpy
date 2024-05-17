@@ -17,7 +17,9 @@ class Test_plot_dynamic(test_plot_dynamic):
         
     def test_plot_init(self, f, plot):
         for d in range(1,5):
-            dyn = cbx.dynamics.CBO(lambda x: sum(x[i]**2 for i in range(d)), d=d)
+            def g(x):
+                return sum(x[i]**2 for i in range(d))
+            dyn = cbx.dynamics.CBO(g, d=d)
             dyn.step()
             plotter = plot(dyn)
             plotter.init_plot()
