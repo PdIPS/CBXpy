@@ -29,7 +29,7 @@ class test_abstract_dynamic():
         assert dyn.num_f_eval.sum() == dyn.f.num_eval
         
     def test_optimization_performance(self, f, dynamic, opt_kwargs):
-        thresh = 0.5
+        thresh = 0.15
         test_funs = [objectives.Rastrigin(), objectives.Ackley(), 
                      objectives.three_hump_camel()]
         for g in test_funs:

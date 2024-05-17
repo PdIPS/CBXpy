@@ -15,18 +15,20 @@ def plot_1D(f, ax = None, num_pts = 200,
 def contour_2D(f, ax = None, num_pts = 50,
                     x_min = -1., x_max = 1.,
                     y_min = None, y_max = None,
+                    d = 2,
+                    dims = None,
                     **kwargs):
     if ax is None:
         ax = plt.gca()
+    dims = dims if dims is not None else [0,1]
     y_min = x_min if (not y_min) else y_min
     y_max = x_max if (not y_max) else y_max
-    d = 2
     x = np.linspace(x_min, x_max, num_pts)
     y = np.linspace(y_min, y_max, num_pts)
     X, Y = np.meshgrid(x,y)
     XY = np.stack((X.T,Y.T)).T
     Z = np.zeros((num_pts, num_pts, d))
-    Z[:,:,0:2] = XY
+    Z[...,dims] = XY
     Z = f(Z)
     cf = ax.contourf(X,Y,Z, **kwargs)
     return cf
@@ -74,7 +76,14 @@ class PlotDynamic:
                  drift_args = None):
         
         self.dyn = dyn
-        self.d = dyn.d
+        if isinstance(dyn.d, tuple):
+            self.d = dyn.d[0]
+            if len(dyn.d) > 1:
+                raise ValueError('Plotting is only supported for flattened '+
+                                 'inputs!')
+        else:
+            self.d = dyn.d
+
         self.dims = dims if dims is not None else [0,1]
         self.num_run = num_run
             
@@ -140,10 +149,11 @@ class PlotDynamic:
 
         """
         
-        if self.d == (1,):
+        if self.d == 1:
             _ = plot_1D(self.dyn.f, ax=self.ax, **self.objective_args)
         else:
-             _ = contour_2D(self.dyn.f, ax=self.ax, **self.objective_args)
+             _ = contour_2D(self.dyn.f, ax=self.ax, d=self.d, dims=self.dims,
+                            **self.objective_args)
     def init_x(self, x):
         """
         Initializes the particle plot.
@@ -158,7 +168,7 @@ class PlotDynamic:
         None
         """
 
-        if self.d == (1,):
+        if self.d == 1:
             if self.eval_energy_1d:
                 y = self.dyn.f(x[self.num_run, :, self.dims[0]][None,:,None])[...,None]
             else:
