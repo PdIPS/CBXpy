@@ -66,6 +66,21 @@ Among others, CBXPy currently implments
 * CBO with memory [[3]](#CBOMemory),
 * Batching schemes [[4]](#Batching).
 
+## Citing CBXPy
+
+If you use CBXPy in your project, please consider citing us, using the following bibtex entry :)
+
+```latex
+@misc{bailo2024cbx,
+      title={CBX: Python and Julia packages for consensus-based interacting particle methods}, 
+      author={Rafael Bailo and Alethea Barbaro and Susana N. Gomes and Konstantin Riedl and Tim Roith and Claudia Totzeck and Urbain Vaes},
+      year={2024},
+      eprint={2403.14470},
+      archivePrefix={arXiv},
+      primaryClass={math.OC}
+}
+```
+
 
 ## References
 
