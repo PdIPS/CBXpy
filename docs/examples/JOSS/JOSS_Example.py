@@ -87,4 +87,4 @@ plt.legend(handles=sc.legend_elements()[0],
 save = True
 if save:
     plt.tight_layout(pad=0.0, h_pad=0, w_pad=0)
-    plt.savefig('JOSS.png')
+    plt.savefig('JOSS.pdf')
