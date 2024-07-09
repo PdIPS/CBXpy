@@ -59,7 +59,7 @@ class PlotDynamic:
         Additional arguments to pass to contour_2D, which creates a contour plot of ``dyn.f``.
     particle_args
         Additional arguments to pass to ax.scatter, which plots the particles.
-    cosensus_args
+    consensus_args
         Additional arguments to pass to ax.scatter, which plots the consensus points.
 
     """
@@ -72,7 +72,7 @@ class PlotDynamic:
                  eval_energy_1d = True,
                  objective_args = None,
                  particle_args = None,
-                 cosensus_args = None,
+                 consensus_args = None,
                  drift_args = None):
         
         self.dyn = dyn
@@ -96,7 +96,7 @@ class PlotDynamic:
             
         self.objective_args = objective_args if objective_args is not None else {}
         self.particle_args = particle_args if particle_args is not None else {}
-        self.cosensus_args = cosensus_args if cosensus_args is not None else {}
+        self.consensus_args = consensus_args if consensus_args is not None else {}
         self.drift_args = {
             'scale':1, 'scale_units':'xy', 'angles':'xy', 
             'width':0.001, 'color':'orange'}
@@ -203,7 +203,7 @@ class PlotDynamic:
         self.scc = self.ax.scatter(
             c[self.num_run, :, self.dims[0]], 
             y,
-            **self.cosensus_args)
+            **self.consensus_args)
         
     def init_drift(self, x, dr, pidx):
         """
