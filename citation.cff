@@ -1,9 +1,64 @@
-cff-version: 1.0.0
-message: "If you use this software, please cite it as below."
+cff-version: "1.2.0"
 authors:
-- family-names: "Roith"
-  given-names: "Tim"
+- family-names: Bailo
+  given-names: Rafael
+  orcid: "https://orcid.org/0000-0001-8018-3799"
+- family-names: Barbaro
+  given-names: Alethea
+  orcid: "https://orcid.org/0000-0001-9856-2818"
+- family-names: Gomes
+  given-names: Susana N.
+  orcid: "https://orcid.org/0000-0002-8731-367X"
+- family-names: Riedl
+  given-names: Konstantin
+  orcid: "https://orcid.org/0000-0002-2206-4334"
+- family-names: Roith
+  given-names: Tim
   orcid: "https://orcid.org/0000-0001-8440-2928"
-title: "CBXpy"
-version: 0.0.1
-url: "https://https://github.com/PdIPS/CBXpy"
+- family-names: Totzeck
+  given-names: Claudia
+  orcid: "https://orcid.org/0000-0001-6283-7154"
+- family-names: Vaes
+  given-names: Urbain
+  orcid: "https://orcid.org/0000-0002-7629-7184"
+doi: 10.5281/zenodo.12207224
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Bailo
+    given-names: Rafael
+    orcid: "https://orcid.org/0000-0001-8018-3799"
+  - family-names: Barbaro
+    given-names: Alethea
+    orcid: "https://orcid.org/0000-0001-9856-2818"
+  - family-names: Gomes
+    given-names: Susana N.
+    orcid: "https://orcid.org/0000-0002-8731-367X"
+  - family-names: Riedl
+    given-names: Konstantin
+    orcid: "https://orcid.org/0000-0002-2206-4334"
+  - family-names: Roith
+    given-names: Tim
+    orcid: "https://orcid.org/0000-0001-8440-2928"
+  - family-names: Totzeck
+    given-names: Claudia
+    orcid: "https://orcid.org/0000-0001-6283-7154"
+  - family-names: Vaes
+    given-names: Urbain
+    orcid: "https://orcid.org/0000-0002-7629-7184"
+  date-published: 2024-06-21
+  doi: 10.21105/joss.06611
+  issn: 2475-9066
+  issue: 98
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 6611
+  title: "CBX: Python and Julia Packages for Consensus-Based Interacting
+    Particle Methods"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.06611"
+  volume: 9
+title: "CBX: Python and Julia Packages for Consensus-Based Interacting
+  Particle Methods"
