@@ -1,7 +1,7 @@
 #%%
 from ..noise import get_noise
 from ..correction import get_correction
-from ..scheduler import scheduler, multiply
+from ..scheduler import scheduler, multiply, effective_sample_size
 from ..utils.termination import max_it_term
 from ..utils.history import track_x, track_energy, track_update_norm, track_consensus, track_drift, track_drift_mean
 from ..utils.particle_init import init_particles
@@ -112,8 +112,8 @@ class ParticleDynamic:
         A callable that copies an array. The default is ``np.copy``.
     norm : Callable
         A callable that computes the norm of an array. The default is ``np.linalg.norm``.
-    normal : Callable
-        A callable that generates an array of random numbers that are distributed according to a normal distribution. The default is ``np.random.normal``.
+    sampler : Callable
+        A callable that generates an array of random numbers. The default is ``np.random.normal``.
 
     verbosity : int, optional
         The verbosity level. The default is 1.
@@ -134,7 +134,7 @@ class ParticleDynamic:
             verbosity: int = 1,
             copy: Callable = None,
             norm: Callable = None,
-            normal: Callable = None,
+            sampler: Callable = None,
             post_process: Callable = None,
             ) -> None:
         
@@ -143,7 +143,8 @@ class ParticleDynamic:
         # set utilities
         self.copy = copy if copy is not None else np.copy 
         self.norm = norm if norm is not None else np.linalg.norm
-        self.normal = normal if normal is not None else np.random.normal
+        rng = np.random.default_rng(12345)
+        self.sampler = sampler if sampler is not None else rng.standard_normal
         
         # init particles    
         self.init_x(x, M, N, d, x_min, x_max)
@@ -219,7 +220,7 @@ class ParticleDynamic:
             None
         """
         if check: # check if f returns correct shape
-            x = self.normal(0., 1., self.x.shape)
+            x = self.sampler(size=self.x.shape)
             if self.f(x).shape != (self.M,self.N):
                 raise ValueError("The given objective function does not return the correct shape!")
             self.num_f_eval += self.N * np.ones((self.M,), dtype=int) # number of function evaluations
@@ -340,6 +341,8 @@ class ParticleDynamic:
             sched = scheduler([])
         elif sched == 'default':
             sched = self.default_sched()
+        elif sched == 'effective':
+            sched = effective_sample_size()
         else:
             self.sched = sched
 
@@ -535,7 +538,7 @@ def compute_mat_sqrt(A):
     """
     B, V = np.linalg.eigh(A)
     B = np.maximum(B,0.)
-    return V@(np.sqrt(B)[...,None]*V.transpose(0,2,1))
+    return V@(np.sqrt(B)[...,None]*np.moveaxis(V, -1, -2))
 
 class compute_consensus_default:
     def __init__(self, check_coeffs = False):
@@ -829,7 +832,7 @@ class CBXDynamic(ParticleDynamic):
         """
         # set noise model
         if isinstance(noise, str):
-            self.noise_callable = get_noise(noise, norm=self.norm, sampler=self.normal)
+            self.noise_callable = get_noise(noise, self)
         elif callable(noise):
             self.noise_callable = noise
         else:
@@ -920,7 +923,9 @@ class CBXDynamic(ParticleDynamic):
         # evaluation of objective function on batch
         
         energy = self.eval_f(self.x[self.consensus_idx]) # update energy
-        return self._compute_consensus(energy, self.x[self.consensus_idx], self.alpha[self.active_runs_idx, :])
-        
-        
+        self.consensus, energy = self._compute_consensus(
+            energy, self.x[self.consensus_idx], 
+            self.alpha[self.active_runs_idx, :]
+        )
+        self.energy[self.consensus_idx] = energy
     

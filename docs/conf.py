@@ -18,11 +18,11 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'CBX'
-copyright = '2023, Tim Roith'
+copyright = '2024, Tim Roith'
 author = 'Tim Roith'
 
 # The full version, including alpha/beta/rc tags
-release = 'v0.1.1'
+release = 'v0.1.6'
 
 
 # -- General configuration ---------------------------------------------------
@@ -102,6 +102,7 @@ nbsphinx_thumbnails = {
     'examples/custom_noise': '_static/cbx-logo.png',
     'examples/low_level': '_static/cbx-logo.png',
     'examples/sampling': '_static/cbx-logo.png',
+    'examples/success_evaluation': '_static/cbx-logo.png',
 }
 
 def setup(app):

@@ -2,7 +2,7 @@ import numpy as np
 from typing import Callable, List
 
 def apply_resampling_default(dyn, idx):
-    z = dyn.normal(0, 1., size=(len(idx), dyn.N, *dyn.d))
+    z = dyn.sampler(size=(len(idx), dyn.N, *dyn.d))
     dyn.x[idx, ...] += dyn.sigma * np.sqrt(dyn.dt) * z
 
 class resampling:
@@ -22,10 +22,9 @@ class resampling:
         The function that should be performed on a given dynamic for selected indices. This function has to have the signature apply(dyn,idx).
     
     """
-    def __init__(self, resamplings: List[Callable], M: int, apply:Callable = None):
+    def __init__(self, resamplings: List[Callable], apply:Callable = None):
         self.resamplings = resamplings
-        self.M = M
-        self.num_resampling = np.zeros(M)
+        self.num_resampling = None
         self.apply = apply if apply is not None else apply_resampling_default
 
     def __call__(self, dyn):
@@ -41,12 +40,17 @@ class resampling:
         -------
         None
         """
+        self.check_num_resamplings(dyn.M)
         idx = np.unique(np.concatenate([r(dyn) for r in self.resamplings]))
         if len(idx)>0:
             self.apply(dyn, idx)
             self.num_resampling[idx] += 1
             if dyn.verbosity > 0:
                 print('Resampled in runs ' + str(idx))
+    
+    def check_num_resamplings(self, M):
+        if self.num_resampling is None:
+            self.num_resampling = np.zeros(shape=(M))
 
 class ensemble_update_resampling:
     """
@@ -88,13 +92,12 @@ class loss_update_resampling:
     The indices of the runs to resample as a numpy array.
     """
 
-    def __init__(self, M:int, wait_thresh:int = 5):
-        self.M = M
-        self.best_energy = float('inf') * np.ones((self.M,))
-        self.wait = np.zeros((self.M,), dtype=int)
+    def __init__(self, wait_thresh:int = 5):
         self.wait_thresh = wait_thresh
+        self.initalized = False
     
-    def __call__(self,dyn):
+    def __call__(self, dyn):
+        self.check_energy_wait(dyn.M)
         self.wait += 1
         u_idx = self.best_energy > dyn.best_energy
         self.wait[u_idx] = 0
@@ -102,3 +105,10 @@ class loss_update_resampling:
         idx = np.where(self.wait >= self.wait_thresh)[0]
         self.wait = np.mod(self.wait, self.wait_thresh)
         return idx
+    
+    def check_energy_wait(self, M):
+        if not self.initalized:
+            self.best_energy = float('inf') * np.ones((M,))
+            self.wait = np.zeros((M,), dtype=int)
+        self.initalized = True
+        

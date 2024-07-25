@@ -77,7 +77,7 @@ class Test_pdyn(test_abstract_dynamic):
                       max_it=2,
                       norm=norm_torch,
                       copy=torch.clone,
-                      normal=torch.normal
+                      sampler=torch.randn
                       )
         dyn.optimize()
         assert dyn.x.shape == (6,5,7)
@@ -125,8 +125,7 @@ class Test_cbx(test_abstract_dynamic):
         d=4
         N=12
         dyn = dynamic(f, M=M, d=d, N=N)
-        dyn.consensus, energy = dyn.compute_consensus()
-        dyn.energy = energy
+        dyn.compute_consensus()
         dyn.drift = dyn.x - dyn.consensus
         dyn.update_covariance()
         

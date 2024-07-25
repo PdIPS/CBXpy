@@ -67,11 +67,9 @@ class Test_polarcbo(test_abstract_dynamic):
                     nom += w * dyn.x[m,nn,:]
                     denom += w
                 c[m,n,:] = nom / denom
-        cc, _ = dyn.compute_consensus()
-        print(cc)
-        print(c)
+        dyn.compute_consensus()
         assert np.allclose(dd, d)
-        assert np.allclose(cc, c)
+        assert np.allclose(dyn.consensus, c)
 
 
     

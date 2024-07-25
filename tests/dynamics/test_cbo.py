@@ -91,13 +91,20 @@ class Test_cbo(test_abstract_dynamic):
     def test_step_batched_partial(self, dynamic, f):
         '''Test if partial batched step is correctly performed'''
         x = np.random.uniform(-1,1,(3,5,7))
+        class noise:
+            def __call__(self, dyn):
+                self.s = dyn.sampler(size=dyn.drift.shape) * dyn.drift
+                return self.s
+        N = noise()
 
-        dyn = dynamic(f, x=x, batch_args={'size':2, 'partial':True})
+        dyn = dynamic(f, x=x, noise=N, batch_args={'size':2, 'partial':True})
         dyn.step()
         ind = dyn.particle_idx[1]
         for j in range(x.shape[0]):
             for i in range(ind.shape[1]):
-                x[j, ind[j,i], :] = x[j, ind[j,i], :] - dyn.lamda * dyn.dt * (x[j, ind[j,i], :] - dyn.consensus[j, 0, :]) + dyn.s[j,i,:]
+                x[j, ind[j,i], :] = x[j, ind[j,i], :] -\
+                    dyn.lamda * dyn.dt * (x[j, ind[j,i], :] - dyn.consensus[j, 0, :])\
+                        + dyn.sigma * N.s[j,i,:]
             
         assert np.allclose(dyn.x, x)
         
@@ -111,11 +118,12 @@ class Test_cbo(test_abstract_dynamic):
             return torch.sum(x, dim=-1)
         def norm_torch(x, axis, **kwargs):
             return torch.linalg.norm(x, dim=axis, **kwargs)
+        
         dyn = dynamic(g, x=x, 
                       max_it = 2,
                       norm=norm_torch,
                       copy=torch.clone,
-                      normal=torch.normal,
+                      sampler=torch.randn,
                       f_dim='3D')
         dyn.optimize()
         assert dyn.x.shape == (6,5,7)

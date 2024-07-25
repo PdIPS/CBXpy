@@ -8,6 +8,7 @@ algorithms.
 """
 
 import numpy as np
+from scipy.stats import multivariate_normal
 from .utils.objective_handling import cbx_objective
     
 #%%
@@ -370,8 +371,7 @@ class Rastrigin(cbx_objective):
         self.minima = np.array([[self.b, self.b]])
         
     def apply(self, x):
-        return (1/x.shape[-1]) * np.sum((x - self.b)**2 - \
-                10*np.cos(2*np.pi*(x - self.b)) + 10, axis=-1) + self.c
+        return (1/x.shape[-1]) * np.sum((x - self.b)**2 - 10*np.cos(2*np.pi*(x - self.b)) + 10, axis=-1) + self.c
             
             
 class Rastrigin_multimodal(cbx_objective):
@@ -640,6 +640,20 @@ class Unimodal(cbx_objective):
         ret = -np.log(0.5*np.exp( -(x[...,0]-a[0])**2/8 - (x[...,1]-a[1])**2/0.5 ))
         
         return ret
+    
+class Multimodal(cbx_objective):
+    def __init__(self, means=None, covs=None):
+        super().__init__()
+        self.means = [np.zeros((2,))] if  means is None else means
+        self.covs  = [np.eye(2)]     if  covs  is None else covs
+        self.mns   = [multivariate_normal(mean=m, cov=c) for m,c in zip(self.means, self.covs)]
+        
+    def apply(self, x):
+        res = 0
+        for mn in self.mns:
+            res += mn.pdf(x)
+        return -np.log(res)
+            
     
 
 class Bukin6(cbx_objective):

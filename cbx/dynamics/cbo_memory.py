@@ -2,10 +2,10 @@ import numpy as np
 from typing import Union
 #from scipy.special import logsumexp
 
-from .pdyn import CBXDynamic
+from .cbo import CBO, cbo_update
 
 #%% CBO_Memory
-class CBOMemory(CBXDynamic):
+class CBOMemory(CBO):
     r"""Consensus-based optimization with memory effects (CBOMemory) class
 
     This class implements the CBO algorithm with memory effects as described in [1]_ and [2]_. The algorithm
@@ -64,7 +64,8 @@ class CBOMemory(CBXDynamic):
             self.sigma_memory = sigma_memory
         
         self.energy = self.f(self.x)
-        self.num_f_eval += np.ones(self.M, dtype=int) * self.N # update number of function evaluations   
+        self.num_f_eval += np.ones(self.M, dtype=int) * self.N # update number of function evaluations
+        self.ergexp = tuple([Ellipsis] + [None for _ in range(self.x.ndim-2)])
         
     def pre_step(self,):
         # save old positions
@@ -74,6 +75,13 @@ class CBOMemory(CBXDynamic):
         # set new batch indices
         self.set_batch_idx()
         
+    def memory_step(self,):
+        # add memory step, first define new drift
+        self.drift = self.x[self.particle_idx] - self.y[self.particle_idx]
+        self.x[self.particle_idx] += cbo_update(
+            self.drift, self.lamda_memory, self.dt, 
+            self.sigma_memory, self.noise()
+        )
         
     def inner_step(self,) -> None:
         r"""Performs one step of the CBOMemory algorithm.
@@ -87,45 +95,23 @@ class CBOMemory(CBXDynamic):
         None
         
         """
-            
-        mind = self.consensus_idx
-        ind = self.particle_idx
-        # first update
-        self.consensus = self.compute_consensus(self.y[mind], self.energy[mind])
         
-        # compute consensus and memory drift
-        consensus_drift = self.x[ind] - self.consensus
-        memory_drift = self.x[ind] - self.y[ind]
-        
-        # perform noise steps
-        # **NOTE**: noise always uses the ``drift`` attribute of the dynamic. 
-        # We first use the actual drift here and 
-        # then the memory difference
-        self.drift = consensus_drift
-        self.s_consensus = self.sigma * self.noise()
-        self.drift = memory_drift
-        self.s_memory = self.sigma_memory * self.noise()
-
-        # dynamcis update
-        # momentaneous positions of particles
-        self.x[ind] = (
-            self.x[ind] -
-            self.correction(self.lamda * self.dt * consensus_drift) -
-            self.lamda_memory * self.dt * memory_drift +
-            self.s_consensus + 
-            self.s_memory)
+        # first perform regular cbo step
+        self.cbo_step()
+        self.memory_step()
         
         # evaluation of objective function on all particles
-        energy_new = self.f(self.x[ind])    
-        self.num_f_eval += np.ones(self.M, dtype=int) * self.x[ind].shape[-2] # update number of function evaluations   
+        energy_new = self.eval_f(self.x[self.particle_idx])  
         
-        # historical best positions of particles
-        energy_expand = tuple([Ellipsis] + [None for _ in range(self.x.ndim-2)]) 
-        self.y[ind] = self.y[ind] + ((self.energy>energy_new)[energy_expand]) * (self.x[ind] - self.y[ind])
+        # historical best positions of particles 
+        self.y[self.particle_idx] += (
+            ((self.energy>energy_new)[self.ergexp]) * 
+            (self.x[self.particle_idx] - self.y[self.particle_idx])
+        )
         self.energy = np.minimum(self.energy, energy_new)
 
         
-    def compute_consensus(self, x_batch, energy) -> None:
+    def compute_consensus(self,) -> None:
         r"""Updates the weighted mean of the particles.
 
         Parameters
@@ -137,8 +123,10 @@ class CBOMemory(CBXDynamic):
         None
 
         """
-        c, _ = self._compute_consensus(energy, self.x[self.consensus_idx], self.alpha[self.active_runs_idx, :])
-        return c
+        self.consensus, _ = self._compute_consensus(
+            self.energy, self.y[self.consensus_idx], 
+            self.alpha[self.active_runs_idx, :]
+        )
     
     def update_best_cur_particle(self,) -> None:
         self.f_min = self.energy.min(axis=-1)

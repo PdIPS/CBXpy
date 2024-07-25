@@ -6,15 +6,13 @@ from numpy.typing import ArrayLike
 from numpy.random import normal
 import numpy as np
 
-def get_noise(name: str,
-             norm: Callable = None, 
-             sampler: Callable = None):
+def get_noise(name: str, dyn):
     if name == 'isotropic':
-        return isotropic_noise(norm=norm, sampler=sampler)
+        return isotropic_noise(norm=dyn.norm, sampler=dyn.sampler)
     elif name == 'anisotropic':
-        return anisotropic_noise(norm=norm, sampler=sampler)
+        return anisotropic_noise(norm=dyn.norm, sampler=dyn.sampler)
     elif name == 'covariance' or name == 'sampling':
-        return covariance_noise(norm=norm, sampler=sampler)
+        return covariance_noise(norm=dyn.norm, sampler=dyn.sampler)
     else:
         raise NotImplementedError('Noise model {} not implemented'.format(name))
 
@@ -101,8 +99,8 @@ class isotropic_noise(noise):
         Only the norm of the drift is used for the noise. Therefore, the noise vector is scaled with the same factor in each dimension, 
         which motivates the name **isotropic**. 
         '''
-        z = self.sampler(0, 1, size=(drift.shape))
-        return z * self.norm(drift, axis=-1, keepdims=True)
+        z = self.sampler(size = drift.shape)
+        return z * self.norm(drift.reshape(*drift.shape[:2],-1), axis=-1).reshape(drift.shape[:2] + (drift.ndim-2)*(1,)) 
     
 
 
@@ -155,7 +153,7 @@ class anisotropic_noise(noise):
             which motivates the name **anisotropic**.
             """
 
-            return self.sampler(0, 1, size=drift.shape) * drift
+            return self.sampler(size = drift.shape) * drift
         
 class covariance_noise(noise):
         r"""
@@ -172,12 +170,22 @@ class covariance_noise(noise):
         
         def __init__(self, 
                      norm: Callable = None,
-                     sampler: Callable = None):
+                     sampler: Callable = None,
+                     mode = 'sampling'):
             super().__init__(norm = norm, sampler = sampler)
+            self.mode = mode
 
         def __call__(self, dyn) -> ArrayLike:
-             factor = np.sqrt((1/dyn.lamda) * (1 - np.exp(-dyn.dt)**2))[(...,) + (None,) * (dyn.x.ndim - 2)]
+             dyn.update_covariance()
+             #factor = np.sqrt((1/dyn.lamda) * (1 - np.exp(-dyn.dt)**2))[(...,) + (None,) * (dyn.x.ndim - 2)]
+             factor = np.sqrt((2*dyn.dt)/self.lamda(dyn))[(...,) + (None,) * (dyn.x.ndim - 2)]
              return factor * self.sample(dyn.drift, dyn.Cov_sqrt)
+         
+        def lamda(self, dyn):
+            if self.mode == 'sampling':
+                return 1/(1 + dyn.alpha)
+            else:
+                return 1
         
         def sample(self, drift:ArrayLike, Cov_sqrt:ArrayLike) -> ArrayLike:
             r"""
@@ -202,7 +210,7 @@ class covariance_noise(noise):
             
             """
 
-            z = self.sampler(0, 1, size = drift.shape) 
+            z = self.sampler(size = drift.shape) 
             return self.apply_cov_sqrt(Cov_sqrt, z)
         
         def apply_cov_sqrt(self, Cov_sqrt: ArrayLike, z:ArrayLike) -> ArrayLike:
@@ -217,4 +225,9 @@ class covariance_noise(noise):
             Returns:
                 ArrayLike: The output of the matrix-vector product.
             """
-            return (Cov_sqrt@z.transpose(0,2,1)).transpose(0,2,1)
+            if Cov_sqrt.ndim == z.ndim:
+                return np.einsum('kij,klj->kli', Cov_sqrt, z)
+            elif Cov_sqrt.ndim == z.ndim + 1:
+                return np.einsum('klij,klj->kli', Cov_sqrt, z)
+            else:
+                raise RuntimeError('Shape mismatch between Cov_sqrt and sampled vector!')

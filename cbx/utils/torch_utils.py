@@ -43,9 +43,9 @@ def compute_polar_consensus_torch(energy, x, neg_log_eval, alpha = 1., kernel_fa
     return c, energy.detach().cpu().numpy()
 
 @requires_torch
-def normal_torch(device):
-    def _normal_torch(mean, std, size):
-        return torch.normal(mean, std, size).to(device)
+def standard_normal_torch(device):
+    def _normal_torch(size=None):
+        return torch.randn(size=size).to(device)
     return _normal_torch
 
 @requires_torch

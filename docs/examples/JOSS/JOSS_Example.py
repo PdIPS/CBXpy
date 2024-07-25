@@ -45,7 +45,7 @@ plt.rcParams.update({
 
 fig, ax = plt.subplots(1,1)
 cf = contour_2D(f, ax=ax, num_pts=1000, 
-           x_min=-4, x_max =4., cmap='coolwarm',
+           x_min=-4, x_max =4., cmap='binary',
            levels=50)
 cbar = plt.colorbar(cf)
 cbar.set_label('Objective value', rotation=270, labelpad=10)
@@ -78,11 +78,11 @@ for i in range(x_hist.shape[-2]):
                cmap = color_map,
                c = [i for i in range(sc_idx)],
                s=52,zorder=3)
-plt.legend(handles=sc.legend_elements()[0],
-           labels=['t = ' + str(i * kwargs['track_args']['save_int']*dyn.dt) 
-           for i in range(sc_idx)],
-           loc='lower right',
-           title='Particle evolution')
+# plt.legend(handles=sc.legend_elements()[0],
+#            labels=['t = ' + str(i * kwargs['track_args']['save_int']*dyn.dt) 
+#            for i in range(sc_idx)],
+#            loc='lower right',
+#            title='Particle evolution')
 #%%   
 save = True
 if save:

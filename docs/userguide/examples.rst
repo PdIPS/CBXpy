@@ -10,3 +10,4 @@ Examples
    ../examples/onedim_example.ipynb
    ../examples/low_level.ipynb
    ../examples/sampling.ipynb
+   ../examples/success_evaluation.ipynb

@@ -1,5 +1,8 @@
 from .pdyn import CBXDynamic
 
+
+def cbo_update(drift, lamda, dt, sigma, noise):
+    return -lamda * dt * drift + sigma * noise
 #%% CBO
 class CBO(CBXDynamic):
     r"""Consensus-based optimization (CBO) class
@@ -35,30 +38,17 @@ class CBO(CBXDynamic):
     def __init__(self, f, **kwargs) -> None:
         super().__init__(f, **kwargs)
         
-    
-    def inner_step(self,) -> None:
-        r"""Performs one step of the CBO algorithm.
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        None
+    def cbo_step(self,):
+        # compute consensus, sets self.energy and self.consensus
+        self.compute_consensus()
+        # update drift and apply drift correction
+        self.drift = self.correction(self.x[self.particle_idx] - self.consensus)
+        # perform cbo update step
+        self.x[self.particle_idx] += cbo_update(
+            self.drift, self.lamda, self.dt, 
+            self.sigma, self.noise()
+        )
         
-        """
-        # update, consensus point, drift and energy
-        self.consensus, energy = self.compute_consensus()
-        self.energy[self.consensus_idx] = energy
-        self.drift = self.x[self.particle_idx] - self.consensus
+    inner_step = cbo_step
 
         
-        # compute noise
-        self.s = self.sigma * self.noise()
-
-        #  update particle positions
-        self.x[self.particle_idx] = (
-            self.x[self.particle_idx] -
-            self.correction(self.lamda * self.dt * self.drift) +
-            self.s)

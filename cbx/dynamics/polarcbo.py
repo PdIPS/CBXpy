@@ -3,6 +3,7 @@ from typing import Callable
 from numpy.typing import ArrayLike
 from scipy.special import logsumexp
 
+from .pdyn import compute_mat_sqrt
 from .cbo import CBO
 
 #%% Kernel for PolarCBO
@@ -238,6 +239,33 @@ class PolarCBO(CBO):
     def compute_consensus(self,):
         x = self.x[self.consensus_idx]
         energy = self.eval_f(x)
-        neg_log_eval = self.kernel.neg_log(x[:,None,...], x[:,:,None,...])
-        return self._compute_consensus(energy, x, neg_log_eval, alpha = self.alpha[self.active_runs_idx, :, None], kernel_factor = self.kernel_factor())
+        self.neg_log_eval = self.kernel.neg_log(x[:,None,...], x[:,:,None,...])
+        
+        
+        
+        self.consensus, energy = self._compute_consensus(
+            energy, x, self.neg_log_eval, 
+            alpha = self.alpha[self.active_runs_idx, :, None], 
+            kernel_factor = self.kernel_factor()
+        )
+        self.energy[self.consensus_idx] = energy
+    
+    def update_covariance(self,):
+        r"""Update the covariance matrix :math:`\mathsf{C}(x_i)` of the noise model
+    
+        Parameters
+        ----------
+        None
+    
+        Returns
+        -------
+        None.
+    
+        """
+        weights = - self.kernel_factor() * self.neg_log_eval - self.alpha * self.energy
+        coeffs = np.exp(weights - logsumexp(weights, axis=(-1,), keepdims=True))
+      
+        D = self.drift[...,None] * self.drift[...,None,:]
+        D = np.sum(D * coeffs[..., None, None], axis = -3)
+        self.Cov_sqrt = compute_mat_sqrt(D)
         
