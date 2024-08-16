@@ -27,7 +27,7 @@ def requires_torch(f):
 
 @requires_torch
 def norm_torch(x, axis, **kwargs):
-    return torch.linalg.norm(x, dim=axis, **kwargs)  
+    return torch.linalg.vector_norm(x, dim=axis, **kwargs)  
 
 @requires_torch
 def compute_consensus_torch(energy, x, alpha):
@@ -47,6 +47,34 @@ def standard_normal_torch(device):
     def _normal_torch(size=None):
         return torch.randn(size=size).to(device)
     return _normal_torch
+
+def set_array_backend_funs_torch(self, copy, norm, sampler):
+    self.copy = copy if copy is not None else torch.clone
+    self.norm = norm if norm is not None else norm_torch
+    self.sampler = sampler if sampler is not None else standard_normal_torch(self.device)
+    
+def init_particles(self, shape=None,):
+    return torch.zeros(size=shape).uniform_(-1., 1.)
+
+def init_consensus(self, compute_consensus):
+    self.consensus = None #consensus point
+    self._compute_consensus = compute_consensus if compute_consensus is not None else compute_consensus_torch
+
+def to_torch_dynamic(dyn_cls):
+    def add_device_init(self, *args, device='cpu', **kwargs):
+        self.device = device
+        dyn_cls.__init__(self, *args, **kwargs)
+        
+    return type(dyn_cls.__name__ + str('_torch'), 
+         (dyn_cls,), 
+         dict(
+             __init__ = add_device_init,
+             set_array_backend_funs=set_array_backend_funs_torch,
+             init_particles=init_particles,
+             init_consensus=init_consensus
+             )
+         )
+
 
 @requires_torch
 def eval_model(x, model, w, pprop):

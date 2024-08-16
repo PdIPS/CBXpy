@@ -4,7 +4,6 @@ from ..correction import get_correction
 from ..scheduler import scheduler, multiply, effective_sample_size
 from ..utils.termination import max_it_term
 from ..utils.history import track_x, track_energy, track_update_norm, track_consensus, track_drift, track_drift_mean
-from ..utils.particle_init import init_particles
 from cbx.utils.objective_handling import _promote_objective
 
 #%%
@@ -126,7 +125,6 @@ class ParticleDynamic:
             f_dim: str = '1D',
             check_f_dims: bool = True,
             x: Union[None, np.ndarray] = None,
-            x_min: float = -1., x_max: float = 1.,
             M: int = 1, N: int = 20, d: int = None,
             max_it: int = 1000,
             term_criteria: List[Callable] = None,
@@ -136,18 +134,17 @@ class ParticleDynamic:
             norm: Callable = None,
             sampler: Callable = None,
             post_process: Callable = None,
+            seed: int = None
             ) -> None:
         
         self.verbosity = verbosity
+        self.seed = seed
         
-        # set utilities
-        self.copy = copy if copy is not None else np.copy 
-        self.norm = norm if norm is not None else np.linalg.norm
-        rng = np.random.default_rng(12345)
-        self.sampler = sampler if sampler is not None else rng.standard_normal
-        
+        # set array backend funs
+        self.set_array_backend_funs(copy, norm, sampler)
+
         # init particles    
-        self.init_x(x, M, N, d, x_min, x_max)
+        self.init_x(x, M, N, d)
         
         # set and promote objective function
         self.init_f(f, f_dim, check_f_dims)
@@ -166,7 +163,13 @@ class ParticleDynamic:
         # post processing
         self.post_process = post_process if post_process is not None else post_process_default
 
-    def init_x(self, x, M, N, d, x_min, x_max):
+    def set_array_backend_funs(self, copy, norm, sampler):
+        self.copy = copy if copy is not None else np.copy 
+        self.norm = norm if norm is not None else np.linalg.norm
+        rng = np.random.default_rng(self.seed)
+        self.sampler = sampler if sampler is not None else rng.standard_normal
+        
+    def init_x(self, x, M, N, d):
         """
         Initialize the particle system with the given parameters.
 
@@ -185,22 +188,22 @@ class ParticleDynamic:
         if x is None:
             if d is None:
                 raise RuntimeError('If the inital partical system is not given, the dimension d must be specified!')
-            x = init_particles(
-                    shape=(M, N, d), 
-                    x_min = x_min, x_max = x_max
-                )
+            self.x = self.init_particles(shape=(M, N, d))
+            
         else: # if x is given correct shape
-            if len(x.shape) == 1:
+            if x.ndim == 1:
                 x = x[None, None, :]
-            elif len(x.shape) == 2:
-                x = x[None, :]
+            elif x.ndim == 2:
+                x = x[None, ...]
+            self.x = self.copy(x)
         
-        self.M = x.shape[0]
-        self.N = x.shape[1]
-        self.d = x.shape[2:]
-        self.ddims = tuple(i for i in range(2, x.ndim))
-        self.x = self.copy(x)
+        self.M, self.N = self.x.shape[:2]
+        self.d = self.x.shape[2:]
+        self.ddims = tuple(i for i in range(2, self.x.ndim))
         
+        
+    def init_particles(self, shape=None):
+        return np.random.uniform(-1., 1., size=shape)
 
     def init_f(self, f, f_dim, check_f_dims):
         self.f = _promote_objective(f, f_dim)
@@ -620,15 +623,17 @@ class CBXDynamic(ParticleDynamic):
         self.set_noise(noise)
         
         self.init_batch_idx(batch_args)
-        
-        self.consensus = None #consensus point
-        self._compute_consensus = compute_consensus if compute_consensus is not None else compute_consensus_default()
+        self.init_consensus(compute_consensus)
         
     known_tracks = {
         'consensus': track_consensus,
         'drift_mean': track_drift_mean,
         'drift': track_drift,
         **ParticleDynamic.known_tracks,}
+    
+    def init_consensus(self, compute_consensus):
+        self.consensus = None #consensus point
+        self._compute_consensus = compute_consensus if compute_consensus is not None else compute_consensus_default()
     
     def init_alpha(self, alpha):
         '''

@@ -371,7 +371,7 @@ class Rastrigin(cbx_objective):
         self.minima = np.array([[self.b, self.b]])
         
     def apply(self, x):
-        return (1/x.shape[-1]) * np.sum((x - self.b)**2 - 10*np.cos(2*np.pi*(x - self.b)) + 10, axis=-1) + self.c
+        return (1/x.shape[-1]) * ((x - self.b)**2 - 10*np.cos(2*np.pi*(x - self.b)) + 10).sum(-1) + self.c
             
             
 class Rastrigin_multimodal(cbx_objective):

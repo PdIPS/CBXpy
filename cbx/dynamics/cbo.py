@@ -1,6 +1,5 @@
 from .pdyn import CBXDynamic
 
-
 def cbo_update(drift, lamda, dt, sigma, noise):
     return -lamda * dt * drift + sigma * noise
 #%% CBO
