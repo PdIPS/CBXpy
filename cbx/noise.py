@@ -5,7 +5,6 @@ from typing import Callable
 from numpy.typing import ArrayLike
 from numpy.random import normal
 import numpy as np
-import torch
 
 def get_noise(name: str, dyn):
     if name == 'isotropic':
@@ -232,26 +231,12 @@ class covariance_noise(noise):
                 return np.einsum('klij,klj->kli', Cov_sqrt, z)
             else:
                 raise RuntimeError('Shape mismatch between Cov_sqrt and sampled vector!')
-
-
-class quantum_noise(anisotropic_noise):
-    r"""
-    This class implements the quantum noise model.
-    It is a special case of the anisotropic noise model, where the sampler is a random exponential distribution.
-    """
-
-    def __init__(self, framework: str = "torch"):
-        if framework == "torch":
-            super().__init__(
-                norm=torch.linalg.norm,
-                sampler=lambda _, scale, size: torch.distributions.Exponential(
-                    scale
-                ).sample(size),
-            )
-        elif framework == "numpy":
-            super().__init__(
-                norm=np.linalg.norm,
-                sampler=lambda _, scale, size: np.random.exponential(scale, size),
-            )
-        else:
-            raise ValueError("Framework {} not supported".format(framework))
+    
+def exponential_sampler():
+    """The function returns the exponential sampler."""
+    def _exponential_sampler(size=None):
+        x = np.random.exponential(1.0, size)
+        sign = np.random.choice([-1, 1], size)
+        x *= sign
+        return x
+    return _exponential_sampler
