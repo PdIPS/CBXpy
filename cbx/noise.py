@@ -231,3 +231,12 @@ class covariance_noise(noise):
                 return np.einsum('klij,klj->kli', Cov_sqrt, z)
             else:
                 raise RuntimeError('Shape mismatch between Cov_sqrt and sampled vector!')
+    
+def exponential_sampler():
+    """The function returns the exponential sampler."""
+    def _exponential_sampler(size=None):
+        x = np.random.exponential(1.0, size)
+        sign = np.random.choice([-1, 1], size)
+        x *= sign
+        return x
+    return _exponential_sampler

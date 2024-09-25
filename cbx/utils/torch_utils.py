@@ -43,6 +43,17 @@ def compute_polar_consensus_torch(energy, x, neg_log_eval, alpha = 1., kernel_fa
     return c, energy.detach().cpu().numpy()
 
 @requires_torch
+def exponential_torch(device):
+    def _exponential_torch(size=None):
+        x = torch.distributions.Exponential(1.0).sample(
+                size
+        )
+        sign = torch.randint(0, 2, size) * 2 - 1
+        x: torch.Tensor = x* sign
+        return x.to(device)
+    return _exponential_torch
+
+@requires_torch
 def standard_normal_torch(device):
     def _normal_torch(size=None):
         return torch.randn(size=size).to(device)
