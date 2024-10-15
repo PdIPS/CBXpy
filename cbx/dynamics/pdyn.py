@@ -161,6 +161,9 @@ class ParticleDynamic:
         self.init_history(track_args)
         
         # post processing
+        self.set_post_process(post_process)
+        
+    def set_post_process(self, post_process):
         self.post_process = post_process if post_process is not None else post_process_default()
 
     def set_array_backend_funs(self, copy, norm, sampler):
