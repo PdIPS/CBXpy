@@ -2,7 +2,6 @@ from cbx.dynamics.cbo import CBO
 import pytest
 import numpy as np
 from test_abstraction import test_abstract_dynamic
-from cbx.utils.objective_handling import cbx_objective_fh
 from cbx.utils.termination import max_it_term, energy_tol_term, max_eval_term, max_time_term
 
 class Test_cbo(test_abstract_dynamic):
@@ -126,7 +125,7 @@ class Test_cbo(test_abstract_dynamic):
                       x=x,
                       max_it=15,)
         dyn.optimize()
-        assert dyn.x.shape == x.shape and not (dyn.x is x)
+        assert dyn.x.shape == x.shape and (dyn.x is not x)
         
     def test_update_best_cur_particle(self, f, dynamic):
         x = np.zeros((5,3,2))

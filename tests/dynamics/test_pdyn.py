@@ -3,7 +3,6 @@ from cbx.dynamics.pdyn import ParticleDynamic, CBXDynamic
 import pytest
 import numpy as np
 from test_abstraction import test_abstract_dynamic
-from cbx.utils.objective_handling import cbx_objective_fh
 import scipy as scp
 
 class Test_pdyn(test_abstract_dynamic):
@@ -76,7 +75,7 @@ class Test_pdyn(test_abstract_dynamic):
                       x=x,
                       max_it=15,)
         dyn.optimize()
-        assert dyn.x.shape == x.shape and not (dyn.x is x)
+        assert dyn.x.shape == x.shape and (dyn.x is not x)
   
         
 def test_mat_sqrt():
