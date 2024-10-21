@@ -489,20 +489,21 @@ class Ackley(cbx_objective):
         ax1.set_title('Surface plot')
     """
 
-    def __init__(self, a=20., b=0.2, c=2*np.pi):
+    def __init__(self, A=20., b=0.2, c=2*np.pi, minimum = None):
         super().__init__()
-        self.a=a
+        self.A=A
         self.b=b
         self.c=c
-        self.minima = np.array([[0,0]])
+        self.minima = np.array([[[0,0]]]) if minimum is None else minimum
     
     def apply(self, x):
         d = x.shape[-1]
+        x = x - self.minima
         
         arg1 = -self.b * np.sqrt(1/d) * np.linalg.norm(x,axis=-1)
         arg2 = (1/d) * np.sum(np.cos(self.c * x), axis=-1)
         
-        return -self.a * np.exp(arg1) - np.exp(arg2) + self.a + np.e
+        return -self.A * np.exp(arg1) - np.exp(arg2) + self.A + np.e
 
 
 class Ackley_multimodal(cbx_objective):

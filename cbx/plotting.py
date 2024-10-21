@@ -354,12 +354,12 @@ class PlotDynamicHistory(PlotDynamic):
         If plot_drift is True and the dynamic object does not save the drift.
     """
 
-    def __init__(self, dyn, **kwargs):
+    def __init__(self, dyn, particles = None, **kwargs):
         super().__init__(dyn, **kwargs)
 
         if 'x' not in dyn.history:
             raise RuntimeError('The dynamic has no particle history!')
-        self.x = self.dyn.history['x']
+        self.x = self.dyn.history['x'] if particles is None else particles
         self.max_it = len(self.x) - 1
         
         if self.plot_consensus:
