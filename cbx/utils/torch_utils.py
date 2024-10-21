@@ -32,14 +32,16 @@ def norm_torch(x, axis, **kwargs):
 @requires_torch
 def compute_consensus_torch(energy, x, alpha):
     weights = - alpha * energy
-    coeffs = torch.exp(weights - logsumexp(weights, dim=(-1,), keepdims=True))[...,None]
-    return (x * coeffs).sum(axis=1, keepdims=True), energy.detach().cpu().numpy()
+    coeff_expan = tuple([Ellipsis] + [None for i in range(x.ndim-2)])
+    coeffs = torch.exp(weights - logsumexp(weights, dim=-1, keepdims=True))[coeff_expan]
+    return (x * coeffs).sum(axis=1, keepdims=True), energy.cpu().numpy()
 
 @requires_torch
 def compute_polar_consensus_torch(energy, x, neg_log_eval, alpha = 1., kernel_factor = 1.):
     weights = -kernel_factor * neg_log_eval - alpha * energy[:,None,:]
-    coeffs = torch.exp(weights - torch.logsumexp(weights, dim=(-1,), keepdims=True))[...,None]
-    c = torch.sum(x[:,None,...] * coeffs, axis=-2)
+    coeff_expan = tuple([Ellipsis] + [None for i in range(x.ndim-2)])
+    coeffs = torch.exp(weights - torch.logsumexp(weights, dim=(-1,), keepdims=True))[coeff_expan]
+    c = torch.sum(x[:,None,...] * coeffs, axis=2)
     return c, energy.detach().cpu().numpy()
 
 @requires_torch

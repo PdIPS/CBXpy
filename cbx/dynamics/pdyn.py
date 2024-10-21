@@ -7,6 +7,7 @@ from ..utils.history import track_x, track_energy, track_update_norm, track_cons
 from cbx.utils.objective_handling import _promote_objective
 
 #%%
+from pprint import pformat
 from typing import Callable, Union, List
 from numpy.typing import ArrayLike
 import numpy as np
@@ -150,7 +151,7 @@ class ParticleDynamic:
         self.init_f(f, f_dim, check_f_dims)
 
         self.energy = float('inf') * np.ones((self.M,self.N)) # energy of the particles
-        self.best_energy = float('inf') * np.ones(self.M,)
+        self.best_energy, self.best_cur_energy = [float('inf') * np.ones(self.M,) for _ in [0,1]]
         self.best_particle = self.copy(self.x[:, 0, :])
         self.update_diff = float('inf') * np.ones((self.M,))
 
@@ -531,6 +532,14 @@ class ParticleDynamic:
         if len(idx) > 0:
             self.best_energy[idx] = self.best_cur_energy[idx]
             self.best_particle[idx, :] = self.copy(self.best_cur_particle[idx, :])
+    
+    print_vars = [
+        'M', 'N', 'd', 'term_criteria',
+    ]
+    
+    def __repr__(self):
+        v_dict = {k:getattr(self,k) for k in self.print_vars}
+        return str(type(self)) + '\n' + pformat(v_dict, indent=4, width=1)
               
 def compute_mat_sqrt(A):
     """
@@ -936,4 +945,7 @@ class CBXDynamic(ParticleDynamic):
             self.alpha[self.active_runs_idx, :]
         )
         self.energy[self.consensus_idx] = energy
+        
+        
+    print_vars = ['dt', 'lamda', 'alpha', 'copy', 'norm', 'sampler'] + ParticleDynamic.print_vars
     
