@@ -494,7 +494,7 @@ class Ackley(cbx_objective):
         self.A=A
         self.b=b
         self.c=c
-        self.minima = np.array([[[0,0]]]) if minimum is None else minimum
+        self.minima = 0 if minimum is None else minimum
     
     def apply(self, x):
         d = x.shape[-1]
