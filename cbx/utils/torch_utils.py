@@ -45,10 +45,44 @@ def compute_polar_consensus_torch(energy, x, neg_log_eval, alpha = 1., kernel_fa
     return c, energy.detach().cpu().numpy()
 
 @requires_torch
+def exponential_torch(device):
+    def _exponential_torch(size=None):
+        x = torch.distributions.Exponential(1.0).sample(
+                size
+        )
+        sign = torch.randint(0, 2, size) * 2 - 1
+        x: torch.Tensor = x* sign
+        return x.to(device)
+    return _exponential_torch
+
+@requires_torch
+class post_process_default_torch:
+    """
+    Default post processing.
+
+    This function performs some operations on the particles, after the inner step. 
+
+    Parameters:
+        None
+
+    Return:
+        None
+    """
+    def __init__(self, max_thresh: float = 1e8):
+        self.max_thresh = max_thresh
+    
+    def __call__(self, dyn):
+        dyn.x = torch.nan_to_num(dyn.x, nan=self.max_thresh)
+        dyn.x = torch.clamp(dyn.x, min=-self.max_thresh, max=self.max_thresh)
+
+@requires_torch
 def standard_normal_torch(device):
     def _normal_torch(size=None):
         return torch.randn(size=size).to(device)
     return _normal_torch
+
+def set_post_process_torch(self, post_process):
+    self.post_process = post_process if post_process is not None else post_process_default_torch()
 
 def set_array_backend_funs_torch(self, copy, norm, sampler):
     self.copy = copy if copy is not None else torch.clone
@@ -73,7 +107,8 @@ def to_torch_dynamic(dyn_cls):
              __init__ = add_device_init,
              set_array_backend_funs=set_array_backend_funs_torch,
              init_particles=init_particles,
-             init_consensus=init_consensus
+             init_consensus=init_consensus,
+             set_post_process = set_post_process_torch,
              )
          )
 

@@ -162,7 +162,10 @@ class ParticleDynamic:
         self.init_history(track_args)
         
         # post processing
-        self.post_process = post_process if post_process is not None else post_process_default
+        self.set_post_process(post_process)
+        
+    def set_post_process(self, post_process):
+        self.post_process = post_process if post_process is not None else post_process_default()
 
     def set_array_backend_funs(self, copy, norm, sampler):
         self.copy = copy if copy is not None else np.copy 
@@ -894,12 +897,12 @@ class CBXDynamic(ParticleDynamic):
         pass
         
     def post_step(self):
+        self.post_process(self)
         if hasattr(self, 'x_old'):
             self.update_diff = self.norm(self.x - self.x_old, axis=(-2,-1))/self.N
         
         self.update_best_cur_particle()
         self.update_best_particle()
-        self.post_process(self)
         self.track()
             
         self.t += self.dt

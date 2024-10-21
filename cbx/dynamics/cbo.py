@@ -47,7 +47,7 @@ class CBO(CBXDynamic):
             self.drift, self.lamda, self.dt, 
             self.sigma, self.noise()
         )
-        
     inner_step = cbo_step
+    
 
         

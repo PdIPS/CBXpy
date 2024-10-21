@@ -2,7 +2,6 @@ from cbx.dynamics.cbo import CBO
 import pytest
 import numpy as np
 from test_abstraction import test_abstract_dynamic
-from cbx.utils.objective_handling import cbx_objective_fh
 from cbx.utils.termination import max_it_term, energy_tol_term, max_eval_term, max_time_term
 
 class Test_cbo(test_abstract_dynamic):
@@ -111,22 +110,22 @@ class Test_cbo(test_abstract_dynamic):
     def test_torch_handling(self, f, dynamic):
         '''Test if torch is correctly handled'''
         import torch
-        x = torch.zeros((6,5,7))
+        from cbx.utils.torch_utils import to_torch_dynamic
+        x = torch.randn(size=(6,25,3))
         
-        @cbx_objective_fh
+        
         def g(x):
-            return torch.sum(x, dim=-1)
+            return torch.sum(x, dim=-1)**2
+        
         def norm_torch(x, axis, **kwargs):
             return torch.linalg.norm(x, dim=axis, **kwargs)
-        
-        dyn = dynamic(g, x=x, 
-                      max_it = 2,
-                      norm=norm_torch,
-                      copy=torch.clone,
-                      sampler=torch.randn,
-                      f_dim='3D')
+
+        dyn = to_torch_dynamic(dynamic)(g,
+                      f_dim = '3D',
+                      x=x,
+                      max_it=15,)
         dyn.optimize()
-        assert dyn.x.shape == (6,5,7)
+        assert dyn.x.shape == x.shape and (dyn.x is not x)
         
     def test_update_best_cur_particle(self, f, dynamic):
         x = np.zeros((5,3,2))
