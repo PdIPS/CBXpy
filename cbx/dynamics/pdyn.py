@@ -2,9 +2,14 @@
 from ..noise import get_noise
 from ..correction import get_correction
 from ..scheduler import scheduler, multiply, effective_sample_size
-from ..utils.termination import max_it_term
-from ..utils.history import track_x, track_energy, track_update_norm, track_consensus, track_drift, track_drift_mean
+from ..utils.termination import max_it_term, select_term
+from ..utils.history import (
+    track_x, track_energy, 
+    track_update_norm, track_consensus, track_drift, track_drift_mean,
+    default_track
+    )
 from cbx.utils.objective_handling import _promote_objective
+from warnings import warn
 
 #%%
 from pprint import pformat
@@ -419,7 +424,11 @@ class ParticleDynamic:
             checks : list
 
         """
-        self.term_criteria = term_criteria if term_criteria is not None else [max_it_term(max_it)]
+        if term_criteria is None:
+            self.term_criteria = [max_it_term(max_it)]
+        else:
+            self.term_criteria = [select_term(term) for term in term_criteria]
+
         self.term_reason = [None for i in range((self.M))]
         self.active_runs_idx = np.arange(self.M)
         self.num_active_runs = self.M
@@ -477,9 +486,13 @@ class ParticleDynamic:
             if key in self.known_tracks.keys():
                 self.tracks.append(self.known_tracks[key]())
             else:
-                raise RuntimeError('Unknown tracking key ' + key + ' specified!' +
-                        ' You can choose from the following keys '+ 
-                        str(self.known_tracks.keys()))
+                warn(
+                    'Unknown tracking key ' + key + ' specified!' +
+                    ' The following keys are known by default: ' + 
+                    str(self.known_tracks.keys()) + 
+                    '\n Using the default tracker instead'
+                )
+                self.tracks.append(default_track(key))
             
         for track in self.tracks:
             track.init_history(self)
@@ -534,7 +547,7 @@ class ParticleDynamic:
             self.best_particle[idx, :] = self.copy(self.best_cur_particle[idx, :])
     
     print_vars = [
-        'M', 'N', 'd', 'term_criteria',
+        'M', 'N', 'd',
     ]
     
     def __repr__(self):
@@ -947,5 +960,5 @@ class CBXDynamic(ParticleDynamic):
         self.energy[self.consensus_idx] = energy
         
         
-    print_vars = ['dt', 'lamda', 'alpha', 'copy', 'norm', 'sampler'] + ParticleDynamic.print_vars
+    print_vars = ['dt', 'lamda', 'sampler'] + ParticleDynamic.print_vars
     

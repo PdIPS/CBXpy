@@ -1,5 +1,8 @@
 import numpy as np
+from warnings import warn
 
+
+#%%
 class track:
     """
     Base class for tracking of variables in the history dictionary of given dynamics.
@@ -37,12 +40,36 @@ class track:
         """
         pass
 
+#%%
+class default_track(track):
+    def __init__(self, name):
+        self.name = str(name)
+        self.tracking = True
+        
+    def init_history(self, dyn) -> None:
+        dyn.history[self.name] = []
+
+    
+    def update(self, dyn) -> None:
+        if self.tracking:
+            if hasattr(dyn, self.name):
+                dyn.history[self.name].append(
+                    dyn.copy(getattr(dyn, self.name))
+                )
+            else:
+                warn('The tracker tried to track the variable ' + 
+                      self.name + 
+                      ' which is not an attribute of the given dynamic. ' + 
+                      'The varibale will not be tracked!')
+                self.tracking = False
+    
+#%%
 class track_x(track):
     """
     Class for tracking of variable 'x' in the history dictionary.
     """
     @staticmethod
-    def init_history(dyn):
+    def init_history(dyn) -> None:
         dyn.history['x'] = []
         dyn.history['x'].append(dyn.x)
     
@@ -98,7 +125,7 @@ class track_energy(track):
 
     @staticmethod
     def update(dyn) -> None:
-        dyn.history['energy'].append(dyn.best_cur_energy) 
+        dyn.history['energy'].append(np.copy(dyn.energy))# always assumes energy is numpy
 
 
 class track_consensus(track):

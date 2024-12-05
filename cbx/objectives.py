@@ -364,14 +364,19 @@ class Rastrigin(cbx_objective):
 
     """
 
-    def __init__(self, b=0., c=0.):
+    def __init__(self, b=0., c=0., A=10.):
         super().__init__()
         self.b = b
         self.c = c
+        self.A = A
         self.minima = np.array([[self.b, self.b]])
         
     def apply(self, x):
-        return (1/x.shape[-1]) * ((x - self.b)**2 - 10*np.cos(2*np.pi*(x - self.b)) + 10).sum(-1) + self.c
+        return (
+            (self.A * x.shape[-1]) * 
+            ((x - self.b)**2 - self.A * np.cos(2*np.pi*(x - self.b)) + 10).sum(-1) 
+            + self.c
+            )
             
             
 class Rastrigin_multimodal(cbx_objective):
@@ -1039,11 +1044,14 @@ class Holder_table(cbx_objective):
 
     """
 
-    def __init__(self):
+    def __init__(self, factor=1., shift= 0):
         super().__init__()
+        self.factor = factor
+        self.shift = shift
         self.minima = np.array([[8.05502, 9.66459], [-8.05502, 9.66459], [8.05502, -9.66459], [-8.05502, -9.66459]])
 
     def apply(self, x):
+        x = (x - self.shift) * self.factor
         return -np.abs(np.sin(x[...,0]) * np.cos(x[...,1]) * np.exp(np.abs(1 - np.sqrt(x[...,0]**2 + x[...,1]**2) / np.pi)))
 
 
