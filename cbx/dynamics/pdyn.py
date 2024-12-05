@@ -532,6 +532,13 @@ class ParticleDynamic:
         if len(idx) > 0:
             self.best_energy[idx] = self.best_cur_energy[idx]
             self.best_particle[idx, :] = self.copy(self.best_cur_particle[idx, :])
+
+    def to_numpy(self, x):
+        """
+        Given any array-like structure, this should return the numpy version of it.
+        In the default setup, where numpy is the array-backend this is the identity.
+        """
+        return x
     
     print_vars = [
         'M', 'N', 'd', 'term_criteria',

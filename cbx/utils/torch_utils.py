@@ -96,6 +96,9 @@ def init_consensus(self, compute_consensus):
     self.consensus = None #consensus point
     self._compute_consensus = compute_consensus if compute_consensus is not None else compute_consensus_torch
 
+def to_numpy(self, x):
+    return x.detach().cpu().numpy()
+
 def to_torch_dynamic(dyn_cls):
     def add_device_init(self, *args, device='cpu', **kwargs):
         self.device = device
@@ -109,6 +112,7 @@ def to_torch_dynamic(dyn_cls):
              init_particles=init_particles,
              init_consensus=init_consensus,
              set_post_process = set_post_process_torch,
+             to_numpy = to_numpy
              )
          )
 
@@ -178,4 +182,4 @@ class effective_sample_size:
             self.minimum * np.ones((dyn.M,)), self.maximum * np.ones((dyn.M,)), 
             max_it = self.solve_max_it, thresh=1e-2
         )
-        setattr(dyn, self.name, torch.tensor(val[:, None], device=device))
+        setattr(dyn, self.name, torch.tensor(val[:, None], device=device, dtype = dyn.x.dtype))
