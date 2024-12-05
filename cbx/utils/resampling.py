@@ -1,9 +1,9 @@
 import numpy as np
 from typing import Callable, List
 
-def apply_resampling_default(dyn, idx):
+def apply_resampling_default(dyn, idx, sigma_indep=0.1, var_name='x'):
     z = dyn.sampler(size=(len(idx), dyn.N, *dyn.d))
-    dyn.x[idx, ...] += dyn.sigma * np.sqrt(dyn.dt) * z
+    getattr(dyn, var_name)[idx, ...] += sigma_indep * np.sqrt(dyn.dt) * z
 
 class resampling:
     """
@@ -22,10 +22,17 @@ class resampling:
         The function that should be performed on a given dynamic for selected indices. This function has to have the signature apply(dyn,idx).
     
     """
-    def __init__(self, resamplings: List[Callable], apply:Callable = None):
+    def __init__(self,
+        resamplings: List[Callable], 
+        apply:Callable = None, 
+        sigma_indep:float = 0.1,
+        var_name = 'x'
+    ):
         self.resamplings = resamplings
         self.num_resampling = None
         self.apply = apply if apply is not None else apply_resampling_default
+        self.sigma_indep = sigma_indep
+        self.var_name = var_name
 
     def __call__(self, dyn):
         """
@@ -43,7 +50,7 @@ class resampling:
         self.check_num_resamplings(dyn.M)
         idx = np.unique(np.concatenate([r(dyn) for r in self.resamplings]))
         if len(idx)>0:
-            self.apply(dyn, idx)
+            self.apply(dyn, idx, var_name = self.var_name, sigma_indep = self.sigma_indep)
             self.num_resampling[idx] += 1
             if dyn.verbosity > 0:
                 print('Resampled in runs ' + str(idx))
@@ -72,6 +79,30 @@ class ensemble_update_resampling:
         
     def __call__(self, dyn):
         return np.where(dyn.update_diff < self.update_thresh)[0]
+
+
+class consensus_stagnation:
+    def __init__(self, patience=5, update_thresh=1e-4):
+        self.patience = patience
+        self.update_thresh = update_thresh
+        self.consensus_updates = 0
+        self.it = 0
+
+        
+    def __call__(self, dyn):
+        return np.where(self.check_consensus_update(dyn)  < self.update_thresh)[0]
+    
+    def check_consensus_update(self, dyn):
+        self.it += 1
+        wt = dyn.x[:, 0, 0] * 0
+        if hasattr(self, 'consensus_old'):
+            self.consensus_updates = ((self.consensus_updates * self.it) + dyn.norm(dyn.consensus - self.consensus_old, axis=-1))/(self.it + 1)
+            if self.it == self.patience:
+                wt = self.consensus_updates
+                self.consensus_updates = 0
+                self.it = 0
+        self.consensus_old = dyn.copy(dyn.consensus)
+        return dyn.to_numpy(wt)
     
 class loss_update_resampling:
     """
