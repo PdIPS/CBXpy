@@ -85,7 +85,7 @@ class consensus_stagnation:
     def __init__(self, patience=5, update_thresh=1e-4):
         self.patience = patience
         self.update_thresh = update_thresh
-        self.consensus_updates = 0
+        self.consensus_updates = []
         self.it = 0
 
         
@@ -94,14 +94,17 @@ class consensus_stagnation:
     
     def check_consensus_update(self, dyn):
         self.it += 1
-        wt = dyn.x[:, 0, 0] * 0
+        wt = dyn.x[:, 0, 0] + 1e10
         if hasattr(self, 'consensus_old'):
-            self.consensus_updates = ((self.consensus_updates * self.it) + dyn.norm(dyn.consensus - self.consensus_old, axis=-1))/(self.it + 1)
-            if self.it == self.patience:
-                wt = self.consensus_updates
-                self.consensus_updates = 0
-                self.it = 0
+            self.consensus_updates.append(
+                dyn.norm(
+                    dyn.to_numpy(dyn.consensus - self.consensus_old), axis=-1)[:, 0]
+            )
+            self.consensus_updates = self.consensus_updates[-self.patience:]
+            wt = np.array(self.consensus_updates).max(axis=0)
+            
         self.consensus_old = dyn.copy(dyn.consensus)
+        
         return dyn.to_numpy(wt)
     
 class loss_update_resampling:

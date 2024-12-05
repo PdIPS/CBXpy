@@ -112,7 +112,8 @@ class energy_stagnation_term:
     def __call__(self, dyn):
         if self.losses is None: 
             self.losses = np.random.uniform(0., 1., size=(self.patience, dyn.M))
-        if dyn.consensus is None: return np.zeros((dyn.M), dtype=bool)
+        if dyn.consensus is None: 
+            return np.zeros((dyn.M), dtype=bool)
         # eval loss
         E = dyn.f(dyn.consensus[dyn.active_runs_idx, ...])
         dyn.num_f_eval[dyn.active_runs_idx] += 1
@@ -132,7 +133,7 @@ def select_term(term):
     elif hasattr(term, 'keys'):
         if 'name' in term.keys():
             return term_dict[term['name']](
-                **{k:v for k,v in term.items() if not k in ['name']}
+                **{k:v for k,v in term.items() if k not in ['name']}
                 )
         else:
             raise ValueError('The given term dict: ' + str(term) + '\n ' +

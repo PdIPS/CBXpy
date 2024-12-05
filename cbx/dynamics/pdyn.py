@@ -490,7 +490,8 @@ class ParticleDynamic:
                     'Unknown tracking key ' + key + ' specified!' +
                     ' The following keys are known by default: ' + 
                     str(self.known_tracks.keys()) + 
-                    '\n Using the default tracker instead'
+                    '\n Using the default tracker instead',
+                    stacklevel=2
                 )
                 self.tracks.append(default_track(key))
             

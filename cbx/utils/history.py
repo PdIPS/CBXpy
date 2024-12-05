@@ -60,7 +60,8 @@ class default_track(track):
                 warn('The tracker tried to track the variable ' + 
                       self.name + 
                       ' which is not an attribute of the given dynamic. ' + 
-                      'The varibale will not be tracked!')
+                      'The varibale will not be tracked!',
+                      stacklevel=2)
                 self.tracking = False
     
 #%%
