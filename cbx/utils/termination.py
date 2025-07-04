@@ -51,7 +51,8 @@ class max_eval_term:
         self.max_eval = max_eval
     
     def __call__(self, dyn):
-        return dyn.num_f_eval >= self.max_eval
+        estimated_eval = dyn.batch_size
+        return (dyn.num_f_eval + estimated_eval) >= self.max_eval
     
 term_dict.update(
     dict.fromkeys(['max-eval', 'max eval', 'max_eval'], 
