@@ -59,12 +59,19 @@ with a parameter $\alpha>0$. The scheme can be extended to sampling problems kno
 
 ## Functionality
 
-Among others, CBXPy currently implments
+Among others, CBXPy currently implements
 
-* CBO (Consensus-Based Optimization) [[1]](#CBO),
-* CBS (Consensus-Based Sampling) [[2]](#CBS),
-* CBO with memory [[3]](#CBOMemory),
-* Batching schemes [[4]](#Batching).
+* CBO (Consensus-Based Optimization) [[1]](#CBO)
+* CBS (Consensus-Based Sampling) [[2]](#CBS)
+* CBO with memory [[3]](#CBOMemory)
+* Batching schemes [[4]](#Batching)
+* Polarized CBO [[5]](#PolarizedCBO)
+* Mirror CBO [[6]](#MirrorCBO)
+* Adamized CBO [[7]](#AdamizedCBO) 
+* Constrained CBO methods, including
+  * Drift Correction [[8]](#DriftCorrection)
+  * Regularization [[9]](#Regularization)
+  * Hypersurface CBO [[10]](#HypersurfaceCBO)
 
 
 ## References
@@ -76,3 +83,15 @@ Among others, CBXPy currently implments
 <a name="CBOMemory">[3]</a> Leveraging Memory Effects and Gradient Information in Consensus-Based Optimization: On Global Convergence in Mean-Field Law, Riedl, K., 2022
 
 <a name="Batching">[4]</a> A consensus-based global optimization method for high dimensional machine learning problems, Carrillo, J.A., Jin, S., Li, L. and Zhu, Y., ESAIM: Control, Optimisation and Calculus of Variations 2021
+
+<a name="PolarizedCBO">[5]</a> Bungert, L., Roith, T., & Wacker, P. (2024). Polarized consensus-based dynamics for optimization and sampling. Mathematical Programming, 1-31.
+
+<a name="MirrorCBO">[6]</a> Bungert, L., Hoffmann, F., Kim, D. Y., & Roith, T. (2025). MirrorCBO: A consensus-based optimization method in the spirit of mirror descent. arXiv preprint arXiv:2501.12189.
+
+<a name="AdamizedCBO">[7]</a> Chen, J., Jin, S., & Lyu, L. (2020). A consensus-based global optimization method with adaptive momentum estimation. arXiv preprint arXiv:2012.04827.
+
+<a name="DriftCorrection">[8]</a> Carrillo, J. A., Jin, S., Zhang, H., & Zhu, Y. (2024). An interacting particle consensus method for constrained global optimization. arXiv preprint arXiv:2405.00891.
+
+<a name="Regularization">[9]</a> Borghi, G., Herty, M., & Pareschi, L. (2023). Constrained consensus-based optimization. SIAM Journal on Optimization, 33(1), 211-236.
+
+<a name="HypersurfaceCBO">[10]</a> Fornasier, M., Huang, H., Pareschi, L., & Sünnen, P. (2020). Consensus-based optimization on hypersurfaces: Well-posedness and mean-field limit. Mathematical Models and Methods in Applied Sciences, 30(14), 2725-2751.
