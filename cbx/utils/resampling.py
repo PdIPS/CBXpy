@@ -115,17 +115,29 @@ class consensus_stagnation:
     
     def check_consensus_update(self, dyn):
         self.it += 1
-        wt = dyn.to_numpy(dyn.x[:, 0, 0]) + 1e10
-        if hasattr(self, 'consensus_old'):
-            self.consensus_updates.append(
-                dyn.to_numpy(dyn.norm(dyn.consensus - self.consensus_old, axis=-1))[:, 0]
-            )
-            self.consensus_updates = self.consensus_updates[-self.patience:]
-            wt = np.array(self.consensus_updates).max(axis=0)
-            
-        self.consensus_old = dyn.copy(dyn.consensus)
+        wt = float('inf') * np.ones(dyn.M,)
+        wt[dyn.active_runs_idx] = 0
         
+        if hasattr(self, 'consensus_old'):
+            diffs = np.zeros(dyn.M,)
+            diffs[dyn.active_runs_idx] = dyn.to_numpy(
+                dyn.norm(dyn.consensus - self.consensus_old[dyn.active_runs_idx, ...], 
+                         axis=tuple(-i for i in range(1, dyn.x.ndim-1))
+                        )
+            )[:, 0]
+            
+            self.consensus_updates.append(diffs)
+            self.consensus_updates = self.consensus_updates[-self.patience:]
+            wt += np.array(self.consensus_updates).max(axis=0)
+        else:
+            wt += float('inf') 
+
+        self.set_consensus_old(dyn)        
         return wt
+
+    def set_consensus_old(self, dyn):
+        self.consensus_old = 0 * dyn.copy(dyn.x[:, 0:1, ...])
+        self.consensus_old[dyn.active_runs_idx, ...] = dyn.copy(dyn.consensus)
     
 class loss_update_resampling:
     """

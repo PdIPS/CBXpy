@@ -624,6 +624,8 @@ class CBXDynamic(ParticleDynamic):
             The maximum time to run the dynamic. Default: None.
         correction: str or Callable, optional
             The correction method. Default: 'no_correction'. One of 'no_correction', 'heavi_side', 'heavi_side_reg' or a Callable.
+        save_consensus_eval_points: bool, optional
+            Decide whether to save the point were the consensus point was evaluated. Default: False
         correction_eps: float, optional
             The parameter :math:`\epsilon` for the regularized correction. Default: 1e-3.
 
@@ -640,6 +642,7 @@ class CBXDynamic(ParticleDynamic):
             correction: Union[str, None] = 'no_correction', 
             correction_eps: float = 1e-3,
             compute_consensus: Callable = None,
+            save_consensus_eval_points: bool = False,
             **kwargs) -> None:
         
         super().__init__(f, **kwargs)
@@ -650,6 +653,8 @@ class CBXDynamic(ParticleDynamic):
         self.init_alpha(alpha)
         self.sigma = sigma
         self.lamda = lamda
+
+        self.save_consensus_eval_points = save_consensus_eval_points
         
         self.correction_eps = correction_eps
         self.set_correction(correction)
@@ -794,11 +799,11 @@ class CBXDynamic(ParticleDynamic):
         self.batch_idx = self.indices[:, :self.batch_size] # get batch indices
         self.indices = self.indices[:, self.batch_size:] # remove batch indices from indices
 
-        self.consensus_idx = (self.get_reshaped_run_idx(), self.batch_idx, Ellipsis)
+        self.consensus_idx = (self.get_reshaped_run_idx(), self.batch_idx[self.active_runs_idx, :], Ellipsis)
         if self.batch_partial:
             self.particle_idx = self.consensus_idx
         else:
-            self.particle_idx = Ellipsis
+            self.particle_idx = (self.active_runs_idx, Ellipsis)
         
             
     def default_sched(self,) -> scheduler:
@@ -958,14 +963,24 @@ class CBXDynamic(ParticleDynamic):
         None
 
         """
+        # maybe save the points on which the energy is evaluated for the consensus
+        self.maybe_save_consensus_eval_points()
         # evaluation of objective function on batch
-        
         energy = self.eval_f(self.x[self.consensus_idx]) # update energy
         self.consensus, energy = self._compute_consensus(
             energy, self.x[self.consensus_idx], 
             self.alpha[self.active_runs_idx, :]
         )
         self.energy[self.consensus_idx] = energy
+
+    def maybe_save_consensus_eval_points(self,):
+        if not self.save_consensus_eval_points:
+            return
+            
+        if not hasattr(self, 'consensus_eval_points'):
+            self.consensus_eval_points = self.copy(self.x)
+        else:
+            self.consensus_eval_points[self.consensus_idx] = self.copy(self.x[self.consensus_idx])
         
         
     print_vars = ['dt', 'lamda', 'sampler'] + ParticleDynamic.print_vars

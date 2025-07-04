@@ -5,6 +5,7 @@ from .adamcbo import AdamCBO
 from .pso import PSO
 from .cbs import CBS
 from .polarcbo import PolarCBO
+from .mirrorcbo import MirrorCBO
 
 __all__ = ['ParticleDynamic', 
            'CBXDynamic', 
@@ -13,5 +14,6 @@ __all__ = ['ParticleDynamic',
            'AdamCBO',
            'PSO', 
            'CBS',
-           'PolarCBO']
+           'PolarCBO',
+           'MirrorCBO']
 
