@@ -28,6 +28,14 @@ class Test_cbo(test_abstract_dynamic):
         dyn.optimize()
         assert np.all(dyn.num_f_eval == np.array([6,6,6,6]))
 
+    def test_term_crit_maxeval_below(self, dynamic, f):
+        '''Test termination criterion on max function evaluations'''
+        dyn = dynamic(f, d=5, M=4, N=3, batch_args = {'size':2}, 
+                      term_criteria=[max_eval_term(5), max_it_term(10)],
+                      check_f_dims = False)
+        dyn.optimize()
+        assert np.all(dyn.num_f_eval == np.array([4,4,4,4]))
+
     def test_mean_compute(self, dynamic, f):
         '''Test if mean is correctly computed'''
         x = np.random.uniform(-1,1,(3,5,7))

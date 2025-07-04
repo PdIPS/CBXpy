@@ -1,8 +1,8 @@
 import numpy as np
-from typing import Union, Tuple
+from typing import Tuple
 #from scipy.special import logsumexp
 
-from .cbo import CBO, cbo_update
+from .cbo import CBO
 
 class AdamCBO(CBO):
     """
@@ -21,7 +21,7 @@ class AdamCBO(CBO):
     **kwargs : additional keyword arguments
         Additional parameters for the CBO algorithm, such as `lamda`, `sigma`, etc.
     """
-    
+
     def __init__(
         self,
         f,

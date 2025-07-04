@@ -1,5 +1,4 @@
 from cbx.dynamics.cbo import CBO, cbo_update
-from cbx.dynamics.polarcbo import PolarCBO
 from cbx.utils.history import track
 import numpy as np
 import warnings
@@ -10,8 +9,6 @@ def raise_NIE(cls_name, f_name):
         ' does not implement the function ' + f_name
         )
     
-
-
 def Bregman_distance(F, p, q):
     return F(p) - F(q) - (F.grad(q) * (p - q)).sum(axis=-1)
 
@@ -55,7 +52,6 @@ class ProjectionMirrorMap(MirrorMap):
         return theta
 
 
-
 class ProjectionBall(ProjectionMirrorMap):
     def __init__(self, radius=1., center=0.):
         super().__init__()
@@ -76,8 +72,10 @@ class ProjectionBall(ProjectionMirrorMap):
     
 
 class ProjectionHyperplane(ProjectionMirrorMap):
-    def __init__(self, a=1, b=0):
+    def __init__(self, a = None, b = 0):
         super().__init__()
+        if a is None:
+            a = np.ones((1,1,1))
         self.a = a
         self.norm_a = np.linalg.norm(a, axis=-1)**2
         self.b = b
@@ -164,19 +162,22 @@ class L2(MirrorMap):
     
    
 class weighted_L2(MirrorMap):
-    def __init__(self, A):
+    def __init__(self, A = None):
         super().__init__()
+        if A is None:
+            A = np.eye(1)
         self.A = A
     
     def __call__(self,theta):
-        return 0.5*theta.T@self.A@theta
+        return 0.5*theta.T @ self.A @theta
     
     def grad(self, theta):
-        return np.reshape(0.5*(self.A + self.A.T)@theta[:,:,np.newaxis],theta.shape)
+        return np.reshape(0.5*(self.A + self.A.T)@theta[:,:,None],theta.shape)
     
     def grad_conj(self, y):
-        raise Warning('Not properly implemented')
-        return np.linalg.solve(0.5*(self.A + self.A.T),y.T).T
+        warnings.warn('Not properly implemented', stacklevel=2)
+        return y
+        #return np.linalg.solve(0.5*(self.A + self.A.T),y.T).T
     
     def hessian(self, theta):
         return np.expand_dims(np.ones(theta.shape),axis=1) * 0.5*(self.A.T+self.A)
@@ -231,7 +232,7 @@ class Entropy(MirrorMap):
        EPS = np.finfo(np.float32).eps
        return np.log(1/(x + EPS)) - 1
    
-   def grad_conj(self, y, theta):
+   def grad_conj(self, y):
        return np.exp(-(y + 1))   
     
     
@@ -267,7 +268,8 @@ def get_mirror_map(mm):
         return get_mirror_map_by_name(str(mm))
     else:
         warnings.warn('MirrorMap did not fit the signature dict or str.' + 
-                      'Intepreting the input as a valid mirror map.')
+                      'Intepreting the input as a valid mirror map.', 
+                      stacklevel=2)
         return mm
 
 #%%
