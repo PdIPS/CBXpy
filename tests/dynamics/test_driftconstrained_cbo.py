@@ -28,3 +28,7 @@ class Test_driftconstrained_cbo(Test_cbo):
     def test_torch_handling(self, f, dynamic):
         # ToDo: Implement a test for handling torch tensors
         pass
+
+    def test_optimization_performance(self, f, dynamic, opt_kwargs):
+        # ToDo: Implement a test for optimization performance
+        pass
