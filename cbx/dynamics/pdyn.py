@@ -33,11 +33,13 @@ class post_process_default:
     Return:
         None
     """
-    def __init__(self, max_thresh: float = 1e8):
-        self.max_thresh = max_thresh
+    def __init__(self, max_thresh: float = 1e8, 
+                 copy_nan_to_num: bool = False):
+        self.max_thresh      = max_thresh
+        self.copy_nan_to_num = copy_nan_to_num
     
     def __call__(self, dyn):
-        np.nan_to_num(dyn.x, copy=False, nan=self.max_thresh)
+        np.nan_to_num(dyn.x, copy=self.copy_nan_to_num, nan=self.max_thresh)
         dyn.x = np.clip(dyn.x, -self.max_thresh, self.max_thresh)
 
 class ParticleDynamic:

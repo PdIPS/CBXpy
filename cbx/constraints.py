@@ -62,7 +62,7 @@ class MultiConstraint:
         elif len(self.constraints) == 1:
             return self.constraints[0].solve_Id_plus_call_grad(x, x_tilde, factor=factor)
         else:
-            return 0
+            return x_tilde
 
 
     def solve_Id_hessian_squared_sum(self, x, x_tilde, factor=1.):

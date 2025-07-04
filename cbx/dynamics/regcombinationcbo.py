@@ -1,5 +1,5 @@
 from cbx.dynamics import CBO
-import numpy as np
+from cbx.dynamics.pdyn import post_process_default
 from cbx.constraints import get_constraints, MultiConstraint
 from cbx.regularizers import regularize_objective
 
@@ -38,3 +38,8 @@ class RegCombinationCBO(CBO):
             #self.x = solve_system(A, x_tilde)
         else:
             self.x = x_tilde
+
+    def set_post_process(self, post_process):
+        self.post_process = (
+            post_process if post_process is not None else post_process_default(copy_nan_to_num=True)
+        )

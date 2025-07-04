@@ -83,7 +83,10 @@ class regularize_objective:
             M = x.shape[0]
             self.lamda = np.ones((M,1)) * self.lamda
             self.lamda_broadcasted = True
-        
+
+    @property
+    def num_eval(self):
+        return self.original_func.num_eval        
 #%%  
 def simple_param_rule_mean(dyn):
     return dyn.f.reg_func(dyn.x).mean(axis=-1)
