@@ -13,6 +13,8 @@ def get_noise(name: str, dyn):
         return anisotropic_noise(norm=dyn.norm, sampler=dyn.sampler)
     elif name == 'covariance' or name == 'sampling':
         return covariance_noise(norm=dyn.norm, sampler=dyn.sampler)
+    elif name == 'constant':
+        return constant_noise(norm=dyn.norm, sampler=dyn.sampler)
     else:
         raise NotImplementedError('Noise model {} not implemented'.format(name))
 
@@ -46,6 +48,18 @@ class noise:
         This function performs the sampling of the noise vector. Each specific noise model must implement this function.
         """
         raise NotImplementedError('Base class does not implement sample')
+    
+class constant_noise(noise):
+    def __init__(self, 
+                norm: Callable = None, 
+                sampler: Callable = None):
+        super().__init__(norm = norm, sampler = sampler)
+    
+    def __call__(self, dyn) -> ArrayLike:
+        return np.sqrt(dyn.dt) * self.sample(dyn.drift)
+    
+    def sample(self, drift) -> ArrayLike:
+        return self.sampler(size = drift.shape)
 
 class isotropic_noise(noise):
     r"""

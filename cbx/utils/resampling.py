@@ -26,13 +26,15 @@ class resampling:
         resamplings: List[Callable], 
         apply:Callable = None, 
         sigma_indep:float = 0.1,
-        var_name = 'x'
+        var_name = 'x',
+        track_best_consensus = False
     ):
         self.resamplings = resamplings
         self.num_resampling = None
         self.apply = apply if apply is not None else apply_resampling_default
         self.sigma_indep = sigma_indep
         self.var_name = var_name
+        self.track_best_consensus = track_best_consensus
 
     def __call__(self, dyn):
         """
@@ -54,10 +56,29 @@ class resampling:
             self.num_resampling[idx] += 1
             if dyn.verbosity > 0:
                 print('Resampled in runs ' + str(idx))
+                
+            self._track_best_consensus(dyn, idx)
     
     def check_num_resamplings(self, M):
         if self.num_resampling is None:
             self.num_resampling = np.zeros(shape=(M))
+            
+    def _track_best_consensus(self, dyn, idx):
+        if not self.track_best_consensus:
+            return
+        consensus_energy = dyn.eval_f(dyn.consensus[idx, ...])
+        
+        if not hasattr(self, 'best_consensus'):
+            self.best_consensus = dyn.copy(dyn.consensus)
+            self.best_consensus_energy = np.inf * np.ones((dyn.M,1))
+            self.best_consensus_energy[idx, ...] = consensus_energy
+        else:
+            idx2 = np.where(
+                consensus_energy < self.best_consensus_energy[idx, ...]
+                )[0]
+            self.best_consensus[idx[idx2], ...] = dyn.copy(
+                dyn.consensus[idx[idx2], ...]
+                )
 
 class ensemble_update_resampling:
     """
