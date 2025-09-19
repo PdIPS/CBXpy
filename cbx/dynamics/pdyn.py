@@ -363,7 +363,7 @@ class ParticleDynamic:
         while not self.terminate():
             self.step()
             sched.update(self)
-            if (self.it % print_int == 0):
+            if ((self.it - 1) % print_int == 0):
                 self.print_cur_state()
 
         self.print_post_opt()
