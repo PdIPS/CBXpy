@@ -1,0 +1,1513 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cbx.dynamics.pdyn &#8212; CBX v0.1.6 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/style.css?v=609cf928" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=95b6b9dc"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cbx/dynamics/pdyn';</script>
+    <link rel="icon" href="../../../_static/cbx-logo.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/cbx-logo.png" class="logo__image only-light" alt="CBX v0.1.6 documentation - Home"/>
+    <img src="../../../_static/cbx-logo.png" class="logo__image only-dark pst-js-only" alt="CBX v0.1.6 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../userguide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/PdIPS/CBXpy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../userguide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/PdIPS/CBXpy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cbx.dynamics.pdyn</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cbx.dynamics.pdyn</h1><div class="highlight"><pre>
+<span></span><span class="c1">#%%</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..noise</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_noise</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..correction</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_correction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">scheduler</span><span class="p">,</span> <span class="n">multiply</span><span class="p">,</span> <span class="n">effective_sample_size</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils.termination</span><span class="w"> </span><span class="kn">import</span> <span class="n">max_it_term</span><span class="p">,</span> <span class="n">select_term</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils.history</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">track_x</span><span class="p">,</span> <span class="n">track_energy</span><span class="p">,</span> 
+    <span class="n">track_update_norm</span><span class="p">,</span> <span class="n">track_consensus</span><span class="p">,</span> <span class="n">track_drift</span><span class="p">,</span> <span class="n">track_drift_mean</span><span class="p">,</span>
+    <span class="n">default_track</span>
+    <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cbx.utils.objective_handling</span><span class="w"> </span><span class="kn">import</span> <span class="n">_promote_objective</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">warn</span>
+
+<span class="c1">#%%</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pformat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.lib.stride_tricks</span><span class="w"> </span><span class="kn">import</span> <span class="n">as_strided</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.random</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">MT19937</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">logsumexp</span> <span class="k">as</span> <span class="n">logsumexp_scp</span>
+
+        
+<span class="k">class</span><span class="w"> </span><span class="nc">post_process_default</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Default post processing.</span>
+
+<span class="sd">    This function performs some operations on the particles, after the inner step. </span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        None</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_thresh</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e8</span><span class="p">,</span> 
+                 <span class="n">copy_nan_to_num</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_thresh</span>      <span class="o">=</span> <span class="n">max_thresh</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">copy_nan_to_num</span> <span class="o">=</span> <span class="n">copy_nan_to_num</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dyn</span><span class="p">):</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">dyn</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">copy_nan_to_num</span><span class="p">,</span> <span class="n">nan</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_thresh</span><span class="p">)</span>
+        <span class="n">dyn</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">dyn</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">max_thresh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_thresh</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ParticleDynamic">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParticleDynamic</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;The base particle dynamic class</span>
+
+<span class="sd">    This class implements the base particle dynamic class. This class does not implement </span>
+<span class="sd">    any functionality that is specific to consensus schemes. The only necessary argument is the</span>
+<span class="sd">    objective function :math:`f`. The objective can be given as a simple callable function. It </span>
+<span class="sd">    is assumed to be a function :math:`f:\mathbb{R}^{d}\to\mathbb{R}`. If the objective can handle </span>
+<span class="sd">    arrays of shape :math:`(N, d)`, i.e., it can be applied to multiple particles, then you can use the </span>
+<span class="sd">    argument ``f_dim=2D``, or analogously ``f_dim=3D``, if it can handle arrays of shape :math:`(M, N, d)`. </span>
+<span class="sd">    You can also directly provide the objective function as a :class:`cbx_objective` instance.</span>
+<span class="sd">    </span>
+<span class="sd">    During the initialization of the class, the dimension of the output is checked using the :meth:`check_f_dims` method. </span>
+<span class="sd">    If the check fails, an error is raised. This check can be turned off by setting the ``check_f_dims`` parameter to ``False``.</span>
+
+<span class="sd">    The ensemble of particles is modeled as an array of shape :math:`(M, N, d)` where </span>
+
+<span class="sd">    * :math:`M` is the number of runs that should be performed. In many cases, multiple runs can be implmented on the </span>
+<span class="sd">    ``numpy`` array level, which allows for efficient evaluations and computations avoiding for loops.</span>
+
+<span class="sd">    * :math:`N` is the number of particles in each run.</span>
+
+<span class="sd">    * :math:`d` is the dimension of the system.</span>
+
+<span class="sd">    </span>
+<span class="sd">    This means that :math:`x_{m,n}\in\mathbb{R}^{d}` denotes the position of the :math:`n`-th particle of the :math:`m`-th run.</span>
+
+<span class="sd">    Promoting the objective function :math:`f` to the :class:`cbx_objective` instance :math:`\tilde{f}` allows for the evaluation on </span>
+<span class="sd">    ensembles of the shape :math:`(M, N, d)`, namely,</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \tilde{f}(x)_{m,n} := f(x_{m,n,:})</span>
+
+
+<span class="sd">    The class can not infer the dimension of the problem. Therfore, the dimension must be specified by the parameter ``d`` or </span>
+<span class="sd">    by specifiying an inintial position array ``x``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    f : Callable</span>
+<span class="sd">        The objective function :math:`f` of the system.</span>
+<span class="sd">    f_dim : str, optional</span>
+<span class="sd">        The dimensionality of the objective function. The default is &#39;1D&#39;.</span>
+<span class="sd">    check_f_dims : bool, optional</span>
+<span class="sd">        If ``True``, the dimension of the objective function is checked. The default is ``True``.</span>
+<span class="sd">    x : array_like, shape (M, N, d) or None, optional</span>
+<span class="sd">        The initial positions of the particles. For a system of :math:`N` particles ``x[m, n, :]``</span>
+<span class="sd">        represents the position n-th particle of the m-th run.</span>
+<span class="sd">    x_min : float, optional</span>
+<span class="sd">        The minimum value of the initial positions. The default is -1.</span>
+<span class="sd">    x_max : float, optional</span>
+<span class="sd">        The maximum value of the initial positions. The default is 1.</span>
+<span class="sd">    M : int, optional</span>
+<span class="sd">        The number of runs. The default is 1.</span>
+<span class="sd">    N : int, optional</span>
+<span class="sd">        The number of particles in each run. The default is 20.</span>
+<span class="sd">    d : int or None, optional</span>
+<span class="sd">        The dimension of the system. The default is None.</span>
+<span class="sd">    term_criteria : list[Callable], optional</span>
+<span class="sd">        A list of callables that determine the termination of the optimization. Each callable in the list should accept a single argument (the dynamic object) </span>
+<span class="sd">        and return a numpy array of size (M,), where term(dyn)[i] specifies, whether the optimization should be terminated for the i-th run.</span>
+<span class="sd">    track_args : dict</span>
+<span class="sd">        The arguments for the tracking certain objects in the history. The following keys are possible:</span>
+<span class="sd">        </span>
+<span class="sd">        * &#39;names&#39; : list</span>
+<span class="sd">            The names of the objects that should be tracked.</span>
+<span class="sd">        * &#39;save_int&#39; : int</span>
+<span class="sd">            The frequency of the saving of the data. The default is 1.</span>
+<span class="sd">        * &#39;extra_tracks&#39; : list</span>
+<span class="sd">            A list of extra tracks that should be performed. Each object in this list must have init_history and an update method.</span>
+
+<span class="sd">    post_process : Callable</span>
+<span class="sd">        A callbale acting on the dynamic that should be performed after each optimization step.</span>
+<span class="sd">    copy : Callable</span>
+<span class="sd">        A callable that copies an array. The default is ``np.copy``.</span>
+<span class="sd">    norm : Callable</span>
+<span class="sd">        A callable that computes the norm of an array. The default is ``np.linalg.norm``.</span>
+<span class="sd">    sampler : Callable</span>
+<span class="sd">        A callable that generates an array of random numbers. The default is ``np.random.normal``.</span>
+
+<span class="sd">    verbosity : int, optional</span>
+<span class="sd">        The verbosity level. The default is 1.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> 
+            <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> 
+            <span class="n">f_dim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;1D&#39;</span><span class="p">,</span>
+            <span class="n">check_f_dims</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">M</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">max_it</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+            <span class="n">term_criteria</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">track_args</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">verbosity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">copy</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">norm</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">sampler</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">post_process</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">=</span> <span class="n">verbosity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+        
+        <span class="c1"># set array backend funs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_array_backend_funs</span><span class="p">(</span><span class="n">copy</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">sampler</span><span class="p">)</span>
+
+        <span class="c1"># init particles    </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        
+        <span class="c1"># set and promote objective function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_f</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">f_dim</span><span class="p">,</span> <span class="n">check_f_dims</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">))</span> <span class="c1"># energy of the particles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_cur_energy</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_particle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_diff</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,))</span>
+
+
+        <span class="c1"># termination parameters and checks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_term</span><span class="p">(</span><span class="n">term_criteria</span><span class="p">,</span> <span class="n">max_it</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">it</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_history</span><span class="p">(</span><span class="n">track_args</span><span class="p">)</span>
+        
+        <span class="c1"># post processing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_post_process</span><span class="p">(</span><span class="n">post_process</span><span class="p">)</span>
+        
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_post_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">post_process</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_process</span> <span class="o">=</span> <span class="n">post_process</span> <span class="k">if</span> <span class="n">post_process</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">post_process_default</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_array_backend_funs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">sampler</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">copy</span> <span class="o">=</span> <span class="n">copy</span> <span class="k">if</span> <span class="n">copy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">norm</span> <span class="o">=</span> <span class="n">norm</span> <span class="k">if</span> <span class="n">norm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span>
+        <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span> <span class="o">=</span> <span class="n">sampler</span> <span class="k">if</span> <span class="n">sampler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span>
+        
+<div class="viewcode-block" id="ParticleDynamic.init_x">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.init_x">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the particle system with the given parameters.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            x: the initial particle system. If x is None, the dimension d must be specified and the particle system is initialized randomly. </span>
+<span class="sd">               If x is specified, it is broadcasted to the correct shape (M,N,d).</span>
+<span class="sd">            M: the number of particles in the first dimension</span>
+<span class="sd">            N: the number of particles in the second dimension</span>
+<span class="sd">            d: the dimension of the particle system</span>
+<span class="sd">            x_min: the minimum value for x</span>
+<span class="sd">            x_max: the maximum value for x</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;If the inital partical system is not given, the dimension d must be specified!&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_particles</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+            
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># if x is given correct shape</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="k">elif</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ddims</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span></div>
+
+        
+        
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_particles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">f_dim</span><span class="p">,</span> <span class="n">check_f_dims</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">_promote_objective</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">f_dim</span><span class="p">)</span>
+                
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_f_eval</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="c1"># number of function evaluations  </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,))</span> <span class="c1"># minimum function value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_f_dims</span><span class="p">(</span><span class="n">check</span><span class="o">=</span><span class="n">check_f_dims</span><span class="p">)</span> <span class="c1"># check the dimension of the objective function</span>
+
+<div class="viewcode-block" id="ParticleDynamic.check_f_dims">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.check_f_dims">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_f_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check the dimensions of the objective function output.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            check (bool): Flag indicating whether to perform the dimension check. Default is True.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">check</span><span class="p">:</span> <span class="c1"># check if f returns correct shape</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The given objective function does not return the correct shape!&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_f_eval</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="c1"># number of function evaluations</span></div>
+
+    
+<div class="viewcode-block" id="ParticleDynamic.pre_step">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.pre_step">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pre_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The pre-step function. This function is used in meth:`step` before the inner step is performed.</span>
+<span class="sd">        This function can be overwritten by subclasses to perform any pre-steps before the inner step.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># save old positions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="ParticleDynamic.inner_step">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.inner_step">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">inner_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function is used in meth:`step` to perform the inner step. This function implements the actual</span>
+<span class="sd">        update of the dynamic and is therfore the most important function in the dynamics class.</span>
+<span class="sd">        This function should be overwritten by subclasses to perform any inner steps.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+        
+<div class="viewcode-block" id="ParticleDynamic.post_step">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.post_step">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute the post-step operations after each iteration.</span>
+
+<span class="sd">        This function updates the difference between the current particle position and the previous particle position if the &#39;x_old&#39; </span>
+<span class="sd">        attribute exists in the object. The difference is computed using the numpy.linalg.norm </span>
+<span class="sd">        function along the specified axes and is divided by the total number of particles.</span>
+
+<span class="sd">        The function then calls the &#39;update_best_cur_particle&#39; method to update the best current particle position.</span>
+<span class="sd">        Next, it calls the &#39;update_best_particle&#39; method to update the best particle position.</span>
+<span class="sd">        After that, it calls the &#39;track&#39; method to track the progress of the optimization algorithm.</span>
+<span class="sd">        Then, it calls the &#39;process_particles&#39; method to perform any necessary post-processing operations on the particles.</span>
+
+<span class="sd">        Finally, the function increments the &#39;it&#39; attribute by 1 to keep track of the current iteration.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;x_old&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_old</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_best_cur_particle</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_best_particle</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">track</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_process</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">it</span><span class="o">+=</span><span class="mi">1</span></div>
+
+        
+<div class="viewcode-block" id="ParticleDynamic.step">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.step">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute a step in the dynamic.</span>
+
+<span class="sd">        This function performs the following actions:</span>
+<span class="sd">        1. Calls the `pre_step` method to perform any necessary pre-step operations.</span>
+<span class="sd">        2. Calls the `inner_step` method to perform the main step operation.</span>
+<span class="sd">        3. Calls the `post_step` method to perform any necessary post-step operations.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_step</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inner_step</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_step</span><span class="p">()</span></div>
+
+        
+<div class="viewcode-block" id="ParticleDynamic.default_sched">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.default_sched">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default_sched</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the default scheduler for a dynamic.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            scheduler: The scheduler object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">scheduler</span><span class="p">([])</span></div>
+
+
+<div class="viewcode-block" id="ParticleDynamic.optimize">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.optimize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">print_int</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">sched</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Optimize the function using the dynmaic. This function perfoms the iterations as specified by step method and the update in :meth:`inner_step`.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            print_int : int, optional </span>
+<span class="sd">                The interval at which to print the current state of the optimization. If not provided, the default value is used. Defaults to None.</span>
+<span class="sd">            sched : str</span>
+<span class="sd">                The scheduler to use for the optimization. If set to &#39;default&#39;, the default scheduler is used. </span>
+<span class="sd">                If set to None, a scheduler is created based on the current optimization parameters. Defaults to &#39;default&#39;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            best_particle: The best particle found during the optimization process.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">print_int</span> <span class="o">=</span> <span class="n">print_int</span> <span class="k">if</span> <span class="n">print_int</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_int</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Starting Optimization with dynamic: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sched</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sched</span> <span class="o">=</span> <span class="n">scheduler</span><span class="p">([])</span>
+        <span class="k">elif</span> <span class="n">sched</span> <span class="o">==</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span>
+            <span class="n">sched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_sched</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">sched</span> <span class="o">==</span> <span class="s1">&#39;effective&#39;</span><span class="p">:</span>
+            <span class="n">sched</span> <span class="o">=</span> <span class="n">effective_sample_size</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sched</span> <span class="o">=</span> <span class="n">sched</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminate</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+            <span class="n">sched</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">it</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">print_int</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">print_cur_state</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">print_post_opt</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_particle</span></div>
+
+    
+<div class="viewcode-block" id="ParticleDynamic.print_cur_state">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.print_cur_state">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_cur_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print the current state.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    
+<div class="viewcode-block" id="ParticleDynamic.print_post_opt">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.print_post_opt">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_post_opt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print the optimization results if the verbosity level is greater than 0.</span>
+<span class="sd">        </span>
+<span class="sd">        This function prints the solver&#39;s finishing message, the best energy found during optimization.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+<span class="sd">        </span>
+<span class="sd">        Return:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Finished solver.&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Best energy: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_energy</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span></div>
+
+
+            
+<div class="viewcode-block" id="ParticleDynamic.reset">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.reset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reset the state of the object.</span>
+
+<span class="sd">        This function sets the value of the object&#39;s &#39;it&#39; attribute to 0 and calls the &#39;init_history()&#39; method to re-initialize the history of the object.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            self (object): The object instance.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">it</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_history</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ParticleDynamic.init_term">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.init_term">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_term</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term_criteria</span><span class="p">,</span> <span class="n">max_it</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the termination criteria of the object.</span>
+
+<span class="sd">        This function sets the value of the object&#39;s &#39;it&#39; attribute to 0 and calls the &#39;init_history()&#39; method to re-initialize the history of the object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            checks : list</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">term_criteria</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">term_criteria</span> <span class="o">=</span> <span class="p">[</span><span class="n">max_it_term</span><span class="p">(</span><span class="n">max_it</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">term_criteria</span> <span class="o">=</span> <span class="p">[</span><span class="n">select_term</span><span class="p">(</span><span class="n">term</span><span class="p">)</span> <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">term_criteria</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">term_reason</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">))]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_runs_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_active_runs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span></div>
+
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">select_active_runs</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_active_runs</span> <span class="o">&lt;=</span> <span class="mi">0</span>
+    
+<div class="viewcode-block" id="ParticleDynamic.select_active_runs">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.select_active_runs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_active_runs</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Selects the inidices that meet a termination criterion.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if all checks passed, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">loc_term</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">term_criteria</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">term_criteria</span><span class="p">):</span>
+            <span class="n">loc_term</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">term</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            
+        <span class="n">terms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">loc_term</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_runs_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">terms</span><span class="o">==</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_active_runs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_runs_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">terms</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">term_reason</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">loc_term</span><span class="p">[</span><span class="n">j</span><span class="p">,:])[</span><span class="mi">0</span><span class="p">]</span></div>
+
+    
+    <span class="n">known_tracks</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;update_norm&#39;</span><span class="p">:</span> <span class="n">track_update_norm</span><span class="p">,</span>
+        <span class="s1">&#39;energy&#39;</span><span class="p">:</span> <span class="n">track_energy</span><span class="p">,</span>
+        <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">track_x</span>
+    <span class="p">}</span>
+<div class="viewcode-block" id="ParticleDynamic.init_history">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.init_history">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">track_args</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the history dictionary and initialize the specified tracking keys.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">track_args</span> <span class="o">=</span> <span class="n">track_args</span> <span class="k">if</span> <span class="n">track_args</span> <span class="k">else</span> <span class="p">{}</span>  
+        <span class="n">track_names</span> <span class="o">=</span> <span class="n">track_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;names&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;update_norm&#39;</span><span class="p">,</span> <span class="s1">&#39;energy&#39;</span><span class="p">])</span>
+        <span class="n">extra_tracks</span> <span class="o">=</span> <span class="n">track_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;extra_tracks&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_int</span> <span class="o">=</span> <span class="n">track_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;save_int&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracks</span> <span class="o">=</span> <span class="n">extra_tracks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">track_it</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">track_names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">known_tracks</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tracks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">known_tracks</span><span class="p">[</span><span class="n">key</span><span class="p">]())</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warn</span><span class="p">(</span>
+                    <span class="s1">&#39;Unknown tracking key &#39;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39; specified!&#39;</span> <span class="o">+</span>
+                    <span class="s1">&#39; The following keys are known by default: &#39;</span> <span class="o">+</span> 
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">known_tracks</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> 
+                    <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> Using the default tracker instead&#39;</span><span class="p">,</span>
+                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tracks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">default_track</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+            
+        <span class="k">for</span> <span class="n">track</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracks</span><span class="p">:</span>
+            <span class="n">track</span><span class="o">.</span><span class="n">init_history</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ParticleDynamic.track">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.track">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">track</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Track the progress of the object.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">it</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_int</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">track</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracks</span><span class="p">:</span>
+                <span class="n">track</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">track_it</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="ParticleDynamic.update_best_cur_particle">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.update_best_cur_particle">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_best_cur_particle</span><span class="p">(</span><span class="bp">self</span><span class="p">,)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the best current particle and its energy based on the minimum energy found in the energy matrix.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_min_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;x_old&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_cur_particle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_old</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_min_idx</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_cur_particle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_min_idx</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_cur_energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_min_idx</span><span class="p">]</span></div>
+
+    
+<div class="viewcode-block" id="ParticleDynamic.update_best_particle">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.update_best_particle">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_best_particle</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the best particle and best energy of the whole iteration.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_energy</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_cur_energy</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_energy</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_cur_energy</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_particle</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_cur_particle</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="p">:])</span></div>
+
+
+<div class="viewcode-block" id="ParticleDynamic.to_numpy">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic.to_numpy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given any array-like structure, this should return the numpy version of it.</span>
+<span class="sd">        In the default setup, where numpy is the array-backend this is the identity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+    
+    <span class="n">print_vars</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;M&#39;</span><span class="p">,</span> <span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">v_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_vars</span><span class="p">}</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">pformat</span><span class="p">(</span><span class="n">v_dict</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+              
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_mat_sqrt</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the square root of a matrix.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        A (np.ndarray): The input matrix.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: The square root of the matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">B</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">B</span><span class="p">,</span><span class="mf">0.</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">V</span><span class="o">@</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">B</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">compute_consensus_default</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_coeffs</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">check_coeffs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_coeffs</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_no_check_coeffs</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="o">-</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">energy</span>
+        <span class="n">coeff_expan</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="bp">Ellipsis</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">ndim</span><span class="o">-</span><span class="mi">2</span><span class="p">)])</span>
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">weights</span> <span class="o">-</span> <span class="n">logsumexp_scp</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">))[</span><span class="n">coeff_expan</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_coeffs</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">coeffs</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">energy</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_coeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">):</span>
+        <span class="n">problem_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">coeffs</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">problem_idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Problematic consensus computation!&#39;</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_no_check_coeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">):</span>
+        <span class="k">pass</span>
+    
+    
+<div class="viewcode-block" id="CBXDynamic">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CBXDynamic</span><span class="p">(</span><span class="n">ParticleDynamic</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;The base class for consensus based dynamics</span>
+
+<span class="sd">    This class implements functionality that is specific to consensus based dynamics. It inherits from the ParticleDynamic class.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        f: Callable</span>
+<span class="sd">            The function to optimize.</span>
+<span class="sd">        noise: str or Callable, optional</span>
+<span class="sd">            A string can be one of &#39;isotropic&#39;, &#39;anisotropic&#39;, or &#39;sampling&#39;. It is also possible </span>
+<span class="sd">            to use a Callable instead of a string. This Callable needs to accept a single argument, which is the dynamic object. Default: &#39;isotropic&#39;.</span>
+<span class="sd">        batch_args: dict, optional</span>
+<span class="sd">            The batch arguments. Default: None.</span>
+<span class="sd">        dt: float, optional</span>
+<span class="sd">            The time step size :math:`dt` of the dynamic. Default: 0.1.</span>
+<span class="sd">        alpha: float, optional</span>
+<span class="sd">            The alpha parameter :math:`\alpha` of the dynamic. Default: 1.0.</span>
+<span class="sd">        sigma: float, optional</span>
+<span class="sd">            The sigma parameter :math:`\sigma` of the dynamic, scaling the noise. Default: 5.1.</span>
+<span class="sd">        lamda: float, optional</span>
+<span class="sd">            The lamda parameter :math:`\lambda` of the dynamic. Default: 1.0.</span>
+<span class="sd">        max_time: float, optional</span>
+<span class="sd">            The maximum time to run the dynamic. Default: None.</span>
+<span class="sd">        correction: str or Callable, optional</span>
+<span class="sd">            The correction method. Default: &#39;no_correction&#39;. One of &#39;no_correction&#39;, &#39;heavi_side&#39;, &#39;heavi_side_reg&#39; or a Callable.</span>
+<span class="sd">        save_consensus_eval_points: bool, optional</span>
+<span class="sd">            Decide whether to save the point were the consensus point was evaluated. Default: False</span>
+<span class="sd">        correction_eps: float, optional</span>
+<span class="sd">            The parameter :math:`\epsilon` for the regularized correction. Default: 1e-3.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span>
+            <span class="n">noise</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;isotropic&#39;</span><span class="p">,</span>
+            <span class="n">batch_args</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> 
+            <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> 
+            <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.1</span><span class="p">,</span>
+            <span class="n">lamda</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">correction</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;no_correction&#39;</span><span class="p">,</span> 
+            <span class="n">correction_eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span>
+            <span class="n">compute_consensus</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">save_consensus_eval_points</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        
+        <span class="c1"># cbx parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_alpha</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lamda</span> <span class="o">=</span> <span class="n">lamda</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_consensus_eval_points</span> <span class="o">=</span> <span class="n">save_consensus_eval_points</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">correction_eps</span> <span class="o">=</span> <span class="n">correction_eps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_correction</span><span class="p">(</span><span class="n">correction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_noise</span><span class="p">(</span><span class="n">noise</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_batch_idx</span><span class="p">(</span><span class="n">batch_args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_consensus</span><span class="p">(</span><span class="n">compute_consensus</span><span class="p">)</span>
+        
+    <span class="n">known_tracks</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;consensus&#39;</span><span class="p">:</span> <span class="n">track_consensus</span><span class="p">,</span>
+        <span class="s1">&#39;drift_mean&#39;</span><span class="p">:</span> <span class="n">track_drift_mean</span><span class="p">,</span>
+        <span class="s1">&#39;drift&#39;</span><span class="p">:</span> <span class="n">track_drift</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">ParticleDynamic</span><span class="o">.</span><span class="n">known_tracks</span><span class="p">,}</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_consensus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compute_consensus</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">consensus</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1">#consensus point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_consensus</span> <span class="o">=</span> <span class="n">compute_consensus</span> <span class="k">if</span> <span class="n">compute_consensus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">compute_consensus_default</span><span class="p">()</span>
+    
+<div class="viewcode-block" id="CBXDynamic.init_alpha">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.init_alpha">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Initialize alpha per batch. If alpha is a float it is broadcasted to an array similar to x with dimensions (x.shape[0], 1). </span>
+<span class="sd">        Otherwise, it is set to the given parameter.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            alpha:</span>
+<span class="sd">                The initial value of alpha</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="n">Mslice</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="bp">Ellipsis</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">ndim</span><span class="o">-</span><span class="mi">1</span><span class="p">)])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">Mslice</span><span class="p">])[:,</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span></div>
+
+            
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_reshaped_run_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+        <span class="k">return</span> <span class="n">as_strided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_runs_idx</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_active_runs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_runs_idx</span><span class="o">.</span><span class="n">strides</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">0</span><span class="p">))</span>
+        
+<div class="viewcode-block" id="CBXDynamic.init_batch_idx">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.init_batch_idx">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_batch_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the batch index for the given batch arguments.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">            batch_args: dict.</span>
+<span class="sd">                Dictionary containing the batch arguments.</span>
+<span class="sd">                </span>
+<span class="sd">                - size : int, optional</span>
+<span class="sd">                    The size of each batch. Defaults to self.N.</span>
+<span class="sd">                - partial : bool, optional</span>
+<span class="sd">                    Whether to allow partial batches. Defaults to True.</span>
+<span class="sd">                - seed : int, optional</span>
+<span class="sd">                    The seed for random number generation. Defaults to 42.</span>
+<span class="sd">                - var : str, optional</span>
+<span class="sd">                    The variable to use for resampling. Defaults to &#39;resample&#39;.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">batch_args</span> <span class="o">=</span> <span class="n">batch_args</span> <span class="k">if</span> <span class="n">batch_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;size&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+        <span class="n">batch_partial</span> <span class="o">=</span> <span class="n">batch_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;partial&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">batch_seed</span> <span class="o">=</span> <span class="n">batch_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;seed&#39;</span><span class="p">,</span> <span class="mi">42</span><span class="p">)</span>
+        <span class="n">batch_var</span> <span class="o">=</span> <span class="n">batch_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;var&#39;</span><span class="p">,</span> <span class="s1">&#39;resample&#39;</span><span class="p">)</span>
+    
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_partial</span> <span class="o">=</span> <span class="n">batch_partial</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_var</span> <span class="o">=</span> <span class="n">batch_var</span>
+        
+        <span class="c1"># set batch size</span>
+        <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+        
+    
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">batched</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_batch_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_batch_idx_unbatched</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># set indices for batching</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">batched</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1">#self.M_idx = np.repeat(np.arange(self.M)[:,None], self.batch_size, axis=1)</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)[</span><span class="kc">None</span><span class="p">,:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">batch_rng</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span><span class="n">MT19937</span><span class="p">(</span><span class="n">batch_seed</span><span class="p">))</span><span class="c1">#np.random.default_rng(batch_seed)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_rng</span><span class="o">.</span><span class="n">permuted</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_batch_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_batch_idx_batched</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">consensus_idx</span> <span class="o">=</span> <span class="bp">Ellipsis</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">particle_idx</span>  <span class="o">=</span> <span class="bp">Ellipsis</span></div>
+
+            
+                
+<div class="viewcode-block" id="CBXDynamic.set_batch_idx_unbatched">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.set_batch_idx_unbatched">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_batch_idx_unbatched</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the batch index for the particles.</span>
+
+<span class="sd">        This method sets the indices for unbatched dynamics.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span> 
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_active_runs</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consensus_idx</span> <span class="o">=</span> <span class="bp">Ellipsis</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consensus_idx</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_runs_idx</span><span class="p">,</span> <span class="bp">Ellipsis</span><span class="p">)</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">particle_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">consensus_idx</span></div>
+
+        
+<div class="viewcode-block" id="CBXDynamic.set_batch_idx_batched">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.set_batch_idx_batched">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_batch_idx_batched</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the batch index for the particles.</span>
+
+<span class="sd">        This method sets the batch index batched dynamics. </span>
+<span class="sd">        If the indices are exhausted, it generates new indices using `np.repeat` and `np.arange`. </span>
+
+<span class="sd">        If the `self.batch_var` is set to `&#39;concat&#39;`, we concatenate the new indices with the existing indices using `np.concatenate`, </span>
+<span class="sd">        otherwise, it replaces the existing indices with the new indices. </span>
+
+<span class="sd">        After updating the indices, we set the `batch_idx` to the first `batch_size` columns of the indices, </span>
+<span class="sd">        and remove these columns from the indices. </span>
+
+<span class="sd">        If `batch_partial` is `True`, we set `particle_idx` to `consensus_idx`, otherwise, to `Ellipsis`.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">:</span> <span class="c1"># if indices are exhausted</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)[</span><span class="kc">None</span><span class="p">,:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_rng</span><span class="o">.</span><span class="n">permuted</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_var</span> <span class="o">==</span> <span class="s1">&#39;concat&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span> <span class="n">indices</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="n">indices</span>
+            <span class="c1">#self.batch_size</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">[:,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">]</span> <span class="c1"># get batch indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">:]</span> <span class="c1"># remove batch indices from indices</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">consensus_idx</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_reshaped_run_idx</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_idx</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">active_runs_idx</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">Ellipsis</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_partial</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">particle_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">consensus_idx</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">particle_idx</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_runs_idx</span><span class="p">,</span> <span class="bp">Ellipsis</span><span class="p">)</span></div>
+
+        
+            
+<div class="viewcode-block" id="CBXDynamic.default_sched">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.default_sched">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default_sched</span><span class="p">(</span><span class="bp">self</span><span class="p">,)</span> <span class="o">-&gt;</span> <span class="n">scheduler</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A function that returns a default scheduler.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            scheduler: </span>
+<span class="sd">                The scheduler object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">scheduler</span><span class="p">([</span><span class="n">multiply</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.05</span><span class="p">)])</span></div>
+
+    
+<div class="viewcode-block" id="CBXDynamic.set_correction">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.set_correction">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">correction</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the correction method for the object.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            correction: (str or Callable): The type of correction to be set. Can be one of the following:</span>
+<span class="sd">                - &#39;no_correction&#39;: No correction, correction is the identity.</span>
+<span class="sd">                - &#39;heavi_side&#39;: Calculate the Heaviside correction.</span>
+<span class="sd">                - &#39;heavi_side_reg&#39;: Calculate the regularized Heaviside correction, with parameter eps.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">correction</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">correction_callable</span> <span class="o">=</span> <span class="n">get_correction</span><span class="p">(</span><span class="n">correction</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">correction_eps</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">callable</span><span class="p">(</span><span class="n">correction</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">correction_callable</span> <span class="o">=</span> <span class="n">correction</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid correction model! Choose from &quot;no_correction&quot;, &quot;heavi_side&quot;, or &quot;heavi_side_reg&quot; or a callable.&#39;</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="CBXDynamic.correction">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.correction">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArrayLike</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the correction for the given input.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            x (ndarray): The input array.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            ndarray</span>
+<span class="sd">                The correction value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">correction_callable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CBXDynamic.set_noise">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.set_noise">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noise</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the noise model for the object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            noise (str or Callable): The type of noise model to be set. Can be one of the following:</span>
+<span class="sd">                - &#39;isotropic&#39; or None: Set the isotropic noise model.</span>
+<span class="sd">                - &#39;anisotropic&#39;: Set the anisotropic noise model.</span>
+<span class="sd">                - &#39;sampling&#39;: Set the sampling noise model.</span>
+<span class="sd">                - &#39;covariance&#39;: Set the covariance noise model.</span>
+<span class="sd">                - else: use the given input as a callable.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># set noise model</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">noise</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">noise_callable</span> <span class="o">=</span> <span class="n">get_noise</span><span class="p">(</span><span class="n">noise</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">callable</span><span class="p">(</span><span class="n">noise</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">noise_callable</span> <span class="o">=</span> <span class="n">noise</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid noise model: &#39;</span> <span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">noise</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;! Choose from &quot;isotropic&quot;, &quot;anisotropic&quot;, &quot;sampling&quot;, &quot;covariance&quot;, or a callable.&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CBXDynamic.noise">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.noise">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArrayLike</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the noise vector. Here, we use the callable ``noise_callable``, which takes the dynamic as an input via ``self``.</span>
+
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ndarray: The noise vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_callable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="CBXDynamic.update_covariance">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.update_covariance">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_covariance</span><span class="p">(</span><span class="bp">self</span><span class="p">,)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update the covariance matrix :math:`\text{Cov}(x)` of the noise model</span>
+<span class="sd">    </span>
+<span class="sd">        Parameters</span>
+
+<span class="sd">    </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None.</span>
+<span class="sd">    </span>
+<span class="sd">        &quot;&quot;&quot;</span>                       
+        <span class="n">weights</span> <span class="o">=</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy</span>
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">weights</span> <span class="o">-</span> <span class="n">logsumexp_scp</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,),</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+      
+        <span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drift</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">drift</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="kc">None</span><span class="p">,:]</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">D</span> <span class="o">*</span> <span class="n">coeffs</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Cov_sqrt</span> <span class="o">=</span> <span class="n">compute_mat_sqrt</span><span class="p">(</span><span class="n">D</span><span class="p">)</span></div>
+
+                    
+<div class="viewcode-block" id="CBXDynamic.pre_step">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.pre_step">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pre_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+        <span class="c1"># save old positions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        
+        <span class="c1"># set new batch indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_batch_idx</span><span class="p">()</span></div>
+
+        
+<div class="viewcode-block" id="CBXDynamic.inner_step">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.inner_step">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">inner_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+        <span class="k">pass</span></div>
+
+        
+<div class="viewcode-block" id="CBXDynamic.post_step">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.post_step">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_process</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;x_old&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_old</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_best_cur_particle</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_best_particle</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">track</span><span class="p">()</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">it</span><span class="o">+=</span><span class="mi">1</span></div>
+
+        
+<div class="viewcode-block" id="CBXDynamic.reset">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.reset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">it</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_history</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="mf">0.</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval_f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_f_eval</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">active_runs_idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># update number of function evaluations</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="CBXDynamic.print_cur_state">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.print_cur_state">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_cur_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time: &#39;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{:.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;, best current energy: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_min</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of function evaluations: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_f_eval</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Current alpha: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">))</span></div>
+
+            
+<div class="viewcode-block" id="CBXDynamic.compute_consensus">
+<a class="viewcode-back" href="../../../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.compute_consensus">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_consensus</span><span class="p">(</span><span class="bp">self</span><span class="p">,)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Updates the weighted mean of the particles.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># maybe save the points on which the energy is evaluated for the consensus</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maybe_save_consensus_eval_points</span><span class="p">()</span>
+        <span class="c1"># evaluation of objective function on batch</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eval_f</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">consensus_idx</span><span class="p">])</span> <span class="c1"># update energy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">consensus</span><span class="p">,</span> <span class="n">energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_consensus</span><span class="p">(</span>
+            <span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">consensus_idx</span><span class="p">],</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">active_runs_idx</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">consensus_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">energy</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">maybe_save_consensus_eval_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_consensus_eval_points</span><span class="p">:</span>
+            <span class="k">return</span>
+            
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;consensus_eval_points&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consensus_eval_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consensus_eval_points</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">consensus_idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">consensus_idx</span><span class="p">])</span>
+        
+        
+    <span class="n">print_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;dt&#39;</span><span class="p">,</span> <span class="s1">&#39;lamda&#39;</span><span class="p">,</span> <span class="s1">&#39;sampler&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">ParticleDynamic</span><span class="o">.</span><span class="n">print_vars</span></div>
+
+    
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Tim Roith.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,737 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>A simple example showcasing CBX &#8212; CBX v0.1.6 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/style.css?v=609cf928" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=95b6b9dc"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/simple_example';</script>
+    <link rel="icon" href="../_static/cbx-logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Custom Noise CBX" href="custom_noise.html" />
+    <link rel="prev" title="Training neural networks with CBO" href="nns/mnist.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/cbx-logo.png" class="logo__image only-light" alt="CBX v0.1.6 documentation - Home"/>
+    <img src="../_static/cbx-logo.png" class="logo__image only-dark pst-js-only" alt="CBX v0.1.6 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../userguide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/PdIPS/CBXpy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../userguide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/PdIPS/CBXpy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../userguide/dynamics.html">Dynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/sched.html">Schedulers</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../userguide/objectives.html">Test Objectives</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.Ackley.html">cbx.objectives.Ackley</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.Ackley_multimodal.html">cbx.objectives.Ackley_multimodal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.Bukin6.html">cbx.objectives.Bukin6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.cross_in_tray.html">cbx.objectives.cross_in_tray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.drop_wave.html">cbx.objectives.drop_wave</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.Easom.html">cbx.objectives.Easom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.eggholder.html">cbx.objectives.eggholder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.Himmelblau.html">cbx.objectives.Himmelblau</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.Holder_table.html">cbx.objectives.Holder_table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.McCormick.html">cbx.objectives.McCormick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.Michalewicz.html">cbx.objectives.Michalewicz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.Rastrigin.html">cbx.objectives.Rastrigin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.Rastrigin_multimodal.html">cbx.objectives.Rastrigin_multimodal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.Rosenbrock.html">cbx.objectives.Rosenbrock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.snowflake.html">cbx.objectives.snowflake</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userguide/generated/cbx.objectives.three_hump_camel.html">cbx.objectives.three_hump_camel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/plotting.html">Plotting</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../userguide/examples.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nns/mnist.html">Training neural networks with CBO</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">A simple example showcasing CBX</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="custom_noise.html">Custom Noise CBX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="polarcbo.html">Polarized CBO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="onedim_example.html">1D Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="low_level.html">Visualizing CBX dynamics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sampling.html">Consensus Based Sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="success_evaluation.html">Performance Evaluation</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../userguide/index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../userguide/examples.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">A simple example showcasing CBX</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="A-simple-example-showcasing-CBX">
+<h1>A simple example showcasing CBX<a class="headerlink" href="#A-simple-example-showcasing-CBX" title="Link to this heading">#</a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext autoreload
+%autoreload 2
+import cbx as cbx
+from cbx.dynamics import CBO
+from cbx.objectives import Rastrigin
+import cbx.utils.termination as term
+from cbx.scheduler import effective_sample_size
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The autoreload extension is already loaded. To reload it, use:
+  %reload_ext autoreload
+</pre></div></div>
+</div>
+</section>
+<section id="Define-the-parameters">
+<h1>Define the parameters<a class="headerlink" href="#Define-the-parameters" title="Link to this heading">#</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>conf = {&#39;alpha&#39;: 40.0,
+        &#39;dt&#39;: 0.1,
+        &#39;sigma&#39;: 1.,
+        &#39;lamda&#39;: 1.0,
+        &#39;batch_args&#39;:{
+        &#39;batch_size&#39;:200,
+        &#39;batch_partial&#39;: False},
+        &#39;d&#39;: 2,
+        &#39;term_criteria&#39;:[term.max_it_term(50)],
+        &#39;N&#39;: 50,
+        &#39;M&#39;: 3,
+        &#39;track_args&#39;: {&#39;names&#39;:
+                       [&#39;update_norm&#39;,
+                        &#39;energy&#39;,&#39;x&#39;,
+                        &#39;consensus&#39;,
+                        &#39;drift&#39;]},}
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-the-initial-positions-of-the-particles-and-objective-function">
+<h1>Define the initial positions of the particles and objective function<a class="headerlink" href="#Define-the-initial-positions-of-the-particles-and-objective-function" title="Link to this heading">#</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>x = cbx.utils.init_particles(shape=(conf[&#39;M&#39;], conf[&#39;N&#39;], conf[&#39;d&#39;]), x_min=-2., x_max = 1.)
+f = Rastrigin()
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-the-dynamic-and-scheduler">
+<h1>Define the dynamic and scheduler<a class="headerlink" href="#Define-the-dynamic-and-scheduler" title="Link to this heading">#</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dyn = CBO(f, x=x, noise=&#39;isotropic&#39;, f_dim=&#39;3D&#39;,
+          **conf)
+sched = effective_sample_size(name=&#39;alpha&#39;, eta = 0.1)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Run-the-CBO-algorithm">
+<h1>Run the CBO algorithm<a class="headerlink" href="#Run-the-CBO-algorithm" title="Link to this heading">#</a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dyn.optimize(sched=sched)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+....................
+Starting Optimization with dynamic: CBO
+....................
+Time: 0.100, best current energy: [ 33.68654168 120.71036047  62.80683578]
+Number of function evaluations: [100 100 100]
+Time: 0.200, best current energy: [28.58152131 81.26971772 34.44364278]
+Number of function evaluations: [150 150 150]
+Time: 0.300, best current energy: [28.62646872 67.2817824  34.44364278]
+Number of function evaluations: [200 200 200]
+Time: 0.400, best current energy: [17.48615705 49.59452258 34.44364278]
+Number of function evaluations: [250 250 250]
+Time: 0.500, best current energy: [17.48616666 19.10682227 13.33378508]
+Number of function evaluations: [300 300 300]
+Time: 0.600, best current energy: [17.49727879  0.90316275  3.90712534]
+Number of function evaluations: [350 350 350]
+Time: 0.700, best current energy: [17.49727879  0.90316275  3.90712154]
+Number of function evaluations: [400 400 400]
+Time: 0.800, best current energy: [13.74853011  0.90316275  2.54385584]
+Number of function evaluations: [450 450 450]
+Time: 0.900, best current energy: [13.7896205   0.90316275  2.66192072]
+Number of function evaluations: [500 500 500]
+Time: 1.000, best current energy: [9.56378915 0.85071259 2.53878036]
+Number of function evaluations: [550 550 550]
+Time: 1.100, best current energy: [1.65695363 0.84499308 1.79225608]
+Number of function evaluations: [600 600 600]
+Time: 1.200, best current energy: [0.30609722 0.84500232 1.79423101]
+Number of function evaluations: [650 650 650]
+Time: 1.300, best current energy: [0.34922258 0.44816694 1.79431591]
+Number of function evaluations: [700 700 700]
+Time: 1.400, best current energy: [0.36915171 0.27820948 1.79484459]
+Number of function evaluations: [750 750 750]
+Time: 1.500, best current energy: [0.36017227 0.21050182 1.76474269]
+Number of function evaluations: [800 800 800]
+Time: 1.600, best current energy: [0.21274971 0.23505038 1.72918115]
+Number of function evaluations: [850 850 850]
+Time: 1.700, best current energy: [0.12348101 0.21199976 1.75816384]
+Number of function evaluations: [900 900 900]
+Time: 1.800, best current energy: [0.05143352 0.30367209 1.94523642]
+Number of function evaluations: [950 950 950]
+Time: 1.900, best current energy: [0.0540006  0.35056549 1.72136138]
+Number of function evaluations: [1000 1000 1000]
+Time: 2.000, best current energy: [0.06110012 0.38862823 0.81879727]
+Number of function evaluations: [1050 1050 1050]
+Time: 2.100, best current energy: [0.11740263 0.3865363  0.82657734]
+Number of function evaluations: [1100 1100 1100]
+Time: 2.200, best current energy: [0.11257089 0.39789684 0.80443249]
+Number of function evaluations: [1150 1150 1150]
+Time: 2.300, best current energy: [0.16063367 0.35253543 0.42259068]
+Number of function evaluations: [1200 1200 1200]
+Time: 2.400, best current energy: [0.00862797 0.36359695 0.20873996]
+Number of function evaluations: [1250 1250 1250]
+Time: 2.500, best current energy: [0.00547368 0.31876961 0.22591405]
+Number of function evaluations: [1300 1300 1300]
+Time: 2.600, best current energy: [0.01746446 0.33732993 0.22473574]
+Number of function evaluations: [1350 1350 1350]
+Time: 2.700, best current energy: [0.1102633  0.08918512 0.07924495]
+Number of function evaluations: [1400 1400 1400]
+Time: 2.800, best current energy: [0.12797242 0.05583967 0.03559821]
+Number of function evaluations: [1450 1450 1450]
+Time: 2.900, best current energy: [0.1343424  0.0026892  0.02978487]
+Number of function evaluations: [1500 1500 1500]
+Time: 3.000, best current energy: [0.14289871 0.00705355 0.03382854]
+Number of function evaluations: [1550 1550 1550]
+Time: 3.100, best current energy: [0.04305495 0.00800484 0.04023679]
+Number of function evaluations: [1600 1600 1600]
+Time: 3.200, best current energy: [0.04527542 0.00193493 0.02004014]
+Number of function evaluations: [1650 1650 1650]
+Time: 3.300, best current energy: [5.71784399e-02 1.97961671e-05 8.34815345e-03]
+Number of function evaluations: [1700 1700 1700]
+Time: 3.400, best current energy: [0.04809217 0.00035915 0.00896287]
+Number of function evaluations: [1750 1750 1750]
+Time: 3.500, best current energy: [0.04800839 0.00152849 0.00664716]
+Number of function evaluations: [1800 1800 1800]
+Time: 3.600, best current energy: [0.04956155 0.00454781 0.00418105]
+Number of function evaluations: [1850 1850 1850]
+Time: 3.700, best current energy: [0.04051642 0.00135038 0.00292033]
+Number of function evaluations: [1900 1900 1900]
+Time: 3.800, best current energy: [0.05082993 0.00160846 0.00114098]
+Number of function evaluations: [1950 1950 1950]
+Time: 3.900, best current energy: [0.03143296 0.00183167 0.00097155]
+Number of function evaluations: [2000 2000 2000]
+Time: 4.000, best current energy: [0.0251956  0.00222968 0.00049768]
+Number of function evaluations: [2050 2050 2050]
+Time: 4.100, best current energy: [0.01983502 0.00140792 0.0002946 ]
+Number of function evaluations: [2100 2100 2100]
+Time: 4.200, best current energy: [0.01510383 0.00176546 0.00016745]
+Number of function evaluations: [2150 2150 2150]
+Time: 4.300, best current energy: [1.11427167e-02 2.21863881e-03 8.64473601e-05]
+Number of function evaluations: [2200 2200 2200]
+Time: 4.400, best current energy: [1.15549719e-02 2.20430974e-03 9.07954948e-05]
+Number of function evaluations: [2250 2250 2250]
+Time: 4.500, best current energy: [8.89131640e-03 2.07031884e-03 6.34935288e-05]
+Number of function evaluations: [2300 2300 2300]
+Time: 4.600, best current energy: [7.57794167e-03 2.08297333e-03 6.07676724e-05]
+Number of function evaluations: [2350 2350 2350]
+Time: 4.700, best current energy: [7.38504044e-03 6.04711827e-04 5.48703731e-05]
+Number of function evaluations: [2400 2400 2400]
+Time: 4.800, best current energy: [6.28198373e-03 4.49847058e-04 5.19042330e-05]
+Number of function evaluations: [2450 2450 2450]
+Time: 4.900, best current energy: [1.70746592e-05 3.49771414e-04 4.73239729e-05]
+Number of function evaluations: [2500 2500 2500]
+Time: 5.000, best current energy: [2.97989245e-05 1.99295912e-04 3.17562532e-05]
+Number of function evaluations: [2550 2550 2550]
+--------------------
+Finished solver.
+Best energy: [1.70746592e-05 1.97961671e-05 3.17562532e-05]
+--------------------
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([[-6.48890754e-05,  9.62647790e-06],
+       [-5.99651486e-05,  3.73273810e-05],
+       [-4.80953108e-05,  7.54337349e-05]])
+</pre></div></div>
+</div>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="nns/mnist.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Training neural networks with CBO</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="custom_noise.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Custom Noise CBX</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">A simple example showcasing CBX</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-the-parameters">Define the parameters</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-the-initial-positions-of-the-particles-and-objective-function">Define the initial positions of the particles and objective function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-the-dynamic-and-scheduler">Define the dynamic and scheduler</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Run-the-CBO-algorithm">Run the CBO algorithm</a></li>
+</ul>
+
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/examples/simple_example.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Tim Roith.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

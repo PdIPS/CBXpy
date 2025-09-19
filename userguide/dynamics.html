@@ -1,0 +1,902 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Dynamics &#8212; CBX v0.1.6 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/style.css?v=609cf928" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=95b6b9dc"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'userguide/dynamics';</script>
+    <link rel="icon" href="../_static/cbx-logo.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Schedulers" href="sched.html" />
+    <link rel="prev" title="User Guide" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/cbx-logo.png" class="logo__image only-light" alt="CBX v0.1.6 documentation - Home"/>
+    <img src="../_static/cbx-logo.png" class="logo__image only-dark pst-js-only" alt="CBX v0.1.6 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/PdIPS/CBXpy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/PdIPS/CBXpy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Dynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sched.html">Schedulers</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="objectives.html">Test Objectives</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.Ackley.html">cbx.objectives.Ackley</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.Ackley_multimodal.html">cbx.objectives.Ackley_multimodal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.Bukin6.html">cbx.objectives.Bukin6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.cross_in_tray.html">cbx.objectives.cross_in_tray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.drop_wave.html">cbx.objectives.drop_wave</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.Easom.html">cbx.objectives.Easom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.eggholder.html">cbx.objectives.eggholder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.Himmelblau.html">cbx.objectives.Himmelblau</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.Holder_table.html">cbx.objectives.Holder_table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.McCormick.html">cbx.objectives.McCormick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.Michalewicz.html">cbx.objectives.Michalewicz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.Rastrigin.html">cbx.objectives.Rastrigin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.Rastrigin_multimodal.html">cbx.objectives.Rastrigin_multimodal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.Rosenbrock.html">cbx.objectives.Rosenbrock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.snowflake.html">cbx.objectives.snowflake</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cbx.objectives.three_hump_camel.html">cbx.objectives.three_hump_camel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/nns/mnist.html">Training neural networks with CBO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/simple_example.html">A simple example showcasing CBX</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../examples/custom_noise.html">Custom Noise CBX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/polarcbo.html">Polarized CBO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/onedim_example.html">1D Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/low_level.html">Visualizing CBX dynamics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/sampling.html">Consensus Based Sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/success_evaluation.html">Performance Evaluation</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Dynamics</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="dynamics">
+<h1>Dynamics<a class="headerlink" href="#dynamics" title="Link to this heading">#</a></h1>
+<p>One of the core components in the CBX package are dynamics, which are used to represent different variants of consensus-based algorithms. Each dynamic inherits from the base class <a class="reference internal" href="../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic" title="cbx.dynamics.CBXDynamic"><code class="xref py py-class docutils literal notranslate"><span class="pre">CBXDynamic</span></code></a>, which implements the core functionality for consensus-based algorithms. This base class itself inherits from <a class="reference internal" href="../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic" title="cbx.dynamics.ParticleDynamic"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParticleDynamic</span></code></a>, which implements functionality specific to particle-based algorithms. The design choice here was to divide between principles common to iterative particle-based algorithms and principles specific to consensus-based algorithms.</p>
+<section id="optimization-with-dynamics">
+<h2>Optimization with dynamics<a class="headerlink" href="#optimization-with-dynamics" title="Link to this heading">#</a></h2>
+<p>In the simplest case, when selecting a specific dynamic and aiming to optimize a function, you can utilize the function <code class="xref py py-func docutils literal notranslate"><span class="pre">optimize</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cbx.dynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">CBO</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span> <span class="o">=</span> <span class="n">CBO</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This function executes the optimization process until a specified termination criterion is met. In scenarios where parameter control via a scheduler is necessary, the function includes the keyword argument <code class="docutils literal notranslate"><span class="pre">sched</span></code> (for more details, we refer to <a class="reference internal" href="sched.html#sched"><span class="std std-ref">Schedulers</span></a>).</p>
+<p>Each dynamic implements a step method that delineates the update in each iteration (see <a class="reference internal" href="#step"><span class="std std-ref">The step method</span></a>). If you wish to run a dynamic at a lower level, directly managing each iteration, you can define a custom for-loop:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cbx.dynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">CBXDynamic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span> <span class="o">=</span> <span class="n">CBXDynamic</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">dyn</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="modelling-the-ensemble">
+<h2>Modelling the ensemble<a class="headerlink" href="#modelling-the-ensemble" title="Link to this heading">#</a></h2>
+<p>All particle-based methods operate on an ensemble of points <span class="math notranslate nohighlight">\(x = (x^1, \ldots, x^N) \in \mathcal{X}^N\)</span>. Here, we opt to model the ensemble as an array, assuming <span class="math notranslate nohighlight">\(\mathcal{X} = \mathbb{R}^d\)</span>, hence representing it as an <span class="math notranslate nohighlight">\(N \times d\)</span> array. Note, that <span class="math notranslate nohighlight">\(d=(d_1,\ldots,d_s)\)</span> can be a tuple of additional dimensions, which can be convenient for certain spaces <span class="math notranslate nohighlight">\(\mathcal{X}\)</span>. In most cases, we assume this array is a <code class="docutils literal notranslate"><span class="pre">numpy</span></code> array. However, it’s often straightforward to use other objects, like <code class="docutils literal notranslate"><span class="pre">torch</span></code> tensors instead.</p>
+<p>For multiple runs of a particle-based scheme, creating <span class="math notranslate nohighlight">\(M \in \mathbb{N}\)</span> instances of a dynamic and running them is a typical approach. This process can be parallelized at an external level, by creating <span class="math notranslate nohighlight">\(M\)</span> copies of the dynamic. However, in scenarios where, for instance, all parameters remain fixed across runs, it can be efficient to represent the different runs directly on the array level. We therefore model an ensemble as an</p>
+<div class="math notranslate nohighlight">
+\[M\times N\times d_1\times \ldots \times d_s\]</div>
+<p>array, which allows us to employ parallelization on the array level. The value of <span class="math notranslate nohighlight">\(M\)</span> defaults to 1, therefore, it is important to keep in mind that an ensemble has three dimensions.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>One might ask what the difference between a dynamic with the array structure <code class="docutils literal notranslate"><span class="pre">(M,N,d)</span></code> and a dynamic with the structure <code class="docutils literal notranslate"><span class="pre">(1,M*N,d)</span></code> is. The difference becomes visible, whenever particles interact across their ensemble. E.g., in the first case, when the consensus is computed, we compute it separately for each <span class="math notranslate nohighlight">\(m\in\{1,\ldots,M\}\)</span> sub-runs,</p>
+<div class="math notranslate nohighlight">
+\[c(x)^{m} = \frac{\sum_{n=1}^N x^{m,n}\ \exp(-\alpha\ f(x^{m,n}))}{\sum_{n=1}^N \exp(-\alpha\ f(x^{m,n}))},\]</div>
+<p>whereas in the second case, we have one single ensemble with <span class="math notranslate nohighlight">\(M\cdot N\)</span> particles and therefore compute a single consensus point</p>
+<div class="math notranslate nohighlight">
+\[\tilde c(x) = \frac{\sum_{m=1}^M \sum_{n=1}^N x^{m,n}\ \exp(-\alpha\ f(x^{m,n}))}{\sum_{m=1}^M \sum_{n=1}^N \exp(-\alpha\ f(x^{m,n}))}.\]</div>
+</div>
+<p>The ensemble can be accessed via the attribute <code class="docutils literal notranslate"><span class="pre">dyn.x</span></code> of each dynamic.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cbx.dynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParticleDynamic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span> <span class="o">=</span> <span class="n">ParticleDynamic</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dyn</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(1, 5, 1)</span>
+</pre></div>
+</div>
+<p>If the initial ensemble is not specified, then it is initialized randomly uniform within the bounds given by <code class="docutils literal notranslate"><span class="pre">dyn.x_min</span></code> and <code class="docutils literal notranslate"><span class="pre">dyn.x_max</span></code>. In this case the dimension of the problem <span class="math notranslate nohighlight">\(d\)</span> can <em>not</em> be inferred and therefore have to specified:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cbx.dynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParticleDynamic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span> <span class="o">=</span> <span class="n">ParticleDynamic</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">)</span>
+<span class="go">RuntimeError: If the inital partical system is not given, the dimension d must be specified!</span>
+</pre></div>
+</div>
+<p>However, one can specify the initial ensemble directly, in which case the dimension <span class="math notranslate nohighlight">\(d\)</span> can be inferred from the shape of the array:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cbx.dynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParticleDynamic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span> <span class="o">=</span> <span class="n">ParticleDynamic</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dyn</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(2, 5, 1)</span>
+</pre></div>
+</div>
+</section>
+<section id="the-objective-function">
+<h2>The objective function<a class="headerlink" href="#the-objective-function" title="Link to this heading">#</a></h2>
+<p>A key element of each particle dynamic is the objective function <span class="math notranslate nohighlight">\(f(x)\)</span>. This function has to be specified by the user. A priori, one assumes that it is a map <span class="math notranslate nohighlight">\(f: \mathbb{R}^d \to \mathbb{R}\)</span>. However, we need to evaluate the objective on the whole ensemble. The naive approach here, would be to loop over all indices <span class="math notranslate nohighlight">\(m=1, \ldots, M, n=1, \ldots, N\)</span> and evaluate <span class="math notranslate nohighlight">\(f(x^{m,n})\)</span> separately. However, this is not efficient and since the objective evaluation might happen a lot, it is better to evaluate the objective on the whole array at once. Therefore, we need to ensure that objective function <code class="docutils literal notranslate"><span class="pre">dyn.f</span></code> can be evaluated on an array of shape <span class="math notranslate nohighlight">\(M\times N\times d\)</span> and we always think of maps</p>
+<div class="math notranslate nohighlight">
+\[\mathbb{R}^{M\times N\times d} \to \mathbb{R}^{M\times N}.\]</div>
+<p>I.e., in terms of dimensionality an application of <code class="docutils literal notranslate"><span class="pre">dyn.f</span></code> strips away the dimension of the original problem <span class="math notranslate nohighlight">\(\mathcal{X}=\mathbb{R}^d\)</span> and keeps the structure given by <span class="math notranslate nohighlight">\(M\times N\)</span>.</p>
+<p>However, there might be cases where the user specifies an objective function that only works within the original interpretation, i.e., <span class="math notranslate nohighlight">\(f: \mathbb{R}^d \to \mathbb{R}\)</span>, as in the following example:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(4, 2)</span>
+</pre></div>
+</div>
+<p>In the above example the array <code class="docutils literal notranslate"><span class="pre">x</span></code> yields <span class="math notranslate nohighlight">\(M=3, N=4\)</span> and <span class="math notranslate nohighlight">\(d=2\)</span>, therefore the output must be of shape <span class="math notranslate nohighlight">\(3\times 4\)</span>. However, since <code class="docutils literal notranslate"><span class="pre">f</span></code> as defined above only works on the single particle level, the shape of the output and therefore also the application is wrong. Let’s see how the situation changes when we use the above <code class="docutils literal notranslate"><span class="pre">f</span></code> as an objective for a dynamic:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cbx.dynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParticleDynamic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span> <span class="o">=</span> <span class="n">ParticleDynamic</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dyn</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(3, 4)</span>
+</pre></div>
+</div>
+<p>We observe that the objective function <code class="docutils literal notranslate"><span class="pre">dyn.f</span></code> now returns an array of shape <span class="math notranslate nohighlight">\(M\times N\)</span>. This is due to the fact that an objective is promoted to the class <code class="xref py py-func docutils literal notranslate"><span class="pre">cbx_objective</span></code>, which handles the evaluation on the array level. By default, we assume that the specified function, only works on the single particle level, which is expressed in the keyword argument <code class="docutils literal notranslate"><span class="pre">f_dim='1D'</span></code> of the class <a class="reference internal" href="../api/generated/cbx.dynamics.ParticleDynamic.html#cbx.dynamics.ParticleDynamic" title="cbx.dynamics.ParticleDynamic"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParticleDynamic</span></code></a>. If your function works on single-run ensembles of shape <span class="math notranslate nohighlight">\(N\times d\)</span>, you can specify <code class="docutils literal notranslate"><span class="pre">f_dim='2D'</span></code> and respectively if it works on multi-run ensembles of shape <span class="math notranslate nohighlight">\(M\times N\times d\)</span> you can specify <code class="docutils literal notranslate"><span class="pre">f_dim=3D</span></code>. If you specify the latter, the objective function is <strong>not</strong> modified or wrapped, but is directly used for the dynamic:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cbx.dynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParticleDynamic</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn0</span> <span class="o">=</span> <span class="n">ParticleDynamic</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn1</span> <span class="o">=</span> <span class="n">ParticleDynamic</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">)),</span> <span class="n">f_dim</span><span class="o">=</span><span class="s1">&#39;3D&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dyn0</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">)))</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dyn1</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">)))</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dyn0</span><span class="o">.</span><span class="n">f</span> <span class="ow">is</span> <span class="n">f</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dyn1</span><span class="o">.</span><span class="n">f</span> <span class="ow">is</span> <span class="n">f</span><span class="p">)</span>
+<span class="go">(3, 4)</span>
+<span class="go">(3, 4)</span>
+<span class="go">False</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Here, we observe that the dynamic directly uses the specified objective function for <code class="docutils literal notranslate"><span class="pre">f_dim='3D'</span></code>. For more complicated functions, one can also inherit from <code class="xref py py-class docutils literal notranslate"><span class="pre">cbx_objective</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When inheriting from <code class="xref py py-class docutils literal notranslate"><span class="pre">cbx_objective</span></code>, the method <code class="xref py py-meth docutils literal notranslate"><span class="pre">__call__</span></code> should not be overwritten as it is used internally to update the number of evaluation. Instead, the actual function call should be implemented in the method <code class="docutils literal notranslate"><span class="pre">apply(self,</span> <span class="pre">x)</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cbx.dynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParticleDynamic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cbx.utils.objective_handling</span><span class="w"> </span><span class="kn">import</span> <span class="n">cbx_objective</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">objective</span><span class="p">(</span><span class="n">cbx_objective</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="the-step-method">
+<span id="step"></span><h2>The step method<a class="headerlink" href="#the-step-method" title="Link to this heading">#</a></h2>
+<p>At the heart of every iterative method is the actual update that is performed. Each dynamic encodes this update in the method <code class="xref py py-meth docutils literal notranslate"><span class="pre">inner_step</span></code>. For example, the standard CBO class <a class="reference internal" href="../api/generated/cbx.dynamics.CBO.html#cbx.dynamics.CBO" title="cbx.dynamics.CBO"><code class="xref py py-func docutils literal notranslate"><span class="pre">CBO</span></code></a> implements the following update:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">inner_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">consensus</span><span class="p">,</span> <span class="n">energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_consensus</span><span class="p">()</span> <span class="c1"># update consensus point</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">consensus_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">energy</span> <span class="c1"># update energy only at the active indices</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">drift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">particle_idx</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">consensus</span> <span class="c1"># compute drift</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise</span><span class="p">()</span> <span class="c1"># compute noise</span>
+
+    <span class="c1">#  update particle positions</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">particle_idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">particle_idx</span><span class="p">]</span> <span class="o">-</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">correction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lamda</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">drift</span><span class="p">)</span> <span class="o">+</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the simplest case, where we use isotropic noise and no correction, this basically implements the update</p>
+<div class="math notranslate nohighlight">
+\[x^i \gets x^i - \lambda\, dt\, (x_i - c_\alpha(x)) + \sigma\, \sqrt{dt} |x^i - c_\alpha(x)| \xi^i\]</div>
+<p>with an additional correction step on the drift. If you want to implement a custom update, you need to overwrite this method in an inherited class. Additionally, there might be certain procedures that should happen before or after each iteration. These can be implemented in the method <code class="xref py py-meth docutils literal notranslate"><span class="pre">pre_step</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">post_step</span></code>. For example the base dynamic class <a class="reference internal" href="../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic" title="cbx.dynamics.CBXDynamic"><code class="xref py py-class docutils literal notranslate"><span class="pre">CBO</span></code></a>, saves the position of the old ensemble before each iteration:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">pre_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">x_old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy_particles</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After each inner step, the base class updates the best particles (both of the current ensemble and the best of the whole iteration), performs the tracking step (see <a class="reference internal" href="#tracking"><span class="std std-ref">Tracking and history</span></a>), performs an optional post processing step (e.g., clip the particles within a valid range) and most importantly, increments the iteration counter:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">post_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;x_old&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_old</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">update_best_cur_particle</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">update_best_particle</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">track</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">process_particles</span><span class="p">()</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">it</span><span class="o">+=</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>The main step method, which actually used in the iteration is the defined as</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">pre_step</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">inner_step</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">post_step</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="noise-methods-and-how-to-customize-them">
+<h2>Noise methods and how to customize them<a class="headerlink" href="#noise-methods-and-how-to-customize-them" title="Link to this heading">#</a></h2>
+<p>In the update step of consensus based methods, diffusion is modeled by the addition of noise, which is scaled by a factor dependent on the iteration. Here, it is very convenient to assume that we can compute the noise, given full information about the dynamic. Therefore, the callable that implements the specific noise needs to accept the dynamic as an argument. This function is then saved in the attribute <code class="xref py py-attr docutils literal notranslate"><span class="pre">noise_callable</span></code>. The function that is called during the iteration <a class="reference internal" href="../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.noise" title="cbx.dynamics.CBXDynamic.noise"><code class="xref py py-func docutils literal notranslate"><span class="pre">noise</span></code></a> is defined as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">noise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_callable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can specify the noise as keyword argument of the class <a class="reference internal" href="../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic" title="cbx.dynamics.CBXDynamic"><code class="xref py py-class docutils literal notranslate"><span class="pre">CBXDynamic</span></code></a>. This can be a string from the following list:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">noise</span> <span class="pre">=</span> <span class="pre">'anistropic'</span></code>: anistropic noise (see <code class="xref py py-class docutils literal notranslate"><span class="pre">anistropic_noise</span></code>),</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">noise</span> <span class="pre">=</span> <span class="pre">'isotropic'</span></code>: isotropic noise (see <code class="xref py py-class docutils literal notranslate"><span class="pre">isotropic_noise</span></code>),</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">noise</span> <span class="pre">=</span> <span class="pre">'covariance'</span></code>: covariance noise (see <code class="xref py py-class docutils literal notranslate"><span class="pre">covariance_noise</span></code>).</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cbx.dynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">CBXDynamic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span> <span class="o">=</span> <span class="n">CBXDynamic</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="s1">&#39;isotropic&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>Alternatively, you can define a custom callable and specify it to be used as the <code class="docutils literal notranslate"><span class="pre">noise_callable</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cbx.dynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">CBXDynamic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">my_noise</span><span class="p">(</span><span class="n">dyn</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;This is my custom noise&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span> <span class="o">=</span> <span class="n">CBXDynamic</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="n">my_noise</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span><span class="o">.</span><span class="n">noise</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dyn</span><span class="o">.</span><span class="n">noise_callable</span> <span class="ow">is</span> <span class="n">my_noise</span><span class="p">)</span>
+<span class="go">This is my custom noise</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The function <a class="reference internal" href="../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.noise" title="cbx.dynamics.CBXDynamic.noise"><code class="xref py py-func docutils literal notranslate"><span class="pre">noise</span></code></a> does not take any arguments, other than <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p>
+</div>
+</section>
+<section id="correction-steps">
+<h2>Correction steps<a class="headerlink" href="#correction-steps" title="Link to this heading">#</a></h2>
+<p>In the original CBO paper it is proposed to perform a correction step on the drift in each iteration. From a technical point of view the mechanics here are very similar to how the noise is implemented. The following methods can be specified as keyword argument of the class <a class="reference internal" href="../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic" title="cbx.dynamics.CBXDynamic"><code class="xref py py-class docutils literal notranslate"><span class="pre">CBXDynamic</span></code></a>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">correction</span> <span class="pre">=</span> <span class="pre">'none'</span></code>: no correction (see <code class="xref py py-class docutils literal notranslate"><span class="pre">no_correction</span></code>),</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">correction</span> <span class="pre">=</span> <span class="pre">'heavi_side'</span></code>: Heaviside correction (see <code class="xref py py-func docutils literal notranslate"><span class="pre">heavi_side_correction</span></code>),</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">correction</span> <span class="pre">=</span> <span class="pre">'heavi_side_reg'</span></code>: Heaviside correction with regularization (see <code class="xref py py-func docutils literal notranslate"><span class="pre">heavi_side_correction_reg</span></code>).</p></li>
+</ul>
+<p>As in the case for the noise, this first sets the function <code class="xref py py-func docutils literal notranslate"><span class="pre">correction_callable</span></code> of the dynamic class. The actual correction is then defined as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">correction_callable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The function <a class="reference internal" href="../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic.correction" title="cbx.dynamics.CBXDynamic.correction"><code class="xref py py-func docutils literal notranslate"><span class="pre">correction</span></code></a> additionally takes <code class="docutils literal notranslate"><span class="pre">x</span></code> as an argument.</p>
+</div>
+<p>You can also use a custom callable and specify it to be used as the <code class="docutils literal notranslate"><span class="pre">correction_callable</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cbx.dynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">CBXDynamic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">my_correction</span><span class="p">(</span><span class="n">dyn</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;This is my custom correction&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span> <span class="o">=</span> <span class="n">CBXDynamic</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">correction</span><span class="o">=</span><span class="n">my_correction</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span><span class="o">.</span><span class="n">correction</span><span class="p">(</span><span class="n">dyn</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dyn</span><span class="o">.</span><span class="n">correction_callable</span> <span class="ow">is</span> <span class="n">my_correction</span><span class="p">)</span>
+<span class="go">This is my custom correction</span>
+</pre></div>
+</div>
+</section>
+<section id="termination-criteria">
+<h2>Termination criteria<a class="headerlink" href="#termination-criteria" title="Link to this heading">#</a></h2>
+<p>You can specify different termination criteria for your CBO algorithm, by passing the list <code class="docutils literal notranslate"><span class="pre">term_criteria</span></code> to the class <a class="reference internal" href="../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic" title="cbx.dynamics.CBXDynamic"><code class="xref py py-class docutils literal notranslate"><span class="pre">CBXDynamic</span></code></a>. Each entry in this list is a callable that accepts the dynamic as an argument and returns a <code class="docutils literal notranslate"><span class="pre">numpy</span></code> boolean array of size <code class="docutils literal notranslate"><span class="pre">(M,)</span></code>. The <code class="docutils literal notranslate"><span class="pre">i</span></code>-th entry specifies if the <code class="docutils literal notranslate"><span class="pre">i</span></code>-th run should be terminated. The function <code class="xref py py-func docutils literal notranslate"><span class="pre">terminate</span></code> checks all the termination criteria and then saves the result in the array <code class="docutils literal notranslate"><span class="pre">dyn.active_runs_idx</span></code> that saves the inidces of the original <code class="docutils literal notranslate"><span class="pre">M</span></code> runs that are still active. This allows to terminate some of the runs, while others continue. The function <code class="xref py py-func docutils literal notranslate"><span class="pre">terminate</span></code> returns <code class="docutils literal notranslate"><span class="pre">True</span></code>, only if the array <code class="docutils literal notranslate"><span class="pre">dyn.active_runs_idx</span></code> is empty.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We check whether to terminate the run. Therefore, <code class="docutils literal notranslate"><span class="pre">False</span></code> means a certain check is not meant and the run should continue. <code class="docutils literal notranslate"><span class="pre">True</span></code> means the check is meant, and the run should be stopped.</p>
+</div>
+<p>As termination callables you can use, e.g., the pre-defined routines in <code class="xref py py-mod docutils literal notranslate"><span class="pre">cbx.utils.termination</span></code>. For convenience, you can specify the max iteration criterion directly as a keyword argument <code class="docutils literal notranslate"><span class="pre">CBXDynamic(...,</span> <span class="pre">max_it=10)</span></code>.</p>
+</section>
+<section id="tracking-and-history">
+<span id="tracking"></span><h2>Tracking and history<a class="headerlink" href="#tracking-and-history" title="Link to this heading">#</a></h2>
+<p>During the iteration, we can save different values in the dictionary <code class="docutils literal notranslate"><span class="pre">dyn.history</span></code>. You can specify, which values to track, with the dictonary <code class="docutils literal notranslate"><span class="pre">track_args</span></code>. In the follwing we specify possible keys:</p>
+<section id="track-args-save-int-int">
+<h3><code class="docutils literal notranslate"><span class="pre">track_args={...,'save_int':</span> <span class="pre">&lt;int&gt;}</span></code><a class="headerlink" href="#track-args-save-int-int" title="Link to this heading">#</a></h3>
+<p>The value <code class="docutils literal notranslate"><span class="pre">save_int</span></code> specifiy the interval in which the values should be tracked.</p>
+</section>
+<section id="track-args-names-x">
+<h3><code class="docutils literal notranslate"><span class="pre">track_args={...,names=[....,'x']}</span></code><a class="headerlink" href="#track-args-names-x" title="Link to this heading">#</a></h3>
+<p>Specifies, that the particles <code class="docutils literal notranslate"><span class="pre">dyn.x</span></code> should be tracked after each step. In that case the entry in the history <code class="docutils literal notranslate"><span class="pre">dyn.history['x']</span></code> is a basic list of arrays of shape <code class="docutils literal notranslate"><span class="pre">(M,</span> <span class="pre">N,</span> <span class="pre">d)</span></code>.</p>
+</section>
+<section id="track-args-names-update-norm">
+<h3><code class="docutils literal notranslate"><span class="pre">track_args={...,names=[....,'update_norm']}</span></code><a class="headerlink" href="#track-args-names-update-norm" title="Link to this heading">#</a></h3>
+<p>Specifies, that the norm of the difference between the old and the new ensemble should be tracked. The values are saved in <code class="docutils literal notranslate"><span class="pre">dyn.history['update_norm']</span></code> which is a list of arrays of shape <code class="docutils literal notranslate"><span class="pre">(M,)</span></code>.</p>
+</section>
+<section id="track-args-names-energy">
+<h3><code class="docutils literal notranslate"><span class="pre">track_args={...,names=[....,'energy']}</span></code><a class="headerlink" href="#track-args-names-energy" title="Link to this heading">#</a></h3>
+<p>Specifies, that the <strong>best</strong> energy in each iteration should be tracked. The values are saved in <code class="docutils literal notranslate"><span class="pre">dyn.history['energy']</span></code> which is a list of arrays of shape <code class="docutils literal notranslate"><span class="pre">(M,)</span></code>.</p>
+</section>
+<section id="track-args-names-consensus">
+<h3><code class="docutils literal notranslate"><span class="pre">track_args={...,names=[....,'consensus']}</span></code><a class="headerlink" href="#track-args-names-consensus" title="Link to this heading">#</a></h3>
+<p>Specifies, that the consensus points should be tracked. They are saved in <code class="docutils literal notranslate"><span class="pre">dyn.history['consensus']</span></code> which is a list of arrays of shape <code class="docutils literal notranslate"><span class="pre">(M,</span> <span class="pre">d)</span></code>. This is only available in the subclass <code class="xref py py-class docutils literal notranslate"><span class="pre">CBXDynamic</span> <span class="pre">cbx.dynamics.CBXDynamic</span></code>.</p>
+</section>
+<section id="track-args-names-drift">
+<h3><code class="docutils literal notranslate"><span class="pre">track_args={...,names=[....,'drift']}</span></code><a class="headerlink" href="#track-args-names-drift" title="Link to this heading">#</a></h3>
+<p>Specifies, that the drift vectors should be tracked. They are saved in <code class="docutils literal notranslate"><span class="pre">dyn.history['drift']</span></code> which is a list of arrays of shape <code class="docutils literal notranslate"><span class="pre">(M,</span> <span class="pre">d)</span></code>. This is only available in the subclass <code class="xref py py-class docutils literal notranslate"><span class="pre">CBXDynamic</span> <span class="pre">cbx.dynamics.CBXDynamic</span></code>.</p>
+</section>
+<section id="track-args-names-drift-mean">
+<h3><code class="docutils literal notranslate"><span class="pre">track_args={...,names=[....,'drift_mean']}</span></code><a class="headerlink" href="#track-args-names-drift-mean" title="Link to this heading">#</a></h3>
+<p>Specifies that the mean of the drift vectors should be tracked. It is saved in <code class="docutils literal notranslate"><span class="pre">dyn.history['drift_mean']</span></code> which is a list of arrays of shape <code class="docutils literal notranslate"><span class="pre">(M,</span> <span class="pre">d)</span></code>.</p>
+</section>
+<section id="track-args-extra-tracks-track">
+<h3><code class="docutils literal notranslate"><span class="pre">track_args={...,extra_tracks=[&lt;track&gt;]}</span></code><a class="headerlink" href="#track-args-extra-tracks-track" title="Link to this heading">#</a></h3>
+<p>The list <code class="docutils literal notranslate"><span class="pre">extra_tracks</span></code> allows you to specify additional functions that perform custom tracking routines. The instances should be a class that implement the following functions</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">init_history</span></code>: Here you initialize the value in <code class="docutils literal notranslate"><span class="pre">dyn.history</span></code>, e.g., you can initialize an array or list to store the values in.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">update</span></code>: This performs the tracking after each update.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cbx.dynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">CBXDynamic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">MyCustomTrack</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span><span class="w"> </span><span class="nf">init_history</span><span class="p">(</span><span class="n">dyn</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Initializing my custom track&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">dyn</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;my_custom_track&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="n">dyn</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Updating my custom track&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">dyn</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;my_custom_track&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dyn</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span> <span class="o">=</span> <span class="n">CBXDynamic</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">track_args</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;extra_tracks&#39;</span><span class="p">:[</span><span class="n">MyCustomTrack</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dyn</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;my_custom_track&#39;</span><span class="p">])</span>
+<span class="go">Initializing my custom track</span>
+<span class="go">Updating my custom track</span>
+<span class="go">[0]</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
+<section id="batching">
+<h2>Batching<a class="headerlink" href="#batching" title="Link to this heading">#</a></h2>
+<p>As proposed in <a class="footnote-reference brackets" href="#id3" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> it is common to perform only batch updates across the ensemble. In order to specify batching in a cbx class you can use the keyword argument <code class="docutils literal notranslate"><span class="pre">CBXDynamic(...,batch_args=batch_args)</span></code>, where <code class="docutils literal notranslate"><span class="pre">batch_args</span></code> is a dictionary with the following keys:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'batch_partial'</span></code>: If <code class="docutils literal notranslate"><span class="pre">True</span></code> the consensus and particle indices are the same. If <code class="docutils literal notranslate"><span class="pre">False</span></code> the particle indices are an <code class="docutils literal notranslate"><span class="pre">Ellipsis</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'batch_size'</span></code>: The size of the batch.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'seed'</span></code>: The seed for the random number generator.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'var'</span></code>: The resampling variant.</p></li>
+</ul>
+<p>We explain the mechanism and the behavior of these arguments below.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Here, and in the following this batching should not be confused with the batching of a objective function. If your objective function is given as a sum over many functions, it might make sense to batch the evaluation of this function. However, the batching over the ensemble is conceptually different.</p>
+</div>
+<p>The base class <a class="reference internal" href="../api/generated/cbx.dynamics.CBXDynamic.html#cbx.dynamics.CBXDynamic" title="cbx.dynamics.CBXDynamic"><code class="xref py py-class docutils literal notranslate"><span class="pre">CBXDynamic</span></code></a> implements the function <code class="xref py py-func docutils literal notranslate"><span class="pre">set_batch_idx</span></code>. If it is called it sets the following attributes</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dyn.consensus_idx</span></code>: the indices used to computed the consensus point,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dyn.particle_idx</span></code>: the indices updated in each step.</p></li>
+</ul>
+<p>The keyword argument <code class="docutils literal notranslate"><span class="pre">batch_partial</span></code> decides how consensus and particle indices relate to each other:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">batch_partial=True</span></code>: the consensus and particle indices are the same.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">batch_partial=False</span></code>: each particle is updated from the partially computed consensus and therefore, the particle indices are an <code class="docutils literal notranslate"><span class="pre">Ellipsis</span></code>.</p></li>
+</ul>
+<p>The attribute <code class="docutils literal notranslate"><span class="pre">dyn.consenus_idx</span></code> is a tuple of array indices such that we can directly use it for array indexing:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cbx.dynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">CBXDynamic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span> <span class="o">=</span> <span class="n">CBXDynamic</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">batch_args</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span><span class="o">.</span><span class="n">set_batch_idx</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dyn</span><span class="o">.</span><span class="n">consensus_idx</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dyn</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">dyn</span><span class="o">.</span><span class="n">consensus_idx</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(array([[0, 0],</span>
+<span class="go">        [1, 1],</span>
+<span class="go">        [2, 2],</span>
+<span class="go">        [3, 3]]),</span>
+<span class="go"> array([[1, 3],</span>
+<span class="go">        [1, 3],</span>
+<span class="go">        [0, 1],</span>
+<span class="go">        [2, 0]]),</span>
+<span class="go"> Ellipsis)</span>
+<span class="go"> (4, 2, 1)</span>
+</pre></div>
+</div>
+<p>The first entry, allows for convenient broadcasting in the run dimension, this array <span class="math notranslate nohighlight">\(M\in\N_0^{M\times\text{batch_size}}\)</span> is deterministic and defined as</p>
+<div class="math notranslate nohighlight">
+\[M_{m, n} := n.\]</div>
+<p>The second entry stores the indices of the particles that belong to the current batch. This array has the same shape as the previous one and randomly selects indices in the range <code class="docutils literal notranslate"><span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">N-1</span></code>, independently across each run. In the best the indices are unique within a single sub-run.</p>
+</section>
+<section id="resampling-strategies">
+<h2>Resampling strategies<a class="headerlink" href="#resampling-strategies" title="Link to this heading">#</a></h2>
+<p>As described in <a class="footnote-reference brackets" href="#id3" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> in certain situations it is useful to add noise independent of the current ensemble, or even resample the whole ensemble. In order to perform such a operation we can use the function <code class="xref py py-func docutils literal notranslate"><span class="pre">resample</span></code>, which accepts a list of callables. Similar to the terimination callables, they also accept the dynamic as an argument and return a list of indices, of where to resample. The resampling can be performed as a part of the post processing:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cbx.dynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">CBXDynamic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">always_resample_in_run_zero</span><span class="p">(</span><span class="n">dyn</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resampling</span> <span class="o">=</span> <span class="n">cbx</span><span class="o">.</span><span class="n">resampling</span><span class="o">.</span><span class="n">resampling</span><span class="p">([</span><span class="n">always_resample_in_run_zero</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span> <span class="o">=</span> <span class="n">CBXDynamic</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="n">M</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">post_process</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">dyn</span><span class="p">:</span> <span class="n">resampling</span><span class="p">(</span><span class="n">dyn</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dyn</span><span class="o">.</span><span class="n">post_process</span><span class="p">()</span>
+<span class="go">Resampled in runs [0]</span>
+</pre></div>
+</div>
+<p>We refer to <code class="xref py py-func docutils literal notranslate"><span class="pre">resample</span></code> for available resampling functions.</p>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id3" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>)</span>
+<p>Carrillo, J. A., Jin, S., Li, L., &amp; Zhu, Y. (2021). A consensus-based global optimization method for high dimensional machine learning problems. ESAIM: Control, Optimisation and Calculus of Variations, 27, S5.</p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">User Guide</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="sched.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Schedulers</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optimization-with-dynamics">Optimization with dynamics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modelling-the-ensemble">Modelling the ensemble</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-objective-function">The objective function</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-step-method">The step method</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#noise-methods-and-how-to-customize-them">Noise methods and how to customize them</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#correction-steps">Correction steps</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#termination-criteria">Termination criteria</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tracking-and-history">Tracking and history</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#track-args-save-int-int"><code class="docutils literal notranslate"><span class="pre">track_args={...,'save_int':</span> <span class="pre">&lt;int&gt;}</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#track-args-names-x"><code class="docutils literal notranslate"><span class="pre">track_args={...,names=[....,'x']}</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#track-args-names-update-norm"><code class="docutils literal notranslate"><span class="pre">track_args={...,names=[....,'update_norm']}</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#track-args-names-energy"><code class="docutils literal notranslate"><span class="pre">track_args={...,names=[....,'energy']}</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#track-args-names-consensus"><code class="docutils literal notranslate"><span class="pre">track_args={...,names=[....,'consensus']}</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#track-args-names-drift"><code class="docutils literal notranslate"><span class="pre">track_args={...,names=[....,'drift']}</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#track-args-names-drift-mean"><code class="docutils literal notranslate"><span class="pre">track_args={...,names=[....,'drift_mean']}</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#track-args-extra-tracks-track"><code class="docutils literal notranslate"><span class="pre">track_args={...,extra_tracks=[&lt;track&gt;]}</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#batching">Batching</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#resampling-strategies">Resampling strategies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/userguide/dynamics.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Tim Roith.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,736 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Training neural networks with CBO &#8212; CBX v0.1.6 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=609cf928" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=95b6b9dc"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/nns/mnist';</script>
+    <link rel="icon" href="../../_static/cbx-logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="A simple example showcasing CBX" href="../simple_example.html" />
+    <link rel="prev" title="Examples" href="../../userguide/examples.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/cbx-logo.png" class="logo__image only-light" alt="CBX v0.1.6 documentation - Home"/>
+    <img src="../../_static/cbx-logo.png" class="logo__image only-dark pst-js-only" alt="CBX v0.1.6 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../userguide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/PdIPS/CBXpy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../userguide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/PdIPS/CBXpy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/dynamics.html">Dynamics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/sched.html">Schedulers</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../userguide/objectives.html">Test Objectives</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.Ackley.html">cbx.objectives.Ackley</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.Ackley_multimodal.html">cbx.objectives.Ackley_multimodal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.Bukin6.html">cbx.objectives.Bukin6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.cross_in_tray.html">cbx.objectives.cross_in_tray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.drop_wave.html">cbx.objectives.drop_wave</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.Easom.html">cbx.objectives.Easom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.eggholder.html">cbx.objectives.eggholder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.Himmelblau.html">cbx.objectives.Himmelblau</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.Holder_table.html">cbx.objectives.Holder_table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.McCormick.html">cbx.objectives.McCormick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.Michalewicz.html">cbx.objectives.Michalewicz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.Rastrigin.html">cbx.objectives.Rastrigin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.Rastrigin_multimodal.html">cbx.objectives.Rastrigin_multimodal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.Rosenbrock.html">cbx.objectives.Rosenbrock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.snowflake.html">cbx.objectives.snowflake</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../userguide/generated/cbx.objectives.three_hump_camel.html">cbx.objectives.three_hump_camel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/plotting.html">Plotting</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../userguide/examples.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Training neural networks with CBO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../simple_example.html">A simple example showcasing CBX</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../custom_noise.html">Custom Noise CBX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../polarcbo.html">Polarized CBO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../onedim_example.html">1D Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../low_level.html">Visualizing CBX dynamics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sampling.html">Consensus Based Sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../success_evaluation.html">Performance Evaluation</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../userguide/index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../userguide/examples.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Training neural networks with CBO</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Training-neural-networks-with-CBO">
+<h1>Training neural networks with CBO<a class="headerlink" href="#Training-neural-networks-with-CBO" title="Link to this heading">#</a></h1>
+<p>This notebook shows how to train a simple neural network on the MNIST dataset. We employ <a class="reference external" href="https://pytorch.org/">Pytorch</a>, which creates a very convenient machine learning environment. In particular, we will see how CBX can run on the GPU.</p>
+<p>We start by loading the necessary packages.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext autoreload
+%autoreload 2
+import cbx as cbx
+from cbx.dynamics.cbo import CBO
+import torch
+import torch.nn as nn
+import torchvision
+import cbx.utils.resampling as rsmp
+</pre></div>
+</div>
+</div>
+<section id="Load-the-data:-MNIST">
+<h2>Load the data: MNIST<a class="headerlink" href="#Load-the-data:-MNIST" title="Link to this heading">#</a></h2>
+<p>We load the train and test data. In this case we use the <a class="reference external" href="https://en.wikipedia.org/wiki/MNIST_database">MNIST</a> dataset, which we assume to be available. You can specify the path with the variable <code class="docutils literal notranslate"><span class="pre">data_path</span></code> to point to the right directory.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data_path = &quot;../../../../datasets/&quot; # This path directs to one level above the CBX package
+transform = torchvision.transforms.ToTensor()
+train_data = torchvision.datasets.MNIST(data_path, train=True, transform=transform, download=False)
+test_data = torchvision.datasets.MNIST(data_path, train=False, transform=transform, download=False)
+train_loader = torch.utils.data.DataLoader(train_data, batch_size=64,shuffle=True, num_workers=0)
+test_loader = torch.utils.data.DataLoader(test_data, batch_size=64,shuffle=False, num_workers=0)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Specify-the-device">
+<h2>Specify the device<a class="headerlink" href="#Specify-the-device" title="Link to this heading">#</a></h2>
+<p>We now specify the device to run everything on. If <a class="reference external" href="https://developer.nvidia.com/cuda-toolkit">cuda</a> is available, we perform most of the calculations on the GPU!</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>device = &#39;cuda&#39; if torch.cuda.is_available() else &#39;cpu&#39;
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Load-model-type">
+<h2>Load model type<a class="headerlink" href="#Load-model-type" title="Link to this heading">#</a></h2>
+<p>We now load the model that we want to employ in the following. The variable <code class="docutils literal notranslate"><span class="pre">model_class</span></code> specifies the kind of network we want to use, in this case a Perceptron with one hidden layer. Since</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from models import Perceptron
+
+model_class = Perceptron
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Model-initialization">
+<h2>Model initialization<a class="headerlink" href="#Model-initialization" title="Link to this heading">#</a></h2>
+<p>We now initialize the parameters that will be used in the optimization. First we decide how many particles, we want to use in the following, in this case <code class="docutils literal notranslate"><span class="pre">N=50</span></code>.</p>
+<section id="Initializing-the-weights">
+<h3>Initializing the weights<a class="headerlink" href="#Initializing-the-weights" title="Link to this heading">#</a></h3>
+<p>We initialize the parameters, by creating a list containing <code class="docutils literal notranslate"><span class="pre">N</span></code> different initializations: <code class="docutils literal notranslate"><span class="pre">models</span> <span class="pre">=</span> <span class="pre">[model_class(sizes=[784,100,10])</span> <span class="pre">for</span> <span class="pre">_</span> <span class="pre">in</span> <span class="pre">range(N)]</span></code>. This list is then transformed into a torch tensor <code class="docutils literal notranslate"><span class="pre">w</span></code> of shape (50, d) with the function <code class="docutils literal notranslate"><span class="pre">flatten_parameters</span></code>, where <code class="docutils literal notranslate"><span class="pre">d</span></code> is the number of trainable parameters per network. We save further properties, like the names and shapes of each parameter into the variable <code class="docutils literal notranslate"><span class="pre">pprop</span></code>, which later allows us to perform the inverse operation of
+<code class="docutils literal notranslate"><span class="pre">flatten_parameters</span></code>.</p>
+</section>
+<section id="Do-we-save-the-whole-list-models?">
+<h3>Do we save the whole list <code class="docutils literal notranslate"><span class="pre">models</span></code>?<a class="headerlink" href="#Do-we-save-the-whole-list-models?" title="Link to this heading">#</a></h3>
+<p>The important thing to realize in the following is, that we do not work with the list <code class="docutils literal notranslate"><span class="pre">models</span></code> anymore. We only created it to initialize the parameters. The only thing that is updated is the tensor <code class="docutils literal notranslate"><span class="pre">w</span></code> that stores the flattened parameters. Every time, we want to evaluate the ensemble, we make use of the function <code class="docutils literal notranslate"><span class="pre">`functional_call</span></code> &lt;<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.func.functional_call.html">https://pytorch.org/docs/stable/generated/torch.func.functional_call.html</a>&gt;`__, which takes the tensor <code class="docutils literal notranslate"><span class="pre">w</span></code> together with one realization of the model and
+applies it. That is why set <code class="docutils literal notranslate"><span class="pre">model</span> <span class="pre">=</span> <span class="pre">models[0]</span></code> in order to have one realization.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from cbx.utils.torch_utils import flatten_parameters, get_param_properties, eval_losses, norm_torch, compute_consensus_torch, standard_normal_torch, eval_acc, effective_sample_size
+N = 50
+models = [model_class(sizes=[784,10]) for _ in range(N)]
+model = models[0]
+pnames = [p[0] for p in model.named_parameters()]
+w = flatten_parameters(models, pnames).to(device)
+pprop = get_param_properties(models, pnames=pnames)
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="The-objective-function">
+<h2>The objective function<a class="headerlink" href="#The-objective-function" title="Link to this heading">#</a></h2>
+<p>We now define the functions that we want to optimize. For a single particle <span class="math notranslate nohighlight">\(w_i\)</span> it is defined as</p>
+<div class="math notranslate nohighlight">
+\[f(w_i) := \sum_{(x,y)\in\mathcal{T}} \ell(N_{w_i}(x), y),\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal{T}\)</span> is our training set, <span class="math notranslate nohighlight">\(N_{w_i}\)</span> denotes the neural net parametrized by <span class="math notranslate nohighlight">\(w_i\)</span> and <span class="math notranslate nohighlight">\(\ell\)</span> is some loss function. We usually do not evaluate the loss on the whole training set, but rather on so called mini-batches <span class="math notranslate nohighlight">\(B\subset\mathcal{T}\)</span> which is incorporated in the objective function below.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>class objective:
+    def __init__(self, train_loader, N, device, model, pprop):
+        self.train_loader = train_loader
+        self.data_iter = iter(train_loader)
+        self.N = N
+        self.epochs = 0
+        self.device = device
+        self.loss_fct = nn.CrossEntropyLoss()
+        self.model = model
+        self.pprop = pprop
+        self.set_batch()
+
+    def __call__(self, w):
+        return eval_losses(self.x, self.y, self.loss_fct, self.model, w[0,...], self.pprop)
+
+    def set_batch(self,):
+        (x,y) = next(self.data_iter, (None, None))
+        if x is None:
+            self.data_iter = iter(self.train_loader)
+            (x,y) = next(self.data_iter)
+            self.epochs += 1
+        self.x = x.to(self.device)
+        self.y = y.to(self.device)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Set-up-CBX-Dynamic">
+<h2>Set up CBX Dynamic<a class="headerlink" href="#Set-up-CBX-Dynamic" title="Link to this heading">#</a></h2>
+<p>We now set up the dynamic. First we set some parameters.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>kwargs = {&#39;alpha&#39;:50.0,
+        &#39;dt&#39;: 0.1,
+        &#39;sigma&#39;: 0.1,
+        &#39;lamda&#39;: 1.0,
+        &#39;max_it&#39;: 200,
+        &#39;verbosity&#39;:0,
+        &#39;batch_args&#39;:{&#39;batch_size&#39;:40, &#39;partial&#39;: True},
+        &#39;check_f_dims&#39;:False}
+</pre></div>
+</div>
+</div>
+</section>
+<section id="How-to-incorporate-torch-in-CBX?">
+<h2>How to incorporate torch in CBX?<a class="headerlink" href="#How-to-incorporate-torch-in-CBX?" title="Link to this heading">#</a></h2>
+<p>The interesting question is now, how we can incorporate torch into CBX. Usually, CBX assumes <code class="docutils literal notranslate"><span class="pre">numpy</span></code> as the underlying array packages, however this can be modified. If we only work on the CPU, we would not have to change too much because then <code class="docutils literal notranslate"><span class="pre">numpy</span></code> and <code class="docutils literal notranslate"><span class="pre">torch</span></code> can use the same underlying memory and <code class="docutils literal notranslate"><span class="pre">numpy</span></code>s ufunctions could act on torch tensors. This does not work, if we want to work on the GPU!</p>
+<section id="Where-is-numpy-actually-relevant?">
+<h3>Where is <code class="docutils literal notranslate"><span class="pre">numpy</span></code> actually relevant?<a class="headerlink" href="#Where-is-numpy-actually-relevant?" title="Link to this heading">#</a></h3>
+<p>Since standard CBO does not require many advanced array operations, the question arises, where it actually makes a difference what the ensemble <code class="docutils literal notranslate"><span class="pre">x</span></code> is? We list the most important aspects below:</p>
+<ul class="simple">
+<li><p>The ensemble <code class="docutils literal notranslate"><span class="pre">x</span></code> must implement basic array operations, such as <code class="docutils literal notranslate"><span class="pre">+,-,*,\</span></code>, scalar multiplication, some broadcasting rules and <code class="docutils literal notranslate"><span class="pre">numpy</span></code>-style indexing.</p></li>
+<li><p><strong>Copying</strong>: in certain situations it is important to copy the ensemble. In <code class="docutils literal notranslate"><span class="pre">numpy</span></code> we use <code class="docutils literal notranslate"><span class="pre">np.copy</span></code>, the torch analogue is <code class="docutils literal notranslate"><span class="pre">torch.clone</span></code>. The <code class="docutils literal notranslate"><span class="pre">ParticleDynmaic</span></code> allows to specify which function should be used with the keyword argument <code class="docutils literal notranslate"><span class="pre">copy=...</span></code>.</p></li>
+<li><p><strong>Generating random numbers</strong>: All noise methods in <code class="docutils literal notranslate"><span class="pre">cbx</span></code> call an underlying random number generator. In fact most of the time, we want to obtain an array of a certain size, with the entries being distributed according to the standard normal distribution. Therefore, the <code class="docutils literal notranslate"><span class="pre">ParticleDynmaic</span></code> allows to specify a callable <code class="docutils literal notranslate"><span class="pre">normal=...</span></code> that is used, whenever we want to sample. In our case employ a wrapper class for torch.normal, defined in the file <code class="docutils literal notranslate"><span class="pre">cbx_torch_utils</span></code>.</p></li>
+<li><p><strong>Computing the consensus</strong>: The consensus computation also requires some modification. Most notably, for numerical stability we employ a <code class="docutils literal notranslate"><span class="pre">`logsumexp</span></code> &lt;<a class="reference external" href="https://en.wikipedia.org/wiki/LogSumExp">https://en.wikipedia.org/wiki/LogSumExp</a>&gt;`__ function, which has to be replaced by the torch variant. We can specify which function to use, with the keyword <code class="docutils literal notranslate"><span class="pre">compute_consensus=...</span></code> and use the function defined in <code class="docutils literal notranslate"><span class="pre">cbx_torch_utils</span></code></p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>f = objective(train_loader, N, device, model, pprop)
+resampling =  rsmp.resampling([rsmp.loss_update_resampling(wait_thresh=40)])
+
+dyn = CBO(f, f_dim=&#39;3D&#39;, x=w[None,...], noise=&#39;anisotropic&#39;,
+          norm=norm_torch,
+          copy=torch.clone,
+          sampler=standard_normal_torch(device),
+          compute_consensus=compute_consensus_torch,
+          post_process = lambda dyn: resampling(dyn),
+          **kwargs)
+sched = effective_sample_size(maximum=1e7, name=&#39;alpha&#39;)
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Train-the-network">
+<h2>Train the network<a class="headerlink" href="#Train-the-network" title="Link to this heading">#</a></h2>
+<p>After we set up everything, we can now start the training loop :)</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>num_epochs = 40
+e = 0
+while f.epochs &lt; num_epochs:
+    dyn.step()
+    sched.update(dyn)
+    f.set_batch()
+    if e != f.epochs:
+        e = f.epochs
+        print(30*&#39;-&#39;)
+        print(&#39;Epoch: &#39; +str(f.epochs))
+        acc = eval_acc(model, dyn.best_particle[0,...], pprop, test_loader)
+        print(&#39;Accuracy on Test Set: &#39; + str(acc.item()))
+        print(30*&#39;-&#39;)
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../../userguide/examples.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Examples</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../simple_example.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">A simple example showcasing CBX</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Load-the-data:-MNIST">Load the data: MNIST</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Specify-the-device">Specify the device</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Load-model-type">Load model type</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Model-initialization">Model initialization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Initializing-the-weights">Initializing the weights</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Do-we-save-the-whole-list-models?">Do we save the whole list <code class="docutils literal notranslate"><span class="pre">models</span></code>?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#The-objective-function">The objective function</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Set-up-CBX-Dynamic">Set up CBX Dynamic</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#How-to-incorporate-torch-in-CBX?">How to incorporate torch in CBX?</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Where-is-numpy-actually-relevant?">Where is <code class="docutils literal notranslate"><span class="pre">numpy</span></code> actually relevant?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Train-the-network">Train the network</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/examples/nns/mnist.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Tim Roith.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

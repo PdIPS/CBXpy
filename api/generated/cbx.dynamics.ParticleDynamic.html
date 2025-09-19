@@ -1,0 +1,915 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>cbx.dynamics.ParticleDynamic &#8212; CBX v0.1.6 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=609cf928" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=95b6b9dc"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/cbx.dynamics.ParticleDynamic';</script>
+    <link rel="icon" href="../../_static/cbx-logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="cbx.dynamics.CBXDynamic" href="cbx.dynamics.CBXDynamic.html" />
+    <link rel="prev" title="dynamics" href="../dynamic.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/cbx-logo.png" class="logo__image only-light" alt="CBX v0.1.6 documentation - Home"/>
+    <img src="../../_static/cbx-logo.png" class="logo__image only-dark pst-js-only" alt="CBX v0.1.6 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../userguide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/PdIPS/CBXpy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../userguide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/PdIPS/CBXpy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../dynamic.html">dynamics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cbx.dynamics.ParticleDynamic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.dynamics.CBXDynamic.html">cbx.dynamics.CBXDynamic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.dynamics.CBO.html">cbx.dynamics.CBO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.dynamics.CBOMemory.html">cbx.dynamics.CBOMemory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.dynamics.CBS.html">cbx.dynamics.CBS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.dynamics.PSO.html">cbx.dynamics.PSO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.dynamics.PolarCBO.html">cbx.dynamics.PolarCBO</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../scheduler.html">scheduler</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="cbx.scheduler.param_update.html">cbx.scheduler.param_update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.scheduler.scheduler.html">cbx.scheduler.scheduler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.scheduler.multiply.html">cbx.scheduler.multiply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.scheduler.effective_sample_size.html">cbx.scheduler.effective_sample_size</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../plotting.html">plotting</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.termination.energy_tol_term.html">cbx.utils.termination.energy_tol_term</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.termination.diff_tol_term.html">cbx.utils.termination.diff_tol_term</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.termination.max_eval_term.html">cbx.utils.termination.max_eval_term</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.termination.max_it_term.html">cbx.utils.termination.max_it_term</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.termination.max_time_term.html">cbx.utils.termination.max_time_term</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.resampling.resampling.html">cbx.utils.resampling.resampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.resampling.ensemble_update_resampling.html">cbx.utils.resampling.ensemble_update_resampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.resampling.loss_update_resampling.html">cbx.utils.resampling.loss_update_resampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.history.track.html">cbx.utils.history.track</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.history.track_x.html">cbx.utils.history.track_x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.history.track_energy.html">cbx.utils.history.track_energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.history.track_update_norm.html">cbx.utils.history.track_update_norm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.history.track_consensus.html">cbx.utils.history.track_consensus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.history.track_drift.html">cbx.utils.history.track_drift</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.history.track_drift_mean.html">cbx.utils.history.track_drift_mean</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.particle_init.init_particles.html">cbx.utils.particle_init.init_particles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.objective_handling.cbx_objective.html">cbx.utils.objective_handling.cbx_objective</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.objective_handling.cbx_objective_fh.html">cbx.utils.objective_handling.cbx_objective_fh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.objective_handling.cbx_objective_f1D.html">cbx.utils.objective_handling.cbx_objective_f1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.objective_handling.cbx_objective_f2D.html">cbx.utils.objective_handling.cbx_objective_f2D</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../objectives.html">objectives</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.Himmelblau.html">cbx.objectives.Himmelblau</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.Rosenbrock.html">cbx.objectives.Rosenbrock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.three_hump_camel.html">cbx.objectives.three_hump_camel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.McCormick.html">cbx.objectives.McCormick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.Ackley.html">cbx.objectives.Ackley</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.Ackley_multimodal.html">cbx.objectives.Ackley_multimodal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.Rastrigin.html">cbx.objectives.Rastrigin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.Rastrigin_multimodal.html">cbx.objectives.Rastrigin_multimodal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.snowflake.html">cbx.objectives.snowflake</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../dynamic.html" class="nav-link">dynamics</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cbx.dynamics.ParticleDynamic</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="cbx-dynamics-particledynamic">
+<h1>cbx.dynamics.ParticleDynamic<a class="headerlink" href="#cbx-dynamics-particledynamic" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cbx.dynamics.</span></span><span class="sig-name descname"><span class="pre">ParticleDynamic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1D'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_f_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_it</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">term_criteria</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_process</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The base particle dynamic class</p>
+<p>This class implements the base particle dynamic class. This class does not implement
+any functionality that is specific to consensus schemes. The only necessary argument is the
+objective function <span class="math notranslate nohighlight">\(f\)</span>. The objective can be given as a simple callable function. It
+is assumed to be a function <span class="math notranslate nohighlight">\(f:\mathbb{R}^{d}\to\mathbb{R}\)</span>. If the objective can handle
+arrays of shape <span class="math notranslate nohighlight">\((N, d)\)</span>, i.e., it can be applied to multiple particles, then you can use the
+argument <code class="docutils literal notranslate"><span class="pre">f_dim=2D</span></code>, or analogously <code class="docutils literal notranslate"><span class="pre">f_dim=3D</span></code>, if it can handle arrays of shape <span class="math notranslate nohighlight">\((M, N, d)\)</span>.
+You can also directly provide the objective function as a <code class="xref py py-class docutils literal notranslate"><span class="pre">cbx_objective</span></code> instance.</p>
+<p>During the initialization of the class, the dimension of the output is checked using the <a class="reference internal" href="#cbx.dynamics.ParticleDynamic.check_f_dims" title="cbx.dynamics.ParticleDynamic.check_f_dims"><code class="xref py py-meth docutils literal notranslate"><span class="pre">check_f_dims()</span></code></a> method.
+If the check fails, an error is raised. This check can be turned off by setting the <code class="docutils literal notranslate"><span class="pre">check_f_dims</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<p>The ensemble of particles is modeled as an array of shape <span class="math notranslate nohighlight">\((M, N, d)\)</span> where</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(M\)</span> is the number of runs that should be performed. In many cases, multiple runs can be implmented on the</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">numpy</span></code> array level, which allows for efficient evaluations and computations avoiding for loops.</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(N\)</span> is the number of particles in each run.</p></li>
+<li><p><span class="math notranslate nohighlight">\(d\)</span> is the dimension of the system.</p></li>
+</ul>
+<p>This means that <span class="math notranslate nohighlight">\(x_{m,n}\in\mathbb{R}^{d}\)</span> denotes the position of the <span class="math notranslate nohighlight">\(n\)</span>-th particle of the <span class="math notranslate nohighlight">\(m\)</span>-th run.</p>
+<p>Promoting the objective function <span class="math notranslate nohighlight">\(f\)</span> to the <code class="xref py py-class docutils literal notranslate"><span class="pre">cbx_objective</span></code> instance <span class="math notranslate nohighlight">\(\tilde{f}\)</span> allows for the evaluation on
+ensembles of the shape <span class="math notranslate nohighlight">\((M, N, d)\)</span>, namely,</p>
+<div class="math notranslate nohighlight">
+\[\tilde{f}(x)_{m,n} := f(x_{m,n,:})\]</div>
+<p>The class can not infer the dimension of the problem. Therfore, the dimension must be specified by the parameter <code class="docutils literal notranslate"><span class="pre">d</span></code> or
+by specifiying an inintial position array <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>Callable</em>) – The objective function <span class="math notranslate nohighlight">\(f\)</span> of the system.</p></li>
+<li><p><strong>f_dim</strong> (<em>str</em><em>, </em><em>optional</em>) – The dimensionality of the objective function. The default is ‘1D’.</p></li>
+<li><p><strong>check_f_dims</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the dimension of the objective function is checked. The default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>x</strong> (<em>array_like</em><em>, </em><em>shape</em><em> (</em><em>M</em><em>, </em><em>N</em><em>, </em><em>d</em><em>) or </em><em>None</em><em>, </em><em>optional</em>) – The initial positions of the particles. For a system of <span class="math notranslate nohighlight">\(N\)</span> particles <code class="docutils literal notranslate"><span class="pre">x[m,</span> <span class="pre">n,</span> <span class="pre">:]</span></code>
+represents the position n-th particle of the m-th run.</p></li>
+<li><p><strong>x_min</strong> (<em>float</em><em>, </em><em>optional</em>) – The minimum value of the initial positions. The default is -1.</p></li>
+<li><p><strong>x_max</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum value of the initial positions. The default is 1.</p></li>
+<li><p><strong>M</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of runs. The default is 1.</p></li>
+<li><p><strong>N</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of particles in each run. The default is 20.</p></li>
+<li><p><strong>d</strong> (<em>int</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – The dimension of the system. The default is None.</p></li>
+<li><p><strong>term_criteria</strong> (<em>list</em><em>[</em><em>Callable</em><em>]</em><em>, </em><em>optional</em>) – A list of callables that determine the termination of the optimization. Each callable in the list should accept a single argument (the dynamic object)
+and return a numpy array of size (M,), where term(dyn)[i] specifies, whether the optimization should be terminated for the i-th run.</p></li>
+<li><p><strong>track_args</strong> (<em>dict</em>) – <p>The arguments for the tracking certain objects in the history. The following keys are possible:</p>
+<ul>
+<li><dl class="simple">
+<dt>’names’<span class="classifier">list</span></dt><dd><p>The names of the objects that should be tracked.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>’save_int’<span class="classifier">int</span></dt><dd><p>The frequency of the saving of the data. The default is 1.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>’extra_tracks’<span class="classifier">list</span></dt><dd><p>A list of extra tracks that should be performed. Each object in this list must have init_history and an update method.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+<li><p><strong>post_process</strong> (<em>Callable</em>) – A callbale acting on the dynamic that should be performed after each optimization step.</p></li>
+<li><p><strong>copy</strong> (<em>Callable</em>) – A callable that copies an array. The default is <code class="docutils literal notranslate"><span class="pre">np.copy</span></code>.</p></li>
+<li><p><strong>norm</strong> (<em>Callable</em>) – A callable that computes the norm of an array. The default is <code class="docutils literal notranslate"><span class="pre">np.linalg.norm</span></code>.</p></li>
+<li><p><strong>sampler</strong> (<em>Callable</em>) – A callable that generates an array of random numbers. The default is <code class="docutils literal notranslate"><span class="pre">np.random.normal</span></code>.</p></li>
+<li><p><strong>verbosity</strong> (<em>int</em><em>, </em><em>optional</em>) – The verbosity level. The default is 1.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.init_x">
+<span class="sig-name descname"><span class="pre">init_x</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.init_x"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.init_x" title="Link to this definition">#</a></dt>
+<dd><p>Initialize the particle system with the given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – the initial particle system. If x is None, the dimension d must be specified and the particle system is initialized randomly.
+If x is specified, it is broadcasted to the correct shape (M,N,d).</p></li>
+<li><p><strong>M</strong> – the number of particles in the first dimension</p></li>
+<li><p><strong>N</strong> – the number of particles in the second dimension</p></li>
+<li><p><strong>d</strong> – the dimension of the particle system</p></li>
+<li><p><strong>x_min</strong> – the minimum value for x</p></li>
+<li><p><strong>x_max</strong> – the maximum value for x</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.check_f_dims">
+<span class="sig-name descname"><span class="pre">check_f_dims</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.check_f_dims"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.check_f_dims" title="Link to this definition">#</a></dt>
+<dd><p>Check the dimensions of the objective function output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>check</strong> (<em>bool</em>) – Flag indicating whether to perform the dimension check. Default is True.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.pre_step">
+<span class="sig-name descname"><span class="pre">pre_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.pre_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.pre_step" title="Link to this definition">#</a></dt>
+<dd><p>The pre-step function. This function is used in meth:<cite>step</cite> before the inner step is performed.
+This function can be overwritten by subclasses to perform any pre-steps before the inner step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.inner_step">
+<span class="sig-name descname"><span class="pre">inner_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.inner_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.inner_step" title="Link to this definition">#</a></dt>
+<dd><p>This function is used in meth:<cite>step</cite> to perform the inner step. This function implements the actual
+update of the dynamic and is therfore the most important function in the dynamics class.
+This function should be overwritten by subclasses to perform any inner steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.post_step">
+<span class="sig-name descname"><span class="pre">post_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.post_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.post_step" title="Link to this definition">#</a></dt>
+<dd><p>Execute the post-step operations after each iteration.</p>
+<p>This function updates the difference between the current particle position and the previous particle position if the ‘x_old’
+attribute exists in the object. The difference is computed using the numpy.linalg.norm
+function along the specified axes and is divided by the total number of particles.</p>
+<p>The function then calls the ‘update_best_cur_particle’ method to update the best current particle position.
+Next, it calls the ‘update_best_particle’ method to update the best particle position.
+After that, it calls the ‘track’ method to track the progress of the optimization algorithm.
+Then, it calls the ‘process_particles’ method to perform any necessary post-processing operations on the particles.</p>
+<p>Finally, the function increments the ‘it’ attribute by 1 to keep track of the current iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.step" title="Link to this definition">#</a></dt>
+<dd><p>Execute a step in the dynamic.</p>
+<p>This function performs the following actions:
+1. Calls the <cite>pre_step</cite> method to perform any necessary pre-step operations.
+2. Calls the <cite>inner_step</cite> method to perform the main step operation.
+3. Calls the <cite>post_step</cite> method to perform any necessary post-step operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.default_sched">
+<span class="sig-name descname"><span class="pre">default_sched</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.default_sched"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.default_sched" title="Link to this definition">#</a></dt>
+<dd><p>Returns the default scheduler for a dynamic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The scheduler object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cbx.scheduler.scheduler.html#cbx.scheduler.scheduler" title="cbx.scheduler.scheduler">scheduler</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.optimize">
+<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">print_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sched</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.optimize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.optimize" title="Link to this definition">#</a></dt>
+<dd><p>Optimize the function using the dynmaic. This function perfoms the iterations as specified by step method and the update in <a class="reference internal" href="#cbx.dynamics.ParticleDynamic.inner_step" title="cbx.dynamics.ParticleDynamic.inner_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">inner_step()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>print_int</strong> – int, optional
+The interval at which to print the current state of the optimization. If not provided, the default value is used. Defaults to None.</p></li>
+<li><p><strong>sched</strong> – str
+The scheduler to use for the optimization. If set to ‘default’, the default scheduler is used.
+If set to None, a scheduler is created based on the current optimization parameters. Defaults to ‘default’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The best particle found during the optimization process.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>best_particle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.print_cur_state">
+<span class="sig-name descname"><span class="pre">print_cur_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.print_cur_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.print_cur_state" title="Link to this definition">#</a></dt>
+<dd><p>Print the current state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.print_post_opt">
+<span class="sig-name descname"><span class="pre">print_post_opt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.print_post_opt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.print_post_opt" title="Link to this definition">#</a></dt>
+<dd><p>Print the optimization results if the verbosity level is greater than 0.</p>
+<p>This function prints the solver’s finishing message, the best energy found during optimization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.reset" title="Link to this definition">#</a></dt>
+<dd><p>Reset the state of the object.</p>
+<p>This function sets the value of the object’s ‘it’ attribute to 0 and calls the ‘init_history()’ method to re-initialize the history of the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>self</strong> (<em>object</em>) – The object instance.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.init_term">
+<span class="sig-name descname"><span class="pre">init_term</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term_criteria</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_it</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.init_term"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.init_term" title="Link to this definition">#</a></dt>
+<dd><p>Initialize the termination criteria of the object.</p>
+<p>This function sets the value of the object’s ‘it’ attribute to 0 and calls the ‘init_history()’ method to re-initialize the history of the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>checks</strong> (<em>list</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.select_active_runs">
+<span class="sig-name descname"><span class="pre">select_active_runs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.select_active_runs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.select_active_runs" title="Link to this definition">#</a></dt>
+<dd><p>Selects the inidices that meet a termination criterion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if all checks passed, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.init_history">
+<span class="sig-name descname"><span class="pre">init_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.init_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.init_history" title="Link to this definition">#</a></dt>
+<dd><p>Initialize the history dictionary and initialize the specified tracking keys.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.track">
+<span class="sig-name descname"><span class="pre">track</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.track"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.track" title="Link to this definition">#</a></dt>
+<dd><p>Track the progress of the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.update_best_cur_particle">
+<span class="sig-name descname"><span class="pre">update_best_cur_particle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.update_best_cur_particle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.update_best_cur_particle" title="Link to this definition">#</a></dt>
+<dd><p>Updates the best current particle and its energy based on the minimum energy found in the energy matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.update_best_particle">
+<span class="sig-name descname"><span class="pre">update_best_particle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.update_best_particle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.update_best_particle" title="Link to this definition">#</a></dt>
+<dd><p>Updates the best particle and best energy of the whole iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.ParticleDynamic.to_numpy">
+<span class="sig-name descname"><span class="pre">to_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/pdyn.html#ParticleDynamic.to_numpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.ParticleDynamic.to_numpy" title="Link to this definition">#</a></dt>
+<dd><p>Given any array-like structure, this should return the numpy version of it.
+In the default setup, where numpy is the array-backend this is the identity.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../dynamic.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">dynamics</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="cbx.dynamics.CBXDynamic.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">cbx.dynamics.CBXDynamic</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.init_x"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.init_x()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.check_f_dims"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.check_f_dims()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.pre_step"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.pre_step()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.inner_step"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.inner_step()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.post_step"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.post_step()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.step"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.step()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.default_sched"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.default_sched()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.optimize"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.optimize()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.print_cur_state"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.print_cur_state()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.print_post_opt"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.print_post_opt()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.reset"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.reset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.init_term"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.init_term()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.select_active_runs"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.select_active_runs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.init_history"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.init_history()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.track"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.track()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.update_best_cur_particle"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.update_best_cur_particle()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.update_best_particle"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.update_best_particle()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.ParticleDynamic.to_numpy"><code class="docutils literal notranslate"><span class="pre">ParticleDynamic.to_numpy()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/api/generated/cbx.dynamics.ParticleDynamic.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Tim Roith.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

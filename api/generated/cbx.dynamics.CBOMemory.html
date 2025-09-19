@@ -1,0 +1,641 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>cbx.dynamics.CBOMemory &#8212; CBX v0.1.6 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=609cf928" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=95b6b9dc"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/cbx.dynamics.CBOMemory';</script>
+    <link rel="icon" href="../../_static/cbx-logo.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="cbx.dynamics.CBS" href="cbx.dynamics.CBS.html" />
+    <link rel="prev" title="cbx.dynamics.CBO" href="cbx.dynamics.CBO.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/cbx-logo.png" class="logo__image only-light" alt="CBX v0.1.6 documentation - Home"/>
+    <img src="../../_static/cbx-logo.png" class="logo__image only-dark pst-js-only" alt="CBX v0.1.6 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../userguide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/PdIPS/CBXpy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../userguide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/PdIPS/CBXpy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../dynamic.html">dynamics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cbx.dynamics.ParticleDynamic.html">cbx.dynamics.ParticleDynamic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.dynamics.CBXDynamic.html">cbx.dynamics.CBXDynamic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.dynamics.CBO.html">cbx.dynamics.CBO</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cbx.dynamics.CBOMemory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.dynamics.CBS.html">cbx.dynamics.CBS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.dynamics.PSO.html">cbx.dynamics.PSO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.dynamics.PolarCBO.html">cbx.dynamics.PolarCBO</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../scheduler.html">scheduler</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="cbx.scheduler.param_update.html">cbx.scheduler.param_update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.scheduler.scheduler.html">cbx.scheduler.scheduler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.scheduler.multiply.html">cbx.scheduler.multiply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.scheduler.effective_sample_size.html">cbx.scheduler.effective_sample_size</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../plotting.html">plotting</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.termination.energy_tol_term.html">cbx.utils.termination.energy_tol_term</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.termination.diff_tol_term.html">cbx.utils.termination.diff_tol_term</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.termination.max_eval_term.html">cbx.utils.termination.max_eval_term</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.termination.max_it_term.html">cbx.utils.termination.max_it_term</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.termination.max_time_term.html">cbx.utils.termination.max_time_term</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.resampling.resampling.html">cbx.utils.resampling.resampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.resampling.ensemble_update_resampling.html">cbx.utils.resampling.ensemble_update_resampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.resampling.loss_update_resampling.html">cbx.utils.resampling.loss_update_resampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.history.track.html">cbx.utils.history.track</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.history.track_x.html">cbx.utils.history.track_x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.history.track_energy.html">cbx.utils.history.track_energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.history.track_update_norm.html">cbx.utils.history.track_update_norm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.history.track_consensus.html">cbx.utils.history.track_consensus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.history.track_drift.html">cbx.utils.history.track_drift</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.history.track_drift_mean.html">cbx.utils.history.track_drift_mean</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.particle_init.init_particles.html">cbx.utils.particle_init.init_particles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.objective_handling.cbx_objective.html">cbx.utils.objective_handling.cbx_objective</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.objective_handling.cbx_objective_fh.html">cbx.utils.objective_handling.cbx_objective_fh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.objective_handling.cbx_objective_f1D.html">cbx.utils.objective_handling.cbx_objective_f1D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.utils.objective_handling.cbx_objective_f2D.html">cbx.utils.objective_handling.cbx_objective_f2D</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../objectives.html">objectives</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.Himmelblau.html">cbx.objectives.Himmelblau</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.Rosenbrock.html">cbx.objectives.Rosenbrock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.three_hump_camel.html">cbx.objectives.three_hump_camel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.McCormick.html">cbx.objectives.McCormick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.Ackley.html">cbx.objectives.Ackley</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.Ackley_multimodal.html">cbx.objectives.Ackley_multimodal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.Rastrigin.html">cbx.objectives.Rastrigin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.Rastrigin_multimodal.html">cbx.objectives.Rastrigin_multimodal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbx.objectives.snowflake.html">cbx.objectives.snowflake</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../dynamic.html" class="nav-link">dynamics</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cbx.dynamics.CBOMemory</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="cbx-dynamics-cbomemory">
+<h1>cbx.dynamics.CBOMemory<a class="headerlink" href="#cbx-dynamics-cbomemory" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="cbx.dynamics.CBOMemory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cbx.dynamics.</span></span><span class="sig-name descname"><span class="pre">CBOMemory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamda_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/cbo_memory.html#CBOMemory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.CBOMemory" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="cbx.dynamics.CBO.html#cbx.dynamics.CBO" title="cbx.dynamics.cbo.CBO"><code class="xref py py-class docutils literal notranslate"><span class="pre">CBO</span></code></a></p>
+<p>Consensus-based optimization with memory effects (CBOMemory) class</p>
+<p>This class implements the CBO algorithm with memory effects as described in <a class="footnote-reference brackets" href="#id3" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> and <a class="footnote-reference brackets" href="#id4" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>. The algorithm
+is a particle dynamic algorithm that is used to minimize the objective function <span class="math notranslate nohighlight">\(f(x)\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>objective</em>) – The objective function <span class="math notranslate nohighlight">\(f(x)\)</span> of the system.</p></li>
+<li><p><strong>x</strong> (<em>array_like</em><em>, </em><em>shape</em><em> (</em><em>N</em><em>, </em><em>d</em><em>)</em>) – The initial positions of the particles. For a system of <span class="math notranslate nohighlight">\(N\)</span> particles, the i-th row of this array <code class="docutils literal notranslate"><span class="pre">x[i,:]</span></code>
+represents the position <span class="math notranslate nohighlight">\(x_i\)</span> of the i-th particle.</p></li>
+<li><p><strong>y</strong> (<em>array_like</em><em>, </em><em>shape</em><em> (</em><em>N</em><em>, </em><em>d</em><em>)</em>) – The initial positions of the particles. For a system of <span class="math notranslate nohighlight">\(N\)</span> particles, the i-th row of this array <code class="docutils literal notranslate"><span class="pre">y[i,:]</span></code>
+represents the or an approximation of the historical best position <span class="math notranslate nohighlight">\(y_i\)</span> of the i-th particle.</p></li>
+<li><p><strong>dt</strong> (<em>float</em><em>, </em><em>optional</em>) – The parameter <span class="math notranslate nohighlight">\(dt\)</span> of the system. The default is 0.1.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em>) – The heat parameter <span class="math notranslate nohighlight">\(\alpha\)</span> of the system. The default is 1.0.</p></li>
+<li><p><strong>lamda</strong> (<em>float</em><em>, </em><em>optional</em>) – The decay parameter <span class="math notranslate nohighlight">\(\lambda\)</span> of the system. The default is 1.0.</p></li>
+<li><p><strong>noise</strong> (<em>noise_model</em><em>, </em><em>optional</em>) – The noise model that is used to compute the noise vector. The default is <code class="docutils literal notranslate"><span class="pre">normal_noise(dt=0.1)</span></code>.</p></li>
+<li><p><strong>sigma</strong> (<em>float</em><em>, </em><em>optional</em>) – The parameter <span class="math notranslate nohighlight">\(\sigma\)</span> of the noise model. The default is 1.0.</p></li>
+<li><p><strong>lamda_memory</strong> (<em>float</em><em>, </em><em>optional</em>) – The decay parameter <span class="math notranslate nohighlight">\(\lambda_{\text{memory}}\)</span> of the system. The default is 1.0.</p></li>
+<li><p><strong>sigma_memory</strong> (<em>float</em><em>, </em><em>optional</em>) – The parameter <span class="math notranslate nohighlight">\(\sigma_{\text{memory}}\)</span> of the noise model. The default is 1.0.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id3" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Grassi, S. &amp; Pareschi, L. (2021). From particle swarm optimization to consensus based optimization: stochastic modeling and mean-field limit.
+Math. Models Methods Appl. Sci., 31(8):1625–1657.</p>
+</aside>
+<aside class="footnote brackets" id="id4" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Riedl, K. (2023). Leveraging memory effects and gradient information in consensus-based optimization: On global convergence in mean-field law.
+Eur. J. Appl. Math., XX (X), XX-XX.</p>
+</aside>
+</aside>
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.CBOMemory.pre_step">
+<span class="sig-name descname"><span class="pre">pre_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/cbo_memory.html#CBOMemory.pre_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.CBOMemory.pre_step" title="Link to this definition">#</a></dt>
+<dd><p>The pre-step function. This function is used in meth:<cite>step</cite> before the inner step is performed.
+This function can be overwritten by subclasses to perform any pre-steps before the inner step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.CBOMemory.inner_step">
+<span class="sig-name descname"><span class="pre">inner_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/cbo_memory.html#CBOMemory.inner_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.CBOMemory.inner_step" title="Link to this definition">#</a></dt>
+<dd><p>Performs one step of the CBOMemory algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.CBOMemory.compute_consensus">
+<span class="sig-name descname"><span class="pre">compute_consensus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/cbo_memory.html#CBOMemory.compute_consensus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.CBOMemory.compute_consensus" title="Link to this definition">#</a></dt>
+<dd><p>Updates the weighted mean of the particles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cbx.dynamics.CBOMemory.update_best_cur_particle">
+<span class="sig-name descname"><span class="pre">update_best_cur_particle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cbx/dynamics/cbo_memory.html#CBOMemory.update_best_cur_particle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cbx.dynamics.CBOMemory.update_best_cur_particle" title="Link to this definition">#</a></dt>
+<dd><p>Updates the best current particle and its energy based on the minimum energy found in the energy matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="cbx.dynamics.CBO.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">cbx.dynamics.CBO</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="cbx.dynamics.CBS.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">cbx.dynamics.CBS</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.CBOMemory"><code class="docutils literal notranslate"><span class="pre">CBOMemory</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.CBOMemory.pre_step"><code class="docutils literal notranslate"><span class="pre">CBOMemory.pre_step()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.CBOMemory.inner_step"><code class="docutils literal notranslate"><span class="pre">CBOMemory.inner_step()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.CBOMemory.compute_consensus"><code class="docutils literal notranslate"><span class="pre">CBOMemory.compute_consensus()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cbx.dynamics.CBOMemory.update_best_cur_particle"><code class="docutils literal notranslate"><span class="pre">CBOMemory.update_best_cur_particle()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/api/generated/cbx.dynamics.CBOMemory.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Tim Roith.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
