@@ -71,7 +71,7 @@ class PSO(CBXDynamic):
         self.lamda_memory = lamda_memory
         
         # init velocities of particles
-        self.v = np.zeros(self.x.shape)
+        self.init_v()
         
         # init historical best positions of particles
         self.y = self.copy(self.x)
@@ -83,7 +83,13 @@ class PSO(CBXDynamic):
         
         self.energy = self.f(self.x)
         self.num_f_eval += np.ones(self.M, dtype=int) * self.N # update number of function evaluations   
-        
+
+    def init_v(self):
+        if isinstance(self.x, torch.Tensor):
+            self.v = torch.zeros_like(self.x)
+        else:
+            self.v = np.zeros_like(self.x)
+            
     def pre_step(self,):
         # save old positions
         self.x_old = self.copy(self.x) # save old positions
