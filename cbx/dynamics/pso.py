@@ -71,7 +71,7 @@ class PSO(CBXDynamic):
         self.lamda_memory = lamda_memory
         
         # init velocities of particles
-        self.v = np.zeros(self.x.shape)
+        self.v = 0 * self.copy(self.x)
         
         # init historical best positions of particles
         self.y = self.copy(self.x)
