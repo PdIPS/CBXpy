@@ -72,6 +72,22 @@ Among others, CBXPy currently implements
   * Drift Correction [[8]](#DriftCorrection)
   * Regularization [[9]](#Regularization)
   * Hypersurface CBO [[10]](#HypersurfaceCBO)
+ 
+## How to cite
+
+If you use ```CBXPy``` please cite it as follows:
+
+```tex
+@article{bailo2024cbx,
+  title={CBX: Python and Julia packages for consensus-based interacting particle methods},
+  author={Bailo, Rafael and Barbaro, Alethea and Gomes, Susana and Riedl, Konstantin and Roith, Tim and Totzeck, Claudia and Vaes, Urbain},
+  journal={Journal of Open Source Software},
+  volume={9},
+  number={98},
+  pages={6611},
+  year={2024}
+}
+```
 
 
 ## References
