@@ -373,8 +373,8 @@ class Rastrigin(cbx_objective):
         
     def apply(self, x):
         return (
-            (self.A * x.shape[-1]) * 
-            ((x - self.b)**2 - self.A * np.cos(2*np.pi*(x - self.b)) + 10).sum(-1) 
+            (self.A * x.shape[-1]) + 
+            ((x - self.b)**2 - self.A * np.cos(2*np.pi*(x - self.b))).sum(-1) 
             + self.c
             )
             
