@@ -27,7 +27,7 @@ If you want to specify multiple parameter updates, you can use the class :class:
     >>> from cbx.dynamics import CBXDynamic
     >>> from cbx.scheduler import scheduler, multiply
     >>> dyn = CBXDynamic(lambda x:x**2, d=1, alpha=1.0, dt=0.5)
-    >>> sched = schedulr([multiply(name='dt', factor=0.5), multiply(name='alpha', factor=0.5)])
+    >>> sched = scheduler([multiply(name='dt', factor=0.5), multiply(name='alpha', factor=0.5)])
     >>> sched.update(dyn)
     >>> print(dyn.alpha)
     >>> print(dyn.dt)

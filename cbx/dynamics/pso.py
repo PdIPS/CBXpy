@@ -22,8 +22,8 @@ class PSO(CBXDynamic):
         The initial positions of the particles. For a system of :math:`N` particles, the i-th row of this array ``y[i,:]``
         represents the or an approximation of the historical best position :math:`y_i` of the i-th particle.
     v : array_like, shape (N, d)
-        The initial velocities of the particles. For a system of :math:`N` particles, the i-th row of this array ``y[i,:]``
-        represents the or an approximation of the historical best position :math:`y_i` of the i-th particle.
+        The initial velocities of the particles. For a system of :math:`N` particles, the i-th row of this array ``v[i,:]``
+        represents the velocity :math:`v_i` of the i-th particle.
     dt : float, optional
         The parameter :math:`dt` of the system. The default is 0.1.
     alpha : float, optional
@@ -145,16 +145,19 @@ class PSO(CBXDynamic):
 
         
     def compute_consensus(self, x_batch, energy) -> None:
-        r"""Updates the weighted mean of the particles.
+        r"""Computes the consensus point as a weighted mean over the historical-best positions.
 
         Parameters
         ----------
-        None
+        x_batch : array_like, shape (M, batch_size, d)
+            The historical-best positions (``dyn.y``) of the active batch.
+        energy : array_like, shape (M, batch_size)
+            The objective energies corresponding to ``x_batch``.
 
         Returns
         -------
-        None
-
+        c : array_like, shape (M, 1, d)
+            The consensus point.
         """
         c, _ = self._compute_consensus(energy, x_batch, self.alpha[self.active_runs_idx, :])
         return c

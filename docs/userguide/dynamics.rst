@@ -53,7 +53,7 @@ The ensemble can be accessed via the attribute ``dyn.x`` of each dynamic.
     >>> print(dyn.x.shape)
     (1, 5, 1)
 
-If the initial ensemble is not specified, then it is initialized randomly uniform within the bounds given by ``dyn.x_min`` and ``dyn.x_max``. In this case the dimension of the problem :math:`d` can *not* be inferred and therefore have to specified:
+If the initial ensemble is not specified, then it is initialized randomly uniform in :math:`[-1, 1]^d`. In this case the dimension of the problem :math:`d` can *not* be inferred and therefore has to be specified:
 
     >>> from cbx.dynamics import ParticleDynamic
     >>> dyn = ParticleDynamic(lambda x:x)
@@ -98,7 +98,7 @@ In the above example the array ``x`` yields :math:`M=3, N=4` and :math:`d=2`, th
     >>> print(dyn.f(x).shape)
     (3, 4)
 
-We observe that the objective function ``dyn.f`` now returns an array of shape :math:`M\times N`. This is due to the fact that an objective is promoted to the class :func:`cbx_objective <cbx.objectives.Objective>`, which handles the evaluation on the array level. By default, we assume that the specified function, only works on the single particle level, which is expressed in the keyword argument ``f_dim='1D'`` of the class :class:`ParticleDynamic <cbx.dynamics.ParticleDynamic>`. If your function works on single-run ensembles of shape :math:`N\times d`, you can specify ``f_dim='2D'`` and respectively if it works on multi-run ensembles of shape :math:`M\times N\times d` you can specify ``f_dim=3D``. If you specify the latter, the objective function is **not** modified or wrapped, but is directly used for the dynamic:
+We observe that the objective function ``dyn.f`` now returns an array of shape :math:`M\times N`. This is due to the fact that an objective is promoted to the class :func:`cbx_objective <cbx.utils.objective_handling.cbx_objective>`, which handles the evaluation on the array level. By default, we assume that the specified function, only works on the single particle level, which is expressed in the keyword argument ``f_dim='1D'`` of the class :class:`ParticleDynamic <cbx.dynamics.ParticleDynamic>`. If your function works on single-run ensembles of shape :math:`N\times d`, you can specify ``f_dim='2D'`` and respectively if it works on multi-run ensembles of shape :math:`M\times N\times d` you can specify ``f_dim='3D'``. If you specify the latter, the objective function is **not** modified or wrapped, but is directly used for the dynamic:
 
     >>> import numpy as np
     >>> from cbx.dynamics import ParticleDynamic
@@ -118,10 +118,10 @@ We observe that the objective function ``dyn.f`` now returns an array of shape :
     False
     True
 
-Here, we observe that the dynamic directly uses the specified objective function for ``f_dim='3D'``. For more complicated functions, one can also inherit from :class:`cbx_objective <cbx.objectives.Objective>`.
+Here, we observe that the dynamic directly uses the specified objective function for ``f_dim='3D'``. For more complicated functions, one can also inherit from :class:`cbx_objective <cbx.utils.objective_handling.cbx_objective>`.
 
 .. note::
-    When inheriting from :class:`cbx_objective <cbx.objectives.Objective>`, the method :meth:`__call__ <cbx.objectives.Objective.__call__>` should not be overwritten as it is used internally to update the number of evaluation. Instead, the actual function call should be implemented in the method ``apply(self, x)``.
+    When inheriting from :class:`cbx_objective <cbx.utils.objective_handling.cbx_objective>`, the method :meth:`__call__ <cbx.utils.objective_handling.cbx_objective.__call__>` should not be overwritten as it is used internally to update the number of evaluation. Instead, the actual function call should be implemented in the method ``apply(self, x)``.
 
     >>> import numpy as np
     >>> from cbx.dynamics import ParticleDynamic
@@ -178,7 +178,7 @@ After each inner step, the base class updates the best particles (both of the cu
         self.update_best_cur_particle()
         self.update_best_particle()
         self.track()
-        self.process_particles()
+        self.post_process(self)
 
         self.it+=1
 
@@ -204,9 +204,11 @@ In the update step of consensus based methods, diffusion is modeled by the addit
 
 You can specify the noise as keyword argument of the class :class:`CBXDynamic <cbx.dynamics.CBXDynamic>`. This can be a string from the following list:
 
-* ``noise = 'anistropic'``: anistropic noise (see :class:`anistropic_noise <cbx.noise.anistropic_noise>`),
+* ``noise = 'anisotropic'``: anisotropic noise (see :class:`anisotropic_noise <cbx.noise.anisotropic_noise>`),
 * ``noise = 'isotropic'``: isotropic noise (see :class:`isotropic_noise <cbx.noise.isotropic_noise>`),
-* ``noise = 'covariance'``: covariance noise (see :class:`covariance_noise <cbx.noise.covariance_noise>`).
+* ``noise = 'covariance'``: covariance noise (see :class:`covariance_noise <cbx.noise.covariance_noise>`),
+* ``noise = 'sampling'``: alias for covariance noise,
+* ``noise = 'constant'``: constant noise (see :class:`constant_noise <cbx.noise.constant_noise>`).
 
     >>> from cbx.dynamics import CBXDynamic
     >>> dyn = CBXDynamic(lambda x:x, d=1, noise='isotropic')
@@ -339,9 +341,9 @@ Batching
 
 As proposed in [1]_ it is common to perform only batch updates across the ensemble. In order to specify batching in a cbx class you can use the keyword argument ``CBXDynamic(...,batch_args=batch_args)``, where ``batch_args`` is a dictionary with the following keys:
 
-* ``'batch_partial'``: If ``True`` the consensus and particle indices are the same. If ``False`` the particle indices are an ``Ellipsis``.
+* ``'partial'``: If ``True`` the consensus and particle indices are the same. If ``False`` the particle indices are an ``Ellipsis``.
 
-* ``'batch_size'``: The size of the batch.
+* ``'size'``: The size of the batch.
 
 * ``'seed'``: The seed for the random number generator.
 

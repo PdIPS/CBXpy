@@ -1,8 +1,7 @@
 import numpy as np
-import pytest
 from cbx.constraints import (
     MultiConstraint, NoConstraint, sphereConstraint,
-    planeConstraint, quadricConstraint
+    planeConstraint
 )
 
 

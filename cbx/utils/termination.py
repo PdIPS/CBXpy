@@ -84,10 +84,10 @@ term_dict.update(
 
 class max_time_term:
     """
-    Checks if the current value of `dyn` is greater than or equal to the value of `dyn.max_time`.
+    Checks if the elapsed time ``dyn.t`` has reached the specified maximum.
 
     Returns:
-        bool: True if `dyn.t` is greater than or equal to `dyn.max_time`, False otherwise.
+        bool: True if ``dyn.t`` is greater than or equal to ``max_time``, False otherwise.
     """
     def __init__(self, max_time=10.):
         self.max_time = max_time
@@ -103,7 +103,12 @@ term_dict.update(
 #%%    
 class energy_stagnation_term:
     """
-    Checks if the loss was moving during the last iterations.
+    Checks if the consensus energy has stagnated over the last ``patience`` iterations.
+
+    The loss buffer is initialised to ``inf``, so the criterion cannot fire during the
+    first ``patience`` iterations (std of a buffer containing ``inf`` is ``inf``).
+    Termination is triggered when ``std(losses) < std_thresh`` for all entries in the
+    rolling window.
     """
     def __init__(self, patience=20, std_thresh=1e-9):
         self.patience = patience

@@ -90,10 +90,6 @@ class ParticleDynamic:
     x : array_like, shape (M, N, d) or None, optional
         The initial positions of the particles. For a system of :math:`N` particles ``x[m, n, :]``
         represents the position n-th particle of the m-th run.
-    x_min : float, optional
-        The minimum value of the initial positions. The default is -1.
-    x_max : float, optional
-        The maximum value of the initial positions. The default is 1.
     M : int, optional
         The number of runs. The default is 1.
     N : int, optional
@@ -190,8 +186,6 @@ class ParticleDynamic:
             M: the number of particles in the first dimension
             N: the number of particles in the second dimension
             d: the dimension of the particle system
-            x_min: the minimum value for x
-            x_max: the maximum value for x
 
         Returns:
             None
@@ -419,12 +413,12 @@ class ParticleDynamic:
         """
         Initialize the termination criteria of the object.
 
-        This function sets the value of the object's 'it' attribute to 0 and calls the 'init_history()' method to re-initialize the history of the object.
-
         Parameters
         ----------
-            checks : list
-
+            term_criteria : list or None
+                A list of termination callables. If None, a single max_it_term is used.
+            max_it : int
+                The maximum number of iterations (used when term_criteria is None).
         """
         if term_criteria is None:
             self.term_criteria = [max_it_term(max_it)]
@@ -610,20 +604,18 @@ class CBXDynamic(ParticleDynamic):
         f: Callable
             The function to optimize.
         noise: str or Callable, optional
-            A string can be one of 'isotropic', 'anisotropic', or 'sampling'. It is also possible 
+            A string can be one of 'isotropic', 'anisotropic', 'covariance', 'sampling', or 'constant'. It is also possible
             to use a Callable instead of a string. This Callable needs to accept a single argument, which is the dynamic object. Default: 'isotropic'.
         batch_args: dict, optional
             The batch arguments. Default: None.
         dt: float, optional
-            The time step size :math:`dt` of the dynamic. Default: 0.1.
+            The time step size :math:`dt` of the dynamic. Default: 0.01.
         alpha: float, optional
             The alpha parameter :math:`\alpha` of the dynamic. Default: 1.0.
         sigma: float, optional
             The sigma parameter :math:`\sigma` of the dynamic, scaling the noise. Default: 5.1.
         lamda: float, optional
             The lamda parameter :math:`\lambda` of the dynamic. Default: 1.0.
-        max_time: float, optional
-            The maximum time to run the dynamic. Default: None.
         correction: str or Callable, optional
             The correction method. Default: 'no_correction'. One of 'no_correction', 'heavi_side', 'heavi_side_reg' or a Callable.
         save_consensus_eval_points: bool, optional
