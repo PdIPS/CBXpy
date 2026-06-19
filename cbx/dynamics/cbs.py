@@ -17,7 +17,7 @@ class CBS(CBO):
             raise NotImplementedError('Multi dimensional domains not implemented for CBS! The particle should have the dimension M x N x d, where d is an integer!')
           
         if noise not in ['covariance', 'sampling']:
-            raise warnings.warn('For CBS usually covariance or sampling noise is used!', stacklevel=2)
+            warnings.warn('For CBS usually covariance or sampling noise is used!', stacklevel=2)
         
         self.noise_callable.mode = mode
         
@@ -34,7 +34,7 @@ class CBS(CBO):
                 print('.'*20)
 
             if sched is None:
-                sched = scheduler(self, [])
+                sched = scheduler([])
             elif sched == 'default':
                 sched = self.default_sched()
             else:

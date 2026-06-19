@@ -79,6 +79,7 @@ class resampling:
             self.best_consensus[idx[idx2], ...] = dyn.copy(
                 dyn.consensus[idx[idx2], ...]
                 )
+            self.best_consensus_energy[idx[idx2], ...] = consensus_energy[idx2]
 
 class ensemble_update_resampling:
     """

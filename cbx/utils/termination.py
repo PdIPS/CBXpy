@@ -112,7 +112,7 @@ class energy_stagnation_term:
         
     def __call__(self, dyn):
         if self.losses is None: 
-            self.losses = np.random.uniform(0., 1., size=(self.patience, dyn.M))
+            self.losses = np.full((self.patience, dyn.M), np.inf)
         if dyn.consensus is None: 
             return np.zeros((dyn.M), dtype=bool)
         # eval loss

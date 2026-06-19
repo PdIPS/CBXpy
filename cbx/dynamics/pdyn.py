@@ -467,7 +467,7 @@ class ParticleDynamic:
         'energy': track_energy,
         'x': track_x
     }
-    def init_history(self, track_args: dict):
+    def init_history(self, track_args: dict = None):
         """
         Initialize the history dictionary and initialize the specified tracking keys.
 

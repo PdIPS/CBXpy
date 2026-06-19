@@ -36,8 +36,8 @@ class cbx_objective:
         self.num_eval += np.prod(np.atleast_2d(x).shape[:-1], dtype = int)
         return self.apply(x)
 
-    def apply(self, x): 
-        NotImplementedError(f"Objective [{type(self).__name__}] is missing the required \"apply\" function")
+    def apply(self, x):
+        raise NotImplementedError(f"Objective [{type(self).__name__}] is missing the required \"apply\" function")
         
     def reset(self,):
         self.num_eval = 0

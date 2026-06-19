@@ -156,6 +156,6 @@ class PSO(CBXDynamic):
         None
 
         """
-        c, _ = self._compute_consensus(energy, self.x[self.consensus_idx], self.alpha[self.active_runs_idx, :])
+        c, _ = self._compute_consensus(energy, x_batch, self.alpha[self.active_runs_idx, :])
         return c
         

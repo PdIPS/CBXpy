@@ -154,5 +154,5 @@ class HyperSurfaceCBO(CBO):
         return (self.dt * self.sigma**2)/2 * (
             np.linalg.norm(self.drift, axis=-1, keepdims=True) ** 2 +
             self.drift ** 2 -
-            2 * np.linalg.norm(self.drift * self.x, axis=-1, keepdims=True)**2
+            2 * (self.drift * self.x).sum(axis=-1, keepdims=True)**2
             ) * self.x
