@@ -2,7 +2,7 @@ from cbx.dynamics.cbo import CBO
 import pytest
 import numpy as np
 from test_abstraction import test_abstract_dynamic
-from cbx.utils.termination import max_it_term, energy_tol_term, max_eval_term, max_time_term
+from cbx.utils.termination import max_it_term, energy_tol_term, max_eval_term, max_time_term, energy_stagnation_term
 
 class Test_cbo(test_abstract_dynamic):
     
@@ -163,3 +163,23 @@ class Test_cbo(test_abstract_dynamic):
         dyn = dynamic(f, d=3, N=4, M=2, correction='heavi_side_reg')
         dyn.step()
         assert dyn.x.shape == (2, 4, 3)
+
+    def test_term_crit_energy_stagnation_no_premature_stop(self, dynamic, f):
+        """energy_stagnation_term must not fire in early iterations (inf-seed fix)."""
+        # patience=5: criterion fires only when std of last 5 losses < thresh
+        # With the inf-seed fix, early iterations have inf in the buffer → std=inf → no trigger
+        dyn = dynamic(f, d=3, N=20, M=1,
+                      term_criteria=[energy_stagnation_term(patience=5, std_thresh=1e-3),
+                                     max_it_term(3)])
+        dyn.optimize()
+        # Must reach max_it=3, not stop prematurely at it=1
+        assert dyn.it == 3
+
+    def test_term_crit_energy_stagnation_fires(self, dynamic, f):
+        """energy_stagnation_term fires once losses have genuinely stagnated."""
+        # Use x=zeros so consensus energy is 0 every step → std converges to 0
+        dyn = dynamic(f, x=np.zeros((1, 20, 3)),
+                      term_criteria=[energy_stagnation_term(patience=5, std_thresh=1.0),
+                                     max_it_term(50)])
+        dyn.optimize()
+        assert dyn.it < 50

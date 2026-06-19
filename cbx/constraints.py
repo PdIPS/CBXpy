@@ -45,7 +45,6 @@ class MultiConstraint:
         return out
     
     def solve_Id_call_times_hessian(self, x, x_tilde, factor = 1.):
-        out = 0
         if len(self.constraints) > 1:
             A = np.eye(x.shape[-1]) + factor * self.call_times_hessian_sum(x)
             return solve_system(A, x_tilde)
@@ -156,7 +155,7 @@ class sphereConstraint(Constraint):
         return 2 * np.tile(np.eye(x.shape[-1]), x.shape[:-1] + (1,1))
     
     def solve_Id_plus_call_grad(self, x, x_tilde, factor=1.):
-        return (1/(1 + 4 * factor * (np.linalg.norm(x, axis=-1, keepdims=True)**2 - self.r))) * x_tilde
+        return (1/(1 + 4 * factor * (np.linalg.norm(x, axis=-1, keepdims=True)**2 - self.r**2))) * x_tilde
     
     
 

@@ -115,6 +115,17 @@ class Test_cbx(test_abstract_dynamic):
     def test_optimization_performance(self, f, dynamic, opt_kwargs):
         pass
     
+    def test_reset(self, f, dynamic):
+        """reset() must reinitialise iteration count and history without error."""
+        dyn = dynamic(f, d=5, M=3, N=10, max_it=5)
+        dyn.optimize()
+        assert dyn.it == 5
+        dyn.reset()
+        assert dyn.it == 0
+        # should be able to run again after reset
+        dyn.optimize()
+        assert dyn.it == 5
+
     def test_update_cov(self, f, dynamic):
         M=7
         d=4

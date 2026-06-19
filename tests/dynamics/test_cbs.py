@@ -29,6 +29,20 @@ class Test_CBS(test_abstract_dynamic):
         dyn.run()
         assert dyn.it == 2
         
+    def test_run_sched_none(self, f, dynamic):
+        """run(sched=None) must not raise TypeError (scheduler(self,[]) bug)."""
+        dyn = dynamic(f, d=5, M=3, N=10, max_it=2)
+        dyn.run(sched=None)
+        assert dyn.it == 2
+
+    def test_wrong_noise_warns(self, f, dynamic):
+        """Constructing CBS with non-covariance/sampling noise emits a warning, not a crash."""
+        import warnings
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            dynamic(f, d=3, N=5, max_it=1, noise='isotropic')
+        assert any(issubclass(wi.category, UserWarning) for wi in w)
+
     def test_multi_dim_domain(self, f, dynamic):
         x = np.ones((5,7,2,3,1))
         def g(x):
