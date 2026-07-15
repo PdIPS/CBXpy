@@ -8,7 +8,6 @@ algorithms.
 """
 
 import numpy as np
-from scipy.stats import multivariate_normal
 from .utils.objective_handling import cbx_objective
     
 #%%
@@ -649,6 +648,7 @@ class Unimodal(cbx_objective):
     
 class Multimodal(cbx_objective):
     def __init__(self, means=None, covs=None):
+        from scipy.stats import multivariate_normal
         super().__init__()
         self.means = [np.zeros((2,))] if  means is None else means
         self.covs  = [np.eye(2)]     if  covs  is None else covs
