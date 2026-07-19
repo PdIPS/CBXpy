@@ -18,7 +18,7 @@ class Perceptron(nn.Module):
         x = x.view([x.shape[0], -1])
         x = (x - self.mean)/self.std
         
-        for linear, bn in zip(self.linears, self.bns):
+        for linear, bn in zip(self.linears, self.bns, strict=False):
             x = linear(x)
             x = self.act_fun(x)
             x = bn(x)

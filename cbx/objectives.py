@@ -652,7 +652,7 @@ class Multimodal(cbx_objective):
         super().__init__()
         self.means = [np.zeros((2,))] if  means is None else means
         self.covs  = [np.eye(2)]     if  covs  is None else covs
-        self.mns   = [multivariate_normal(mean=m, cov=c) for m,c in zip(self.means, self.covs)]
+        self.mns   = [multivariate_normal(mean=m, cov=c) for m,c in zip(self.means, self.covs, strict=False)]
         
     def apply(self, x):
         res = 0

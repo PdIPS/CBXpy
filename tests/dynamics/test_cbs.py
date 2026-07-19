@@ -82,10 +82,6 @@ class Test_CBS(test_abstract_dynamic):
         dyn.drift = dyn.x[dyn.particle_idx] - dyn.consensus
         dyn.update_covariance()
         n1 = dyn.noise_callable(dyn)
-        # noise scale: sqrt(2*dt / (1+alpha)) = sqrt(2*0.1 / 3.0)
-        expected_factor = np.sqrt(2 * 0.1 / (1 + 2.0))
-        # Recover Cov_sqrt contribution by computing expected scale
-        # We just verify the returned noise is finite and non-zero
         assert np.all(np.isfinite(n1))
         assert np.any(n1 != 0.0)
 
