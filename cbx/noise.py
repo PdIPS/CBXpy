@@ -171,33 +171,57 @@ class anisotropic_noise(noise):
         
 class covariance_noise(noise):
         r"""
+        Covariance noise model for CBS-type dynamics.
 
-        This class implements the covariance noise model. Given the covariance matrix :math:`\text{Cov}(x)\in\mathbb{R}^{M\times d\times d}` of the ensemble,
-        the noise vector is computed as
+        Given the weighted covariance matrix :math:`\text{Cov}(x)\in\mathbb{R}^{M\times d\times d}`
+        of the ensemble, the noise vector is
+
+        **EM** (``scheme='EM'``):
 
         .. math::
 
-            n_{m,n} = \sqrt{(1/\lambda)\cdot (1-\exp(-dt))^2} \cdot \sqrt{\text{Cov}(x)}\xi.
+            n = \sqrt{\frac{2\,dt}{\lambda}}\,\sqrt{\text{Cov}(x)}\,\xi,
 
-        Here, :math:`\xi` is a random vector of size :math:`(d)` distributed according to :math:`\mathcal{N}(0,1)`.
+        **Exponential integrator** (``scheme='exponential'``):
+
+        .. math::
+
+            n = \sqrt{\frac{1-e^{-2\,dt}}{\lambda}}\,\sqrt{\text{Cov}(x)}\,\xi,
+
+        where :math:`\lambda = 1+\alpha` in sampling mode (so that the diffusion scales as
+        :math:`\sqrt{1/\alpha}` for large :math:`\alpha`) and :math:`\lambda=1` otherwise.
+        :math:`\xi\sim\mathcal{N}(0,I_d)`.
+
+        Parameters
+        ----------
+        mode : str, optional
+            ``'sampling'`` scales noise by :math:`1/\sqrt{1+\alpha}`. Default: ``'sampling'``.
+        scheme : str, optional
+            ``'EM'`` for Euler-Maruyama, ``'exponential'`` for the exponential integrator.
+            Default: ``'EM'``.
         """
-        
-        def __init__(self, 
+
+        def __init__(self,
                      norm: Callable = None,
                      sampler: Callable = None,
-                     mode = 'sampling'):
-            super().__init__(norm = norm, sampler = sampler)
+                     mode: str = 'sampling',
+                     scheme: str = 'EM'):
+            super().__init__(norm=norm, sampler=sampler)
             self.mode = mode
+            self.scheme = scheme
 
         def __call__(self, dyn) -> ArrayLike:
-             dyn.update_covariance()
-             #factor = np.sqrt((1/dyn.lamda) * (1 - np.exp(-dyn.dt)**2))[(...,) + (None,) * (dyn.x.ndim - 2)]
-             factor = np.sqrt((2*dyn.dt)/self.lamda(dyn))[(...,) + (None,) * (dyn.x.ndim - 2)]
-             return factor * self.sample(dyn.drift, dyn.Cov_sqrt)
-         
+            dyn.update_covariance()
+            if self.scheme == 'exponential':
+                base = (1 - np.exp(-2 * dyn.dt)) / self.lamda(dyn)
+            else:  # 'EM'
+                base = (2 * dyn.dt) / self.lamda(dyn)
+            factor = np.sqrt(base)[(...,) + (None,) * (dyn.x.ndim - 2)]
+            return factor * self.sample(dyn.drift, dyn.Cov_sqrt)
+
         def lamda(self, dyn):
             if self.mode == 'sampling':
-                return 1/(1 + dyn.alpha)
+                return 1 + dyn.alpha
             else:
                 return 1
         
