@@ -77,8 +77,6 @@ class Test_CBS(test_abstract_dynamic):
 
     def test_covariance_noise_em_factor(self, f, dynamic):
         """EM covariance noise factor is sqrt(2*dt/lamda)."""
-        from cbx.noise import covariance_noise
-        import numpy as np
         dyn = dynamic(f, d=3, N=20, max_it=1, dt=0.1, alpha=2.0, scheme='EM')
         dyn.compute_consensus()
         dyn.drift = dyn.x[dyn.particle_idx] - dyn.consensus
@@ -103,7 +101,6 @@ class Test_CBS(test_abstract_dynamic):
 
     def test_em_and_exponential_different_noise(self, f, dynamic):
         """EM and exponential integrators produce different noise magnitudes for large dt."""
-        import numpy as np
         np.random.seed(42)
         dyn_em = dynamic(f, d=3, N=50, max_it=1, dt=1.0, scheme='EM')
         dyn_exp = dynamic(f, d=3, N=50, max_it=1, dt=1.0, scheme='exponential')
